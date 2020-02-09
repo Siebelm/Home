@@ -1,0 +1,454 @@
+---
+title: "Text Analysis of Harry Potter"
+author: "Michael Siebel"
+date: "`r date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: "Rstyles.css" 
+    code_folding: hide
+    highlight: tango
+    includes:
+      in_header: "menu.html"
+---
+
+
+>  Analysis for: <br>
+>  Harry Potter and the Philosophers Stone (1997) <br>
+>  Harry Potter and the Chamber of Secrets (1998) <br>
+>  Harry Potter and the Prisoner of Azkaban (1999) <br>
+>  Harry Potter and the Goblet of Fire (2000) <br>
+>  Harry Potter and the Order of the Phoenix (2003) <br>
+>  Harry Potter and the Half-Blood Prince (2005) <br>
+>  Harry Potter and the Deathly Hallows (2007)
+    
+    
+# Setup
+```{r, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
+rm(list=ls())
+gc()
+
+
+library(pacman)
+pacman::p_load(devtools, knitr, magrittr, dplyr, ggplot2, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, wordcloud, prettydoc, cowplot, kable, utf8, corpus, glue, topicmodels, stm, wordcloud2)
+  
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=120)
+
+# Parameters
+## N-gram
+ngrams <- "bigrams"
+ngram <- c(1, 2)
+
+## Number of Topics
+K <- 4
+
+# Custom functions
+## Remove quotation marks
+pasteNQ <- function(...) {
+  output <- paste(...)
+  noquote(output)
+}
+pasteNQ0 <- function(...) {
+  output <- paste0(...)
+  noquote(output)
+}
+
+## Chart Template
+Grph_theme <- function() {
+  palette <- brewer.pal("Greys", n=9)
+  color.background = palette[2]
+  color.grid.major = palette[3]
+  color.axis.text = palette[6]
+  color.axis.title = palette[7]
+  color.title = palette[9]    
+  theme_bw(base_size=9) + 
+  theme(panel.background=element_rect(fill=color.background, color=color.background)) +
+  theme(plot.background=element_rect(fill=color.background, color=color.background)) +
+  theme(panel.border=element_rect(color=color.background)) +
+  theme(panel.grid.major=element_line(color=color.grid.major,size=.25)) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(axis.ticks=element_blank()) +
+  theme(legend.position="none") +
+  theme(legend.title=element_text(size=16,color='black')) +
+  theme(legend.background = element_rect(fill=color.background)) +
+  theme(legend.text = element_text(size=14,color='black')) +
+  theme(strip.text.x = element_text(size=14,color='black',vjust=1)) +
+  theme(plot.title=element_text(color=color.title, size=20, vjust=1.25)) +
+  theme(axis.text.x=element_text(size=14,color='black')) +
+  theme(axis.text.y=element_text(size=14,color='black')) +
+  theme(axis.title.x=element_text(size=16,color='black', vjust=0)) +
+  theme(axis.title.y=element_text(size=16,color='black', vjust=1.25)) +
+  theme(plot.margin = unit(c(0.35, 0.2, 0.3, 0.35), "cm"))
+}
+
+## Chart Template Facet Wrap
+Grph_theme_facet <- function() {
+  palette <- brewer.pal("Greys", n=9)
+  color.background = palette[2]
+  color.grid.major = palette[3]
+  color.axis.text = palette[6]
+  color.axis.title = palette[7]
+  color.title = palette[9]    
+  theme_bw(base_size=9) + 
+  theme(panel.background=element_rect(fill=color.background, color=color.background)) +
+  theme(plot.background=element_rect(fill=color.background, color=color.background)) +
+  theme(panel.border=element_rect(color=color.background)) +
+  theme(panel.grid.major=element_line(color=color.grid.major,size=.25)) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(axis.ticks=element_blank()) +
+  theme(legend.position="none") +
+  theme(legend.title=element_text(size=11,color='black')) +
+  theme(legend.background = element_rect(fill=color.background)) +
+  theme(legend.text = element_text(size=9,color='black')) +
+  theme(strip.text.x = element_text(size=9,color='black',vjust=1)) +
+  theme(plot.title=element_text(color=color.title, size=20, vjust=1.25)) +
+  theme(axis.text.x=element_text(size=9,color='black')) +
+  theme(axis.text.y=element_text(size=9,color='black')) +
+  theme(axis.title.x=element_text(size=10,color='black', vjust=0)) +
+  theme(axis.title.y=element_text(size=10,color='black', vjust=1.25)) +
+  theme(plot.margin = unit(c(0.35, 0.2, 0.3, 0.35), "cm"))
+}
+
+## Clean Corpus
+cleancorpus <- function(rawtext, remove=NULL, retain=NULL) {
+  # Set to lowercase
+  rawtext <- tolower(rawtext)
+  print(pasteNQ("Set to lowercase"))
+
+  # Remove contractions
+  fix_contractions <- function(doc) {
+    doc <- gsub("will not", "won't", doc)
+    doc <- gsub("can't", "can not", doc)
+    doc <- gsub("can not", "cannot", doc)
+    doc <- gsub("shant", "shall not", doc)
+    doc <- gsub("n't", " not", doc)
+    doc <- gsub("'ll", " will", doc)
+    doc <- gsub("'re", " are", doc)
+    doc <- gsub("'ve", " have", doc)
+    doc <- gsub("'m", " am", doc)
+    doc <- gsub("'d", " would", doc)
+    doc <- gsub("'ld", " would", doc)
+    doc <- gsub("'ld", " would", doc)
+    doc <- gsub("'s", "", doc)
+    return(doc)
+  }
+  rawtext <- fix_contractions(rawtext)
+  print(pasteNQ("Fixed contractions"))
+  
+  # Remove stop words
+  stopwords_custom <- stopwords::stopwords("en", source = "snowball")
+  stopwords_custom <- c(stopwords_custom, remove)
+  stopwords_retain <- c("against", retain)
+  stopwords_custom <- stopwords_custom[!stopwords_custom %in% stopwords_retain]
+  rawtext <- removeWords(rawtext, stopwords_custom)
+  print(pasteNQ("Removed", length(stopwords_custom), "stop words"))
+  
+  # Remove puncutation, numbers, and other none characters
+  rawtext <- removePunctuation(rawtext)
+  rawtext <- removeNumbers(rawtext)
+  rawtext <- gsub("[^[:alnum:]///' ]", "", rawtext)
+  rawtext <- gsub("[']", "", rawtext)
+  print(pasteNQ("Removed punctuation, numbers, and other none characters"))
+  
+  # Strip whitespace
+  rawtext <- stripWhitespace(rawtext)
+  print(pasteNQ("Stripped whitespace"))
+  
+  # Stemming words
+  rawtext <- stemDocument(rawtext)
+  print(pasteNQ("Stemmed words"))
+  
+  return(rawtext)
+}
+```
+
+
+# Load Data
+```{r, results=FALSE}
+# devtools::install_github("bradleyboehmke/harrypotter")
+library(harrypotter)
+
+titles <- c("Philosopher's Stone", "Chamber of Secrets", "Prisoner of Azkaban",
+            "Goblet of Fire", "Order of the Phoenix", "Half-Blood Prince",
+            "Deathly Hallows")
+
+# lapply(titles, data)
+books <- list(philosophers_stone, chamber_of_secrets, prisoner_of_azkaban,
+              goblet_of_fire, order_of_the_phoenix, half_blood_prince,
+              deathly_hallows)
+
+# Save entire corpus
+corpus <- c(philosophers_stone, chamber_of_secrets, prisoner_of_azkaban,
+            goblet_of_fire, order_of_the_phoenix, half_blood_prince,
+            deathly_hallows)
+
+# Save df with chapter as row and book as panel
+## Each book is an array in which each value in the array is a chapter 
+df <- tibble()
+for(i in seq_along(titles)) {
+  temp <- tibble(chapter = seq_along(books[[i]]),
+                  text = books[[i]],
+                  book = titles[i])
+  df <- rbind(df, temp)
+}
+
+# set factor to keep books in order of publication
+df$book <- factor(df$book, levels = rev(titles))
+df$id <- row.names(df)
+df <- as.data.frame(df)
+
+# Column names
+pasteNQ("Column names")
+colnames(df)
+
+rm(temp)
+```
+
+
+# Sample Text
+## Number of Chapters
+```{r}
+# List number of chapters in each book
+for (i in 1:length(books)) {
+  pasteNQ(titles[i]) %>% print()
+  pasteNQ("Chapters:", length(books[[i]])) %>% print()
+  cat("\n")
+}
+```
+
+
+## First Sentence of Chapters
+```{r}
+# sent_locate <- str_locate(df$text, "[.|?|!]") %>% data.frame()
+
+# Set first 250 characters as quote from chapter
+sentences <- data.frame(matrix(NA, nrow=nrow(df), ncol=0))
+for (i in 1:nrow(df)) {
+  sentences$beginning[i] <- pasteNQ(str_sub(df$text[i], start=1L, end=250L), "...")
+}
+
+pasteNQ("Beginning of each chapter:")
+sentences[1:5,"beginning"]
+```
+
+
+# Basic Information
+## Word Count
+```{r, fig.show = "hold", out.width = "50%"}
+# Word Count
+df$wordcount <- sapply(strsplit(stripWhitespace(corpus), " "), length)
+
+pasteNQ0("Average Amount of Words per Chapter")
+summary(df$wordcount)
+
+# Page Count
+df$pagecount <- df$wordcount/500
+
+# Graph all
+ggplot(df, aes(wordcount, fill=I("maroon"))) + 
+  geom_histogram() + 
+  stat_bin(bins = 100) +
+  Grph_theme() +
+  ylab('Frequency') + xlab('Count of Words') + 
+  ggtitle('Words per Chapter')
+
+# Graph with book fill
+ggplot(df, aes(pagecount, fill=book)) + 
+  geom_histogram() + 
+  stat_bin(bins = 10) +
+  Grph_theme() +
+  ylab('Frequency') + xlab('Count of Pages') + 
+  ggtitle('Pages per Chapter') + theme(legend.position="right")
+
+rm(corpus)
+```
+
+
+## Clean Corpus
+```{r}
+# Clean corpus
+df$clean <- cleancorpus(df$text, remove="said")
+
+# Repair common stemmed words and character's names
+df$clean <- str_replace_all(df$clean, "harri", "harry")
+df$clean <- str_replace_all(df$clean, "hermion", "hermione")
+df$clean <- str_replace_all(df$clean, "dumbledor", "dumbledore")
+df$clean <- str_replace_all(df$clean, "tri", "try")
+df$clean <- str_replace_all(df$clean, "voic", "voice")
+df$clean <- str_replace_all(df$clean, "eye", "eyes")
+```
+
+
+## Most Used Terms
+```{r, fig.show = "hold", out.width = "50%"}
+corpus <- df %>%
+  unnest_tokens("word", clean, token="ngrams", n_min = 1, n = 3) %>%
+  anti_join(stop_words) %>% # remove larger amount of stop words
+  count(word) %>%
+  arrange(desc(n))
+
+# Word Cloud of Most Common Words
+wordcloud(corpus$word, corpus$n, max.words = 100, scale = c(5, 0.5),
+  colors=c("#42525a", "#1F78B4", "#8f00d4", "#33A02C", "#e18a89", "#3208c9"), random.order=FALSE)
+
+# Bar Chart of Most Common Words
+top_n(corpus, 10) %>%
+  mutate(word = factor(word, levels = rev(unique(word)))) %>%
+  ggplot(aes(x=word, y=n, fill=word))+
+    geom_col()+
+    coord_flip()+
+    theme_minimal()+
+    ylab("Frequency")+
+    xlab("") + guides(fill=FALSE) 
+```
+
+
+## Terms by Book
+```{r, fig.show = "hold", out.width = "50%"}
+# TF
+corpus <- df %>%
+  unnest_tokens("word", clean, token="ngrams", n_min = 1, n = 3) %>%
+  anti_join(stop_words) %>% # remove larger amount of stop words
+  group_by(book) %>%
+  count(word) %>%
+  arrange(desc(n))
+
+# TF-IDF
+corpus_tf_idf <- df %>%
+  unnest_tokens("word", clean, token="ngrams", n_min = 1, n = 3) %>%
+  anti_join(stop_words) %>% # remove larger amount of stop words
+  group_by(book) %>%
+  count(word) %>%
+  bind_tf_idf(word, book, n) %>%
+  arrange(desc(n))
+
+# Bar Chart of Most Common Words
+top_n(corpus, 7) %>% 
+  ungroup %>%
+  mutate(word = factor(word, levels = rev(unique(word))),
+         book = factor(book, levels = unique(book))) %>%
+  ggplot(aes(x=word, y=n, fill=book))+
+    facet_wrap(~ book, scales = "free_y") +
+    geom_col()+
+    coord_flip()+
+    Grph_theme_facet()+
+    ylab("Frequency")+
+    xlab("") + ggtitle("Most Common Words")
+    guides(fill=FALSE) 
+
+# Bar Chart of Most Specific Words
+top_n(corpus_tf_idf, 7) %>% 
+  ungroup %>%
+  mutate(word = factor(word, levels = rev(unique(word))),
+         book = factor(book, levels = unique(book))) %>%  ggplot(aes(x=word, y=n, fill=book))+
+    facet_wrap(~ book, scales = "free_y") +
+    geom_col()+
+    coord_flip()+
+    Grph_theme_facet()+
+    ylab("Frequency")+
+    xlab("") + ggtitle("Most Specific Words") + 
+    guides(fill=FALSE) 
+```
+
+
+# Topic Analysis
+## Document Term Matrix
+```{r}
+set.seed(0)
+
+# tokenize
+it <- itoken(df$clean, 
+				ids = df$id, 
+				progressbar = FALSE) 
+
+# ngrams
+vocab <- create_vocabulary(it, ngram = ngram) 
+vocab <- prune_vocabulary(vocab, term_count_min = 5L)
+
+vectorizer <- vocab_vectorizer(vocab)
+
+# create dtm
+dtm <- create_dtm(it, vectorizer, type="dgCMatrix")
+
+# number of term input
+pasteNQ("document term matrix specifications:")
+pasteNQ("converted raw words to", ncol(dtm), ngrams)
+pasteNQ("number of documents:", nrow(dtm))
+pasteNQ("there are no duplicate respondents:", identical(rownames(dtm), df$id))
+```
+
+
+## Structural Topic Modeling
+```{r}
+# Convert DTM to list
+documents <- apply(as.matrix(dtm), 1, function(y) {
+      rbind(which(y > 0), as.integer(y[y > 0])) 
+})
+processed <- list(documents=documents, vocab=vocab$term)
+
+# Prep documents for stm package
+out <- prepDocuments(processed$documents, processed$vocab, lower.thresh = 3, verbose=F)
+
+stmmodel <- stm(documents = out$documents, vocab = out$vocab,
+                K = K,
+                max.em.its = 75, 
+                # data = out$meta,
+                init.type = "Spectral", 
+                verbose=F)
+
+# List defining words for each topic
+topics <- labelTopics(stmmodel, 1:K, n=20)
+for (i in 1:K) {
+   print(pasteNQ("Topic",i,"Defining Words"))
+   print(topics$frex[i,1:10])
+   cat("\n")
+}
+
+rm(documents, processed, out)
+```
+
+
+## Chapters Represented in Topic
+```{r}
+for (i in 1:K) {
+   assign("quotes", 
+          findThoughts(stmmodel, 
+                       texts = pasteNQ0(df$book, 
+                                       " (Chapter ", df$chapter, "): ",
+                                       sentences$beginning), 
+                       n = 2, 
+                       topics = i)$docs[[1]])
+  print(pasteNQ("Topic",i, "Quote")) 
+  print(get("quotes")[1])
+  print(get("quotes")[2])
+  cat("\n")
+}
+```
+
+
+## Word Cloud by Topic
+```{r, fig.show = "hold", out.height = "100%", out.width = "50%"}
+for (i in 1:K) {
+  frex <- data.frame(words=topics$frex[i,], n=21-seq(topics$frex[i,]), stringsAsFactors=F)
+  wordcloud2(frex)
+}
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
