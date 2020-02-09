@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<!-- News Sentiment -->
+<html lang="en">
+
+<!-- head -->
+<head>
+	<meta charset="UTF-8">
+	<title>Background</title>
+	
+	<link rel="shortcut icon" type="image/x-icon" href="images/twitter-logo.ico" />
+
+	<!-- page-header -->
+	<section class="page-header">
+	
+	<!-- banner -->
+	<div id="banner">
+		<div id="banner1">
+			<img src="images/trump-twitter.jpg" alt="Trump" />
+		</div>
+		<div id="banner2">
+			<h1 id="title">Trump's Fireside Chats</h1>
+		</div>	
+	</div> <!-- banner -->
+	</section> <!-- page-header -->
+		
+	<!-- sub-header -->
+	<section class="sub-header">
+	
+	 <!-- menubar -->
+	<div id="menubar">
+		<ul id="menu"> 
+			<li><a href="index.html">Dashboard</a></li>
+			<li class="selected"><a href="background.html">Background</a></li>
+			<li><a href="visualization_class.html">Course</a></li>
+			<li><a href="biography.html">Biography</a></li>
+		<div class="dropdown">
+			<li><button class="rightbar">More Analysis</a></button>
+			<div class="rightbar-content"> <!-- rightbar -->
+			<!-- insert rightbar items here -->
+			<a href="overall.html">
+				All Tweets
+			</a>
+			<a href="news.html">
+				News Media
+			</a>
+			<a href="policy.html">
+				Policy
+			</a>
+			<a href="investigation.html">
+				Investigation
+			</a>
+			<a href="partisan.html">
+				Partisanship
+			</a>			
+			</div> <!-- rightbar-content -->
+		</div>	<!-- dropdown -->		
+		</ul>
+	</div> <!-- menubar -->
+	
+	</section> <!-- sub-header -->	
+	
+	<!-- External JS libraries -->
+	<script src="js/d3.min.js"></script>
+	<script src="js/d3.v4.min.js"></script>
+	<script src="js/d3.v4.js"></script>
+	<script src="js/d3-tip.js"></script>
+	<script src="js/jquery.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<!-- Load d3-cloud -->
+	<script src="js/d3.layout.cloud.js"></script>
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<!-- D3 Tooltip CSS -->
+	<link rel="stylesheet" href="css/d3-tip.css">
+	<!-- Custom styling -->
+	<link rel="stylesheet" href="css/styles.css">
+</head> <!-- head -->
+	
+
+<!-- body -->
+<body>
+	<div class="info"> <!-- site_content -->
+	
+		<!-- insert page content here -->
+		
+		<!-- Course Description -->
+		<h2>Fireside Chats
+			<br> Twitter and the Presidency
+		</h2>
+			<img  id="fdr" src="images/FDR.jpeg" alt="Fireside Chats" />
+		<br><br>
+		<p>
+			Perhaps analogous to President Franklin D. Roosevelts use of radio for his fireside chats, President Donald J. Trump has established Twitter as his primary communication channel with the American people. By early 2016, his tweets were generating some 10,000 likes and 5,000 retweets a week. Commentators have noted that he uses Twitter to air grievances, use animated rhetoric, and announce new policy decisions. Such use blurs the lines of private and public discourse. The tweets, though, hold all the power of public of discourse as they are often read, verbatim, by news anchors. This dashboard aims to visually show the topics of the President’s tweets and their positive/negative sentiment.
+		</p>
+		<p>
+			The primary objective of this project is to visualize four topic areas that can be found in the President’s tweets. These four topic areas include policy (economic, global affairs, and immigration), commentary of news sources (trusted news media versus the “fake news”), the FBI investigation into Russia’s tampering with the 2016 election, and partisanship (what he has to say about Democratic politicians and Republican politicians). Custom dictionaries were created for each topic area, which will be used to display the frequency of tweets on each topic as well as the most common words used. These frequencies are further subset by negative/positive sentiment demonstrated in each tweet. Understanding how often the President tweets about certain topics, the sentiment in these tweets, and how this has changed over time will help reveal the communication style of the President and perhaps even provide insight into his changing mindset. The President’s tweets were obtained from the <a href="http://www.trumptwitterarchive.com/"
+		target="_blank" >Trump Twitter Archive</a>, which uses Twitter’s API to collect and store tweets. It is the most authoritative database preserving these tweets.
+		</p>
+
+		
+		</div> <!-- info -->
+</body> <!-- body -->
+
+
+</html>

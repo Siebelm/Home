@@ -1,0 +1,23 @@
+[{"sentiment":"negative","dict":"1 overall","freq":2981,"prop":39.2,"rt":17128,"fav":60031},{"sentiment":"positive","dict":"1 overall","freq":4618,"prop":60.8,"rt":13650,"fav":53274},
+
+{"sentiment":"negative","dict":"2 news","freq":807,"prop":61.2,"rt":16565,"fav":59547},{"sentiment":"positive","dict":"2 news","freq":511,"prop":38.8,"rt":9981,"fav":39424},
+
+{"sentiment":"negative","dict":"3 fakenews","freq":633,"prop":72.5,"rt":17256,"fav":64217},{"sentiment":"positive","dict":"3 fakenews","freq":240,"prop":27.5,"rt":11171,"fav":44204},
+
+{"sentiment":"negative","dict":"4 trustednews","freq":174,"prop":39.1,"rt":14051,"fav":42559},{"sentiment":"positive","dict":"4 trustednews","freq":271,"prop":60.9,"rt":8926,"fav":35192},
+
+{"sentiment":"negative","dict":"5 policy","freq":1018,"prop":38.7,"rt":19554,"fav":72306},{"sentiment":"positive","dict":"5 policy","freq":1614,"prop":61.3,"rt":17262,"fav":71326},
+
+{"sentiment":"negative","dict":"6 econ","freq":451,"prop":32.8,"rt":16550,"fav":63660},{"sentiment":"positive","dict":"6 econ","freq":923,"prop":67.2,"rt":16413,"fav":68395},
+
+{"sentiment":"negative","dict":"7 globalaffairs","freq":241,"prop":37,"rt":22386,"fav":80009},{"sentiment":"positive","dict":"7 globalaffairs","freq":411,"prop":63,"rt":18570,"fav":77971},
+
+{"sentiment":"negative","dict":"8 immigration","freq":326,"prop":53.8,"rt":21617,"fav":78572},{"sentiment":"positive","dict":"8 immigration","freq":280,"prop":46.2,"rt":18142,"fav":71235},
+
+{"sentiment":"negative","dict":"9 investigation","freq":825,"prop":68.6,"rt":21819,"fav":79127},{"sentiment":"positive","dict":"9 investigation","freq":377,"prop":31.4,"rt":18483,"fav":72447},
+
+{"sentiment":"negative","dict":"10 partisan","freq":1419,"prop":60.5,"rt":16386,"fav":56116},{"sentiment":"positive","dict":"10 partisan","freq":928,"prop":39.5,"rt":15168,"fav":57478},
+
+{"sentiment":"negative","dict":"11 democratic","freq":1043,"prop":74,"rt":18177,"fav":61757},{"sentiment":"positive","dict":"11 democratic","freq":366,"prop":26,"rt":18012,"fav":66642},
+
+{"sentiment":"negative","dict":"12 republican","freq":376,"prop":40.1,"rt":11420,"fav":40467},{"sentiment":"positive","dict":"12 republican","freq":562,"prop":59.9,"rt":13316,"fav":51510}]

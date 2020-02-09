@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<!-- News Sentiment -->
+<html lang="en">
+
+<!-- head -->
+<head>
+	<meta charset="UTF-8">
+	<title>News Sentiment</title>
+	
+	<link rel="shortcut icon" type="image/x-icon" href="images/twitter-logo.ico" />
+
+	<!-- page-header -->
+	<section class="page-header">
+	
+	<!-- banner -->
+	<div id="banner">
+		<div id="banner1">
+			<img src="images/trump-twitter.jpg" alt="Trump" />
+		</div>
+		<div id="banner2">
+			<h1 id="title">Trump's Fireside Chats</h1>
+		</div>	
+	</div> <!-- banner -->
+	</section> <!-- page-header -->
+		
+	<!-- sub-header -->
+	<section class="sub-header">
+	
+	 <!-- menubar -->
+	<div id="menubar">
+		<ul id="menu"> 
+			<li class="selected"><a href="index.html">Dashboard</a></li>
+			<li><a href="background.html">Background</a></li>
+			<li><a href="visualization_class.html">Course</a></li>
+			<li><a href="biography.html">Biography</a></li>
+		<div class="dropdown">
+			<li><button class="rightbar">More Analysis</a></button>
+			<div class="rightbar-content"> <!-- rightbar -->
+			<!-- insert rightbar items here -->
+			<a href="index.html">
+				All Tweets
+			</a>
+			<a href="news.html">
+				News Media
+			</a>
+			<a href="policy.html">
+				Policy
+			</a>
+			<a href="investigation.html">
+				Investigation
+			</a>
+			<a href="partisan.html">
+				Partisanship
+			</a>			
+			</div> <!-- rightbar-content -->
+		</div>	<!-- dropdown -->		
+		</ul>
+	</div> <!-- menubar -->
+	
+	</section> <!-- sub-header -->	
+	
+	<!-- External JS libraries -->
+	<script src="js/d3.min.js"></script>
+	<script src="js/d3.v4.min.js"></script>
+	<script src="js/d3.v4.js"></script>
+	<script src="js/d3-tip.js"></script>
+	<script src="js/jquery.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<!-- Load d3-cloud -->
+	<script src="js/d3.layout.cloud.js"></script>
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<!-- D3 Tooltip CSS -->
+	<link rel="stylesheet" href="css/d3-tip.css">
+	<!-- Custom styling -->
+	<link rel="stylesheet" href="css/styles.css">
+</head> <!-- head -->
+
+
+<body>
+	<div class="container"> <!-- container -->
+	
+		<h2 id="pagetitle">Trump's Tweets on News Media</h2>
+		
+		<div class="left"> <!-- left -->
+				<br><br><br><br>
+				
+				<select id="selectButton1" onchange="selectOption1();">	
+					<option value="All1">All</option>
+					<option value="Trusted1">Trusted</option>
+					<option value="Fake1">Fake</option>
+				</select> 
+				<div id="_1_news"></div>		
+				<br>	
+				
+				<select id="selectButton2"></select>				
+				<div id="_2_news"></div>
+				<br>
+				
+				<select id="selectButton3" onchange="selectOption3();">	
+					<option value="All3">All</option>
+					<option value="Trusted3">Trusted</option>
+					<option value="Fake3">Fake</option>
+				</select> 				
+				<div id="_3_news"></div>
+		</div>	<!-- left -->	
+
+		<div class="right" id="right">	<!-- right -->	
+				<button style="float:right;position:relative;top:38px;"
+				id="fakenews"
+				class="dataButton">Fake News</button>	
+				<button style="float:right;position:relative;top:38px;"
+				id="trustednews"
+				class="dataButton">Trusted News</button>
+				<button style="float:right;position:relative;top:38px;"
+				id="allnews"
+				class="dataButton active1">All News</button>
+				<br><br>
+
+				<button  style="float:right;position:relative;top:38px;"
+				onclick="update4A(PositiveA);update4B(PositiveB);update4C(PositiveC);"
+				id="sentimentButton"
+				class="sentimentButton">Positive</button>				
+				<button  style="float:right;position:relative;top:38px;"
+				onclick="update4A(NegativeA);update4B(NegativeB);update4C(NegativeC);"
+				id="sentimentButton"
+				class="sentimentButton active2">Negative</button>	
+				<br><br><br>
+				<div id="_4a_news"></div>
+				<div id="_4b_trustednews"></div>
+				<div id="_4c_fakenews"></div>
+		</div>	<!-- right -->		
+		
+	</div> <!-- container -->
+	
+	<!-- Custom JS --> 
+	<script>
+		// sentiment select button
+		function selectOption1() {
+			var sentDict = document.getElementById("selectButton1");
+			if (sentDict.value == "All1"){
+				update1(All1);
+			}
+			if (sentDict.value == "Trusted1"){
+				update1(Trusted1);
+			}
+			if (sentDict.value == "Fake1"){
+				update1(Fake1);
+			}
+		};
+		
+		// wordcloud select button
+		function selectOption3() {
+			var wcDict = document.getElementById("selectButton3");
+			if (wcDict.value == "All3"){
+				update3(All3);
+			}
+			if (wcDict.value == "Trusted3"){
+				update3(Trusted3);
+			}
+			if (wcDict.value == "Fake3"){
+				update3(Fake3);
+			}
+		};		
+		
+		// words by sentiment buttons
+		$(document).ready(function(){
+			$("#_4a_news").slideDown(1250);
+			$("#_4b_trustednews").hide();		
+			$("#_4c_fakenews").hide();		
+			$("#allnews").click(function(){
+				$("#_4a_news").slideDown(1250);
+				$("#_4b_trustednews").hide();		
+				$("#_4c_fakenews").hide();
+			});
+			$("#trustednews").click(function(){
+				$("#_4a_news").hide();
+				$("#_4b_trustednews").slideDown(1250);		
+				$("#_4c_fakenews").hide();
+			});
+			$("#fakenews").click(function(){
+				$("#_4a_news").hide();
+				$("#_4b_trustednews").hide();		
+				$("#_4c_fakenews").slideDown(1250);
+			});
+		});
+		// Add active class to the current button (highlight it)
+		var header = document.getElementById("right");
+		var topBtns = header.getElementsByClassName("dataButton");
+			for (var i = 0; i < topBtns.length; i++) {
+			topBtns[i].addEventListener("click", function() {
+			var current1 = document.getElementsByClassName("active1");
+			current1[0].className = current1[0].className.replace(" active1", "");
+			this.className += " active1";
+			});
+		}
+		var bottomBtns = header.getElementsByClassName("sentimentButton");
+			for (var i = 0; i < bottomBtns.length; i++) {
+			bottomBtns[i].addEventListener("click", function() {
+			var current2 = document.getElementsByClassName("active2");
+			current2[0].className = current2[0].className.replace(" active2", "");
+			this.className += " active2";
+			});
+		}
+	</script>
+	<script src="1_Sentiment_Data/1_news.js"></script>
+	<script src="2_Timeline_Data/2_news.js"></script>  
+	<script src="3_Wordcloud_Data/3_news.js"></script>  
+	<script src="4_Sentiment_Words/4a_news.js"></script>
+	<script src="4_Sentiment_Words/4b_trustednews.js"></script>
+	<script src="4_Sentiment_Words/4c_fakenews.js"></script>
+
+</body>
+</html>
+
