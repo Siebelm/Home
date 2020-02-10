@@ -299,6 +299,7 @@ a:active {
 #gwu {
 	height: 120px;
 	width: 145px;
+	border-radius: 20px;
 	left: 45%;
 	position: relative;
 	display: block;
@@ -307,6 +308,7 @@ a:active {
 #bio {
 	height: 120px;
 	width: 120px;
+	border-radius: 20px;
 	left: 45%;
 	position: relative;
 }
