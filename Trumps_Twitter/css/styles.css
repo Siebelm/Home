@@ -330,6 +330,7 @@ text {
 #fdr {
 	height: 200px;
 	width: 245px;
+	border-radius: 20px;
 	left: 45%;
 	position: relative;
 	display: block;
@@ -338,6 +339,7 @@ text {
 #gwu {
 	height: 200px;
 	width: 245px;
+	border-radius: 20px;
 	left: 45%;
 	position: relative;
 	display: block;
@@ -346,6 +348,7 @@ text {
 #bio {
 	height: 200px;
 	width: 200px;
+	border-radius: 20px;
 	left: 45%;
 	position: relative;
 }
