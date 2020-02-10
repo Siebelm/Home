@@ -110,6 +110,7 @@ p {
 	left: 338px;
 	right: 8px;
 	z-index: -1;
+        min-width: 1080px;	
 }
 
 #banner2underlay img {
