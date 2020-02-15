@@ -170,13 +170,6 @@ li#menutab .rightbar {
 /* ********
    *Tabs* 
 ********* */
-#bio {
-  height: 200px;
-  width: 200px;
-  left: 45%;
-  position: relative;
-}
-
 .container {
   width: 92%;
   max-width: 1200px;
