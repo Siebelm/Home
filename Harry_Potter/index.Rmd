@@ -15,14 +15,37 @@ output:
 
 
 >  Analysis for: <br>
->  Harry Potter and the Philosophers Stone (1997) <br>
+>  Harry Potter and the Philosopher's Stone (1997) <br>
 >  Harry Potter and the Chamber of Secrets (1998) <br>
 >  Harry Potter and the Prisoner of Azkaban (1999) <br>
 >  Harry Potter and the Goblet of Fire (2000) <br>
 >  Harry Potter and the Order of the Phoenix (2003) <br>
 >  Harry Potter and the Half-Blood Prince (2005) <br>
 >  Harry Potter and the Deathly Hallows (2007)
-    
+
+# Bottom Line Up Front
+
+Below is a high level analysis of the Harry Potter Series.  It seeks to find answers to the questions:
+
+* <a href="#Q1">Which book has a bigger vocab?</a>
+* <a href="#Q2">Who is Harry's closest friend?</a>
+* <a href="#Q3">Who are the most prominent secondary characters?</a>
+* <a href="#Q4">What are the 4 major themes/settings in the Series?</a>
+
+<br>
+It finds that: 
+
+**Vocab** <br>
+Each subsequent book increased its count of unique words.  However, **Goblet of Fire (Book 4)** is a notable exception with the second most unique words.  Meanwhile, **Order of the Phoenix (Book 5)** contains the most repetitive vocabulary.
+
+**Best Friend** <br>
+Ron is Harry's closest friend, although Hermoine's friendship grows throughout the Series.
+
+**Secondary Characters** <br>
+Professor Dumbledore is the most prominent secondary characters throughout the books, while the Defense Against Dark Arts teachers are the most prominent within each of the first 6 books.
+
+**Major Themes/Settings** <br>
+The Muggle world, the magical community outside Hogwarts, Voldemort's story arch, and the Hogwarts classroom/Quidditch field are the 4 broadest themes/settings.
     
 # Setup
 ```{r, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
@@ -30,15 +53,27 @@ rm(list=ls())
 gc()
 
 
+# install.packages("pacman")
+# install.packages("remotes")
+# library(remotes)
+# install.packages("devtools")
+# library(devtools)
+# library(magrittr)
+# devtools::install_github("wch/webshot")
+# webshot::install_phantomjs()
+# library(BiocManager)
+# BiocManager::install("https://bioconductor.org/biocLite.R")
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("EBImage")
 library(pacman)
-pacman::p_load(devtools, knitr, magrittr, dplyr, ggplot2, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, wordcloud, prettydoc, cowplot, kable, utf8, corpus, glue, topicmodels, stm, wordcloud2)
+pacman::p_load(devtools, knitr, magrittr, dplyr, ggplot2, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, wordcloud, prettydoc, cowplot, kable, utf8, corpus, glue, topicmodels, stm, wordcloud2, htmlwidgets, viridis)
   
 knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=120)
 
 # Parameters
 ## N-gram
-ngrams <- "bigrams"
-ngram <- c(1, 2)
+ngrams <- "single words"
+ngram <- c(1, 1)
 
 ## Number of Topics
 K <- 4
@@ -136,14 +171,6 @@ cleancorpus <- function(rawtext, remove=NULL, retain=NULL) {
   rawtext <- fix_contractions(rawtext)
   print(pasteNQ("Fixed contractions"))
   
-  # Remove stop words
-  stopwords_custom <- stopwords::stopwords("en", source = "snowball")
-  stopwords_custom <- c(stopwords_custom, remove)
-  stopwords_retain <- c("against", retain)
-  stopwords_custom <- stopwords_custom[!stopwords_custom %in% stopwords_retain]
-  rawtext <- removeWords(rawtext, stopwords_custom)
-  print(pasteNQ("Removed", length(stopwords_custom), "stop words"))
-  
   # Remove puncutation, numbers, and other none characters
   rawtext <- removePunctuation(rawtext)
   rawtext <- removeNumbers(rawtext)
@@ -161,10 +188,44 @@ cleancorpus <- function(rawtext, remove=NULL, retain=NULL) {
   
   return(rawtext)
 }
+
+# Remove stop words
+removestopwords <- function(rawtext, remove=NULL, retain=NULL) {
+
+  # Remove stop words
+  stopwords_custom <- stopwords::stopwords("en", source = "snowball")
+  stopwords_custom <- c(stopwords_custom, remove)
+  stopwords_retain <- retain
+  stopwords_custom <- stopwords_custom[!stopwords_custom %in% stopwords_retain]
+  rawtext <- removeWords(rawtext, stopwords_custom)
+  print(pasteNQ("Removed", length(stopwords_custom), "stop words"))
+  
+  return(rawtext)
+}
+
+# Remove JavaScript from WordClouds
+library("EBImage")
+embed_htmlwidget <- function(widget, rasterise = T) {
+  outputFormat = knitr::opts_knit$get("rmarkdown.pandoc.to")
+  if(rasterise || outputFormat == 'latex') {
+    html.file = tempfile("tp",fileext=".html")
+    png.file = tempfile("tp",fileext=".png")
+
+    htmlwidgets::saveWidget(widget, html.file, selfcontained = FALSE)
+    webshot::webshot(html.file, file = png.file,vwidth = 700, vheight = 500, delay =10)
+    img = EBImage::readImage(png.file)
+    EBImage::display(img)
+  } else {
+    widget
+  }
+}
 ```
 
 
 # Load Data
+
+We start by loading in each of the 7 Harry Potter books in which each row represents a chapter.
+
 ```{r, results=FALSE}
 # devtools::install_github("bradleyboehmke/harrypotter")
 library(harrypotter)
@@ -198,55 +259,94 @@ df$book <- factor(df$book, levels = rev(titles))
 df$id <- row.names(df)
 df <- as.data.frame(df)
 
-# Column names
-pasteNQ("Column names")
-colnames(df)
-
-rm(temp)
-```
-
-
-# Sample Text
-## Number of Chapters
-```{r}
-# List number of chapters in each book
-for (i in 1:length(books)) {
-  pasteNQ(titles[i]) %>% print()
-  pasteNQ("Chapters:", length(books[[i]])) %>% print()
-  cat("\n")
-}
-```
-
-
-## First Sentence of Chapters
-```{r}
-# sent_locate <- str_locate(df$text, "[.|?|!]") %>% data.frame()
-
 # Set first 250 characters as quote from chapter
 sentences <- data.frame(matrix(NA, nrow=nrow(df), ncol=0))
 for (i in 1:nrow(df)) {
   sentences$beginning[i] <- pasteNQ(str_sub(df$text[i], start=1L, end=250L), "...")
 }
 
-pasteNQ("Beginning of each chapter:")
-sentences[1:5,"beginning"]
+# Column names
+pasteNQ("Column names")
+colnames(df)
+print("")
+# Rows
+pasteNQ("Number of total chapters")
+nrow(df)
+
+rm(temp)
 ```
 
 
-# Basic Information
-## Word Count
+# Length of Books
+
+It is conventional wisdom that the books grew in maturity and general reading level as they progressed.  
+
+Let's look at how many chapters, pages, and words are in each book as a basic indicator of reading level.  *(I define page count by esimating 250 words per page.)*
+
+Overall, there is a clear break between **Prisoner of Azkaban (Book 3)** and **Goblet of Fire (Book 4)**, where the books became substantially longer.
+
+```{r}
+rawbook_tf <- df[,c("text", "book")] %>%
+  unnest_tokens(word, text) %>%
+  group_by(book) %>%
+  count(word) %>%
+  arrange(desc(book))
+
+# Pages per Book
+i <- 1
+pagecount <- data.frame(book = NA, total = NA, pages = NA)
+for (t in titles) {
+  assign(paste0("Book",i), rawbook_tf[rawbook_tf$book==t,"n"])
+  assign("total", sum(get(paste0("Book",i))))
+  assign("pages", sum(get(paste0("Book",i)))/250)
+  pagecount <- rbind(pagecount, c(t, get("total"), get("pages")))
+  i <- i + 1 
+}
+pagecount <- pagecount[2:8,]
+pagecount$book <- factor(pagecount$book, levels = rev(titles))
+
+# List number of chapters in each book
+for (i in 1:length(books)) {
+  pasteNQ(titles[i]) %>% print()
+  pasteNQ("Chapters:", length(books[[i]])) %>% print()
+  pasteNQ("Estimated Page Count:", 
+          pagecount$pages[i] %>% as.numeric() %>% round(0)) %>% print()
+  cat("\n")
+}
+
+# Graph
+ggplot(pagecount, aes(x=book, y=as.numeric(total)/100, fill=book))+
+    geom_col()+
+    coord_flip()+
+    Grph_theme_facet()+
+    ylab("Frequency (Hundreds)")+
+    xlab("") + ggtitle("Total Words by Book") + 
+    scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+    guides(fill=FALSE)
+```
+
+
+
+## Word Distributions
+
+Let's look a little closer at the length of chapters.  The average chapter in Harry Potter is over 5,000 words or 20 pages.  The shortest book, **Philosopher's Stone (Book 1)** also has the fewest average pages per chapter, while the longest book, **Order of the Phoenix (Book 5)** has the largest average pages per chapter.
+
 ```{r, fig.show = "hold", out.width = "50%"}
 # Word Count
-df$wordcount <- sapply(strsplit(stripWhitespace(corpus), " "), length)
+df$totalwords <- sapply(strsplit(stripWhitespace(corpus), " "), length)
 
 pasteNQ0("Average Amount of Words per Chapter")
-summary(df$wordcount)
+summary(df$totalwords)
 
 # Page Count
-df$pagecount <- df$wordcount/500
+df$pagecount <- df$totalwords/250
 
-# Graph all
-ggplot(df, aes(wordcount, fill=I("maroon"))) + 
+# Raw Words by Book
+df$words <- (strsplit(stripWhitespace(corpus), " "))
+
+# Graph distribution of words all
+ggplot(df, aes(totalwords, fill=I("maroon"))) + 
   geom_histogram() + 
   stat_bin(bins = 100) +
   Grph_theme() +
@@ -257,18 +357,22 @@ ggplot(df, aes(wordcount, fill=I("maroon"))) +
 ggplot(df, aes(pagecount, fill=book)) + 
   geom_histogram() + 
   stat_bin(bins = 10) +
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
   Grph_theme() +
   ylab('Frequency') + xlab('Count of Pages') + 
   ggtitle('Pages per Chapter') + theme(legend.position="right")
-
-rm(corpus)
 ```
 
 
-## Clean Corpus
+# Vocab Analysis
+
+In order to better understand the maturity and reading level of each book, we will observe the breadth of vocabulary in each book.  Below we look at counts of words and, more importantly, whether the vocab size grew or if words simply became more repetitive as the word count grew.
+ 
+
 ```{r}
 # Clean corpus
-df$clean <- cleancorpus(df$text, remove="said")
+df$clean <- cleancorpus(df$text)
 
 # Repair common stemmed words and character's names
 df$clean <- str_replace_all(df$clean, "harri", "harry")
@@ -279,91 +383,286 @@ df$clean <- str_replace_all(df$clean, "voic", "voice")
 df$clean <- str_replace_all(df$clean, "eye", "eyes")
 ```
 
+**Definitions**
 
-## Most Used Terms
+* Total words are the amount of words regardless of repeated words
+* Word count takes the number of unique "stemmed" words
+* Vocab size is defined as the ratio of unique stemmed words relative to total words 
+
+## Overall Vocab
+```{r}
+# Raw text
+corpustext <- df$clean %>%
+  paste(collapse="") %>%
+  stripWhitespace() 
+
+# Total words
+totalwords <- sapply(strsplit(stripWhitespace(corpustext), " "), length)
+pasteNQ("Total Words:", totalwords)
+
+# Unique words
+uniquewords <- unlist(strsplit(stripWhitespace(corpustext), " ")) %>% 
+                      unique() %>% length()
+pasteNQ("Unique Words:", uniquewords)
+
+# Size of Vocab
+vocabsize <- ( uniquewords / totalwords ) 
+vocabsize <- as.numeric(vocabsize) %>% round(2)
+pasteNQ("Vocab Ratio:", vocabsize)
+```
+
+
+## Vocab by Book
+
+<div id="Q1">
+###### *Which book has a bigger vocab?*
+</div>
+
+Below, we can see that the vocab increased in terms of unique words with each subsequent book.  However, **Goblet of Fire (Book 4)** is a notable exception with the second most unique words.  **Deathly Hallows (Book 7)** contains the most unique words.
+
+Further, we can see that the early books actually contained a more dense vocabulary as words were not repeated as frequently.  This could be mainly due to their shorter total word count and less to do with their amount of unique works.  
+
+However, **Order of the Phoenix (Book 5)** appears to have the lowest density of vocabulary, because its unique word count is only fourth in the Series, despite easily containing the highest total word count.  This indicates that **Order of the Phoenix (Book 5)** is the most repetitive in vocabulary.
+
+
 ```{r, fig.show = "hold", out.width = "50%"}
-corpus <- df %>%
-  unnest_tokens("word", clean, token="ngrams", n_min = 1, n = 3) %>%
+# Words by Book
+book_tf <- df[,c("clean","book")] %>%
+  unnest_tokens(word, clean, token="words") %>%
+  group_by(book) %>%
+  count(word) %>%
+  arrange(desc(book))
+
+# Total words
+# Unique words
+# Size of Vocab
+i <- 1
+book_words <- data.frame(book = NA, total = NA, unique = NA, vocab = NA)
+for (t in titles) {
+  assign(paste0("Book",i), book_tf[book_tf$book==t,"n"])
+  assign("total", sum(get(paste0("Book",i))))
+  assign("unique", nrow(get(paste0("Book",i))))
+  assign("vocab", get("unique") / get("total"))
+  assign("vocab", as.numeric(get("vocab")) %>% round(2))
+  book_words <- rbind(book_words, c(t, get("total"), get("unique"), get("vocab")))
+  i <- i + 1 
+}
+book_words <- book_words[2:8,]
+book_words$book <- factor(book_words$book, levels = rev(titles))
+
+# Graph
+ggplot(book_words, aes(x=book, y=as.numeric(total)/1000, fill=book))+
+    geom_col()+
+    coord_flip()+
+    Grph_theme_facet()+
+    ylab("Frequency (Thousands)")+
+    xlab("") + ggtitle("Total Words") + 
+    scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+    guides(fill=FALSE) 
+
+ggplot(book_words, aes(x=book, y=as.numeric(unique)/100, fill=book))+
+    geom_col()+
+    coord_flip()+
+    Grph_theme_facet()+
+    ylab("Frequency (Hundreds)")+
+    xlab("") + ggtitle("Unique Words") + 
+    scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+    guides(fill=FALSE) 
+
+ggplot(book_words, aes(x=book, y=as.numeric(vocab), fill=book))+
+    geom_col()+
+    coord_flip()+
+    Grph_theme_facet()+
+    ylab("Ratio (0-1)")+
+    xlab("") + ggtitle("Vocab Ratio") + 
+    labs(subtitle = "Unique words to total words") +
+    scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+    guides(fill=FALSE) 
+```
+
+
+# Subject matter
+
+**Term frequencies**<br>
+The easiest method for understand importance is examining term frequency (TF), which is the number of times a term (single word, in our case) appears.  We removed stop words which are universally common words such as "the" and "said".  As characters are the most common terms after extensive stop word removal, it provides us an understanding of who are the most important characters.
+
+The TF charts below shows that the most frequent word in every book is Harry.  This is because there are perhaps one or two chapters in the whole series where Harry is not present. Therefore, other characters can be said to be mentioned in relation to Harry.
+
+**Term frequency-inverse document frequency scores**<br>
+Term frequency-inverse document frequency (TF-IDF) analysis shows us which characters are mentioned the most within a book relative to across books.  The technique involves scoring taking the TF multiplied by the IDF, which is calculated as the log of all documents (books) over the number of documents (books) containing the term.  For example, "harry" would have a large TF but would contain an IDF of zero as it appears in every book.
+
+The TF-IDF charts show that Professor Slughorn is the most specific character to a book.  This means that he played a prominent role in **Half-Blood Prince (Book 6)**, but was made few appearances in other books.  Because Book 6 was his first appearance and only appeared a little in Book 7, his IDF score is very high.  More interestingly, Reamus Lupin contains the third highest score, despite appearing early in the series in **Prisoner of Azkaban (Book 3)**.  This means that he is not prominent in many books, but when he is prominent (Book 3, Book 5, and Book 7), he is mentioned frequently.  
+
+## Most Prominent Terms
+```{r, fig.show = "hold", out.width = "50%"}
+# Remove Stopwords 
+df$clean_sw <- removestopwords(df$clean, remove=c("said","c"))
+
+# "Top Words using TF"
+# TF Corpus
+corpus_tf <- df %>%
+  unnest_tokens("word", clean_sw, token="words") %>%
   anti_join(stop_words) %>% # remove larger amount of stop words
   count(word) %>%
   arrange(desc(n))
 
 # Word Cloud of Most Common Words
-wordcloud(corpus$word, corpus$n, max.words = 100, scale = c(5, 0.5),
-  colors=c("#42525a", "#1F78B4", "#8f00d4", "#33A02C", "#e18a89", "#3208c9"), random.order=FALSE)
+wc <- wordcloud2(corpus_tf[1:300,], size = 1.3, gridSize = 14) 
+embed_htmlwidget(wc)
 
 # Bar Chart of Most Common Words
-top_n(corpus, 10) %>%
+head(corpus_tf, 10) %>%
   mutate(word = factor(word, levels = rev(unique(word)))) %>%
   ggplot(aes(x=word, y=n, fill=word))+
     geom_col()+
     coord_flip()+
     theme_minimal()+
-    ylab("Frequency")+
+    scale_fill_viridis(discrete=T)+
+    ylab("Term Frequency")+
     xlab("") + guides(fill=FALSE) 
-```
 
-
-## Terms by Book
-```{r, fig.show = "hold", out.width = "50%"}
-# TF
-corpus <- df %>%
-  unnest_tokens("word", clean, token="ngrams", n_min = 1, n = 3) %>%
-  anti_join(stop_words) %>% # remove larger amount of stop words
-  group_by(book) %>%
-  count(word) %>%
-  arrange(desc(n))
-
-# TF-IDF
-corpus_tf_idf <- df %>%
-  unnest_tokens("word", clean, token="ngrams", n_min = 1, n = 3) %>%
+# "Top Words using TF-IDF Scores"
+# TF-IDF Corpus
+corpus_tfidf <- df[,c("clean_sw","book")] %>%
+  unnest_tokens(word, clean_sw, token="words") %>%
   anti_join(stop_words) %>% # remove larger amount of stop words
   group_by(book) %>%
   count(word) %>%
   bind_tf_idf(word, book, n) %>%
-  arrange(desc(n))
+  group_by(word) %>%
+  summarize(tf_idf=sum(tf_idf), n=sum(n), tf=sum(tf), idf=sum(idf)) %>%
+  arrange(desc(tf_idf))
+
+# Word Cloud of Most Common Words
+wc <- wordcloud2(corpus_tfidf[1:100,], size = 0.9)
+embed_htmlwidget(wc)
 
 # Bar Chart of Most Common Words
-top_n(corpus, 7) %>% 
+head(corpus_tfidf, 10) %>%
+  mutate(word = factor(word, levels = rev(unique(word)))) %>%
+  ggplot(aes(x=word, y=tf_idf, fill=word))+
+    geom_col()+
+    coord_flip()+
+    theme_minimal()+
+    scale_fill_viridis(discrete=T)+
+    ylab("TF-IDF Score")+
+    xlab("") + guides(fill=FALSE) 
+```
+
+## Terms by Book
+
+This leads to a question that simple TFs by book can answer:
+
+<div id="Q2">
+###### *Who is Harry closest friend?*
+</div>
+
+The *Most Common Terms (TF)* chart shows that, in nearly every book, Ron is mentioned more than Hermoine, indicating that he is Harry's closest friend--although the movies may differ on this.  However, it is worth noting that Hermoine does close this gap as the books progress and is mentioned more times in the **Deathly Hallows (Book 7)**.
+
+I write "closest" instead of "best" as Ron is more prominent and, therefore, appears more "in Harry's life."  However, some of these appearance can be (and are) of Ron fighting with Harry.  Again, note that we can make this conclusion assuming that Ron and Hermoine appear in the books in relation to Harry.  A book not written as from a single character's perspective could not achieve these conclusions as easily.
+
+<div id="Q3">
+###### *Who are the most prominent secondary characters?*
+</div>
+
+The TF chart can also help us understand who is the most prominent secondary character across books.  Professor Dumbledore is the most frequently mentioned character after the three main characters (see the *Most Used Terms* charts in the previous section).  The *Most Common Terms (TF)* chart below shows that he was not mentioned as much in the first three books, but became very prominent by **Goblet of Fire (Book 4)**.
+
+TF-IDF provides us with a proxy for secondary characters specific to a certain book:  characters important in certain books, but not in every book.  Therefore, we are not searching for secondary characters who are consistently present throughout the series, such as Hagrid or Dumbledore.
+
+In the **Most Specific Words (TF-IDF)** chart, we can see an obvious pattern: the most prominent secondary character is the Defense Against the Dark Arts in 5 of the first 6 books in which Harry takes classes at Hogwarts. Interestly, Professor Moody, the Defense Against Dark Arts teacher, is only ranked fifth in **Goblet of Fire (Book 4)**.  This is likely because there are many important characters specific to that book and that Mad-Eye Moody remains prominent after Book 4.
+
+```{r, fig.show = "hold", out.width = "100%"}
+# TF
+book_tf <- df[,c("clean_sw","book")] %>%
+  unnest_tokens(word, clean_sw, token="words") %>%
+  anti_join(stop_words) %>% # remove larger amount of stop words
+  group_by(book) %>%
+  count(word) %>%
+  arrange(desc(n), .by_group=T)
+
+# TF-IDF
+book_tf_idf <- df[,c("clean_sw","book")] %>%
+  unnest_tokens(word, clean_sw, token="words") %>%
+  anti_join(stop_words) %>% # remove larger amount of stop words
+  group_by(book) %>%
+  count(word) %>%
+  bind_tf_idf(word, book, n) %>%
+  arrange(desc(tf_idf), .by_group=F)
+
+# Bar Chart of Most Common Words
+top_n(book_tf, 10, n) %>% 
+  mutate(order = row_number()) %>%
   ungroup %>%
-  mutate(word = factor(word, levels = rev(unique(word))),
-         book = factor(book, levels = unique(book))) %>%
-  ggplot(aes(x=word, y=n, fill=book))+
+  arrange(book, n) %>%
+  mutate(label = factor(order, levels = order, labels = paste(word, order)),
+         book = factor(book, levels = titles)) %>%
+    ggplot(aes(x=label, y=n, fill=book))+
     facet_wrap(~ book, scales = "free_y") +
     geom_col()+
     coord_flip()+
+    scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
     Grph_theme_facet()+
-    ylab("Frequency")+
-    xlab("") + ggtitle("Most Common Words")
+    ylab("Term Frequency")+
+    xlab("") + ggtitle("Most Common Words (TF)") +
     guides(fill=FALSE) 
 
 # Bar Chart of Most Specific Words
-top_n(corpus_tf_idf, 7) %>% 
+top_n(book_tf_idf, 10, tf_idf) %>% 
+  mutate(order = row_number()) %>%
   ungroup %>%
-  mutate(word = factor(word, levels = rev(unique(word))),
-         book = factor(book, levels = unique(book))) %>%  ggplot(aes(x=word, y=n, fill=book))+
+  arrange(book, tf_idf) %>%
+  mutate(label = factor(order, levels = order, labels = paste(word, order)),
+         book = factor(book, levels = titles)) %>%  
+    ggplot(aes(x=label, y=tf_idf, fill=book))+
+    ylab(word) +
     facet_wrap(~ book, scales = "free_y") +
     geom_col()+
     coord_flip()+
+    scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
     Grph_theme_facet()+
-    ylab("Frequency")+
-    xlab("") + ggtitle("Most Specific Words") + 
+    ylab("TF-IDF Score")+
+    xlab("") + ggtitle("Most Specific Words (TF-IDF)") + 
     guides(fill=FALSE) 
 ```
 
 
 # Topic Analysis
+
+Finally, let's use structural topic modeling to answer:
+
+<div id="Q4">
+###### *What are the 4 major themes/settings in the Series?*
+</div>
+
+By using chapters as the level analysis, we are only observing these themes/settings at an extremely broad level
+
+With topic analysis, at only 4 topics, the major themes/settings appear to be:
+
+* **Topic 1)** The Muggle world
+  - These chapters tend to be early in the early of book such as Harry's summers with the Dursleys
+* **Topic 2)** The magical community outside of Hogwarts
+  - Involves Ministry of Magic, journalists, and others in the Wizarding world outside of Hogwarts
+* **Topic 3)** Voldemort's story arch
+  - These chapters tend to be in later books, involving pursuit of horcruxes, run-ins with villians, and magical objects
+* **Topic 4)** Hogwarts classroom/Quidditch field
+  - These chapters tend to be in the middle of the books in which Harry and his friends are at Hogwarts, spending time studying and playing Quidditch
+
 ## Document Term Matrix
 ```{r}
 set.seed(0)
 
 # tokenize
-it <- itoken(df$clean, 
+it <- itoken(df$clean_sw, 
 				ids = df$id, 
 				progressbar = FALSE) 
 
 # ngrams
-vocab <- create_vocabulary(it, ngram = ngram) 
+vocab <- create_vocabulary(it, ngram) 
 vocab <- prune_vocabulary(vocab, term_count_min = 5L)
 
 vectorizer <- vocab_vectorizer(vocab)
@@ -373,14 +672,13 @@ dtm <- create_dtm(it, vectorizer, type="dgCMatrix")
 
 # number of term input
 pasteNQ("document term matrix specifications:")
-pasteNQ("converted raw words to", ncol(dtm), ngrams)
+pasteNQ("cleaned", totalwords, "words into", ncol(dtm))
 pasteNQ("number of documents:", nrow(dtm))
-pasteNQ("there are no duplicate respondents:", identical(rownames(dtm), df$id))
 ```
 
 
-## Structural Topic Modeling
-```{r}
+## Word Cloud by Topic
+```{r, fig.show = "hold", out.height = "100%", out.width = "50%"}
 # Convert DTM to list
 documents <- apply(as.matrix(dtm), 1, function(y) {
       rbind(which(y > 0), as.integer(y[y > 0])) 
@@ -392,7 +690,7 @@ out <- prepDocuments(processed$documents, processed$vocab, lower.thresh = 3, ver
 
 stmmodel <- stm(documents = out$documents, vocab = out$vocab,
                 K = K,
-                max.em.its = 75, 
+                max.em.its = 500, 
                 # data = out$meta,
                 init.type = "Spectral", 
                 verbose=F)
@@ -400,16 +698,25 @@ stmmodel <- stm(documents = out$documents, vocab = out$vocab,
 # List defining words for each topic
 topics <- labelTopics(stmmodel, 1:K, n=20)
 for (i in 1:K) {
-   print(pasteNQ("Topic",i,"Defining Words"))
-   print(topics$frex[i,1:10])
-   cat("\n")
+  frex <- data.frame(words=topics$frex[i,], n=21-seq(topics$frex[i,]), stringsAsFactors=F)
+  frex$words <- str_replace_all(frex$words, "_", " ")
+  clouds <- data.frame(words = c(frex$words, 
+                                 paste("Topic",i)), 
+                       weight = c(frex$n, 25))
+  assign(paste0("wc_", i), (wordcloud2(clouds, size=0.5,
+        color = "random-light", backgroundColor = "black")))
 }
-
-rm(documents, processed, out)
+embed_htmlwidget(wc_1)
+embed_htmlwidget(wc_2)
+embed_htmlwidget(wc_3)
+embed_htmlwidget(wc_4)
 ```
 
 
 ## Chapters Represented in Topic
+
+Below are the first sentences of each chapter most associated with each topic and therefore most representive of each topic.
+
 ```{r}
 for (i in 1:K) {
    assign("quotes", 
@@ -417,38 +724,17 @@ for (i in 1:K) {
                        texts = pasteNQ0(df$book, 
                                        " (Chapter ", df$chapter, "): ",
                                        sentences$beginning), 
-                       n = 2, 
+                       n = 3, 
                        topics = i)$docs[[1]])
-  print(pasteNQ("Topic",i, "Quote")) 
+  print(pasteNQ("Topic",i, "Example")) 
   print(get("quotes")[1])
   print(get("quotes")[2])
+  print(get("quotes")[3])
   cat("\n")
 }
 ```
 
 
-## Word Cloud by Topic
-```{r, fig.show = "hold", out.height = "100%", out.width = "50%"}
-for (i in 1:K) {
-  frex <- data.frame(words=topics$frex[i,], n=21-seq(topics$frex[i,]), stringsAsFactors=F)
-  wordcloud2(frex)
-}
-```
+# Next Steps
 
-
-```{r}
-
-
-```
-
-
-```{r}
-
-
-```
-
-
-```{r}
-
-
-```
+This was an extremely broad and high level look at Harry Potter.  Subsequent analysis will look more in depth at heros and villians and comparisons of the books to the films.
