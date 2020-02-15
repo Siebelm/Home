@@ -48,7 +48,7 @@ h5 {
 }
 
 .author, project-author {
-  color: #fffff2;
+  color: #fffff0;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -56,7 +56,7 @@ h5 {
  }
 
 .date, project-date {
-  color: #fffff2;
+  color: #fffff0;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -102,7 +102,7 @@ li#menutab {
 
 li#menutab a, .rightbar {
 	display: inline-block;
-	color: #fffff2;
+	color: #fffff0;
 	padding: 14px 16px;
 	text-decoration: none;
 }
@@ -115,7 +115,7 @@ li#menutab.selected a {
 
 li#menutab.selected {
 	margin: 0;
-	background: #fffff2;
+	background: #fffff0;
 }
 
 li#menutab a:hover, .dropdown:hover .rightbar {
@@ -156,7 +156,7 @@ li#menutab .rightbar {
 }
 
 .rightbar-content a:hover {
-	background-color: #fffff2;
+	background-color: #fffff0;
 }
 
 .dropdown:hover .rightbar-content {
@@ -251,7 +251,7 @@ li#menutab .rightbar {
 .main-container table th {
   font-weight: bold;
   background-color: rgb(51,91,116);
-  color: #fffff2;
+  color: #fffff0;
 }
 
 .main-container table caption {
@@ -262,7 +262,7 @@ li#menutab .rightbar {
 .main-container blockquote {
   font-size: 1.3em;
   color: #9ddcff;
-  border-left: .1rem solid #fffff2;
+  border-left: .1rem solid #fffff0;
   margin-bottom: 20px;
   margin-left: 0;
   padding: 0 1rem;
@@ -270,7 +270,7 @@ li#menutab .rightbar {
 
 /* Background Color */
 html, body {
-  color: #fffff2; /* #606060 */
+  color: #fffff0; /* #606060 */
   background-image: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
   background-image: -moz-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
   background-image: -ms-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
@@ -305,13 +305,13 @@ a {
 /* TOC */
 .list-group-item {
   background-color: #042029;
-  color: #fffff2;
+  color: #fffff0;
 }
 
 /* TOC highlight div */
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
     z-index: 2;
-    color: #fffff2;
+    color: #fffff0;
     background-color: rgb(51,91,116);
     border-color: rgb(51,91,116);
 }
@@ -322,7 +322,7 @@ a {
 /* All Mobile Sizes (devices and browser) */
 @media only screen and (max-width: 1080px) {
   html, body {
-  color: #fffff2;
+  color: #fffff0;
   background-color: #042029; 
   background-image: none !important;  
   }
@@ -356,7 +356,7 @@ a {
     font-size: 0.8em;
   }
   html, body {
-  color: #fffff2;
+  color: #fffff0;
   background-color: #042029; 
   background-image: none !important;  
   }
@@ -372,7 +372,7 @@ a {
   padding-left: 40px;
   }
   html, body {
-  	color: #fffff2;
+  	color: #fffff0;
   	background-color: #042029;  
 	background-image: none !important;
   }
