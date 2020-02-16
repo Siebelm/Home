@@ -357,22 +357,25 @@ a {
   }
   body {
     font-size: 0.8em;
-  }
+  }  
   html, body {
-  color: #fffff0;
-  background-color: #042029; 
-  background-image: none !important;  
+    color: #fffff0;
+    background-color: #042029; 
+    background-image: none !important;  
   }
 }
 
 @media (max-width: 750px) {
   #TOC {
-  display: none;
+    display: none;
   }
   .section {
-  width: 100%;	
-  margin-left: 0;
-  padding-left: 40px;
+    width: 100%;	
+    margin-left: 0;
+    padding-left: 40px;
+  }
+  .main-container {
+    margin: 3rem 0 0 0;
   }
   html, body {
   	color: #fffff0;
