@@ -1,6 +1,6 @@
 /* Globals */
 html {
-  font-size: 1.2em;
+  font-size: 1.4em;
 }
 
 h1.title {
@@ -9,22 +9,19 @@ h1.title {
   color: steelblue;
 }
 h1 {
-  font-size: 2em;;
+  font-size: 2.2em;;
 }
 h2 {
-  font-size: 1.5em;
+  font-size: 1.8em;
 }
 h3 {
-  font-size: 1.2em;
+  font-size: 1.6em;
 }
 h4 {
-  font-size: 1.0em;
+  font-size: 1.4em;
 }
 h5 {
-  font-size: 0.8em;
-}
-h6 {
-  font-size: 0.5em;
+  font-size: 1.4em;
 }
 .table th:not([align]) {
   text-align: left;
@@ -51,7 +48,7 @@ h6 {
 }
 
 .author, project-author {
-  color: white;
+  color: #fffff0;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -59,7 +56,7 @@ h6 {
  }
 
 .date, project-date {
-  color: white;
+  color: #fffff0;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -105,7 +102,7 @@ li#menutab {
 
 li#menutab a, .rightbar {
 	display: inline-block;
-	color: white;
+	color: #fffff0;
 	padding: 14px 16px;
 	text-decoration: none;
 }
@@ -118,7 +115,7 @@ li#menutab.selected a {
 
 li#menutab.selected {
 	margin: 0;
-	background: white;
+	background: #fffff0;
 }
 
 li#menutab a:hover, .dropdown:hover .rightbar {
@@ -159,7 +156,7 @@ li#menutab .rightbar {
 }
 
 .rightbar-content a:hover {
-	background-color: white;
+	background-color: #fffff0;
 }
 
 .dropdown:hover .rightbar-content {
@@ -201,18 +198,25 @@ li#menutab .rightbar {
   padding: 0 20px 0 20px;
 }
 
-.section h1, .section h2, .section h3, .section h4, .section h5,
-.section h6 {
+.section h1, .section h2, .section h3, .section h4, .section h5 {
   margin-top:1.5rem;
   margin-bottom: .5rem;
   font-weight: bold;
   color: steelblue;
 }
 
+.section h6 {
+  font-size: 1.4em;
+  margin-top:1.5rem;
+  margin-bottom: .5rem;
+  font-weight: bold;
+  color: #ca2c92;
+}
+
 .level1 h1:before {
   padding-right: 0.3em;
   margin-left: -0.8em;
-  color: #ca2c92;
+  color: #9ddcff;
   content: "/";
 }
 
@@ -220,41 +224,34 @@ li#menutab .rightbar {
   padding-right: 0.3em;
   margin-left: -1.2em;
   content: "//";
-  color: #ca2c92;
+  color: #9ddcff;
 }
 
 .level3 h3:before {
   padding-right: 0.3em;
   margin-left: -1.7em;
   content: "///";
-  color: #ca2c92;
+  color: #9ddcff;
 }
 
 .level4 h4:before {
   padding-right: 0.3em;
   margin-left: -2em;
   content: "////";
-  color: #ca2c92;
+  color: #9ddcff;
 }
 
 .level5 h5:before {
   padding-right: 0.3em;
   margin-left: -2.4em;
   content: "/////";
-  color: #ca2c92;
-}
-
-.level6 h6:before {
-  padding-right: 0.3em;
-  margin-left: -3em;
-  content: "//////";
-  color: #ca2c92;
+  color: #9ddcff;
 }
 
 .main-container table th {
   font-weight: bold;
   background-color: rgb(51,91,116);
-  color: white;
+  color: #fffff0;
 }
 
 .main-container table caption {
@@ -265,7 +262,7 @@ li#menutab .rightbar {
 .main-container blockquote {
   font-size: 1.3em;
   color: #9ddcff;
-  border-left: .1rem solid white;
+  border-left: .1rem solid #fffff0;
   margin-bottom: 20px;
   margin-left: 0;
   padding: 0 1rem;
@@ -273,7 +270,7 @@ li#menutab .rightbar {
 
 /* Background Color */
 html, body {
-  color: white; /* #606060 */
+  color: #fffff0; /* #606060 */
   background-image: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
   background-image: -moz-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
   background-image: -ms-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
@@ -287,7 +284,7 @@ html, body {
 
 a {
   font-size: 1.2em;
-  color: #d5000d;
+  color: #ca2c92;
   border: 0;
 }
 
@@ -308,13 +305,13 @@ a {
 /* TOC */
 .list-group-item {
   background-color: #042029;
-  color: white;
+  color: #fffff0;
 }
 
 /* TOC highlight div */
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
     z-index: 2;
-    color: #fff;
+    color: #fffff0;
     background-color: rgb(51,91,116);
     border-color: rgb(51,91,116);
 }
@@ -325,7 +322,7 @@ a {
 /* All Mobile Sizes (devices and browser) */
 @media only screen and (max-width: 1080px) {
   html, body {
-  color: white;
+  color: #fffff0;
   background-color: #042029; 
   background-image: none !important;  
   }
@@ -359,7 +356,7 @@ a {
     font-size: 0.8em;
   }
   html, body {
-  color: white;
+  color: #fffff0;
   background-color: #042029; 
   background-image: none !important;  
   }
@@ -375,7 +372,7 @@ a {
   padding-left: 40px;
   }
   html, body {
-  	color: white;
+  	color: #fffff0;
   	background-color: #042029;  
 	background-image: none !important;
   }
