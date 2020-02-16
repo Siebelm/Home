@@ -194,14 +194,14 @@ li#menutab .rightbar {
   padding: 0 20px 0 20px;
 }
 
-.section h1, .section h2, .section h3, .section h4, .section h5 {
+.main-container h1, h2, h3, h4, h5 {
   margin-top:1.5rem;
   margin-bottom: .5rem;
   font-weight: bold;
   color: steelblue;
 }
 
-.section h6 {
+h6 {
   font-size: 1.4em;
   margin-top:1.5rem;
   margin-bottom: .5rem;
