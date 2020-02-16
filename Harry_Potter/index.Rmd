@@ -1,20 +1,20 @@
 ---
-title: "Text Analysis of Harry Potter"
+title: "Harry Potter NLP"
 author: "Michael Siebel"
 date: "`r date()`"
 output: 
   html_document:
     toc: true
     toc_float: true
-    css: "Rstyles.css" 
+    css: "../Rstyles.css" 
     code_folding: hide
     highlight: tango
     includes:
-      in_header: "menu.html"
+      in_header: "../menu.html"
 ---
 
 
->  Analysis for: <br>
+>  Natural Language Processing (NLP) for: <br>
 >  Harry Potter and the Philosopher's Stone (1997) <br>
 >  Harry Potter and the Chamber of Secrets (1998) <br>
 >  Harry Potter and the Prisoner of Azkaban (1999) <br>
