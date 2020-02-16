@@ -192,7 +192,7 @@ li#menutab .rightbar {
 
 #blog {
   color: #042029; 
-  position: absolute; 
+  position: fixed; 
   top: 14px; 
   text-align: center; 
   font-size: 2.2em; 

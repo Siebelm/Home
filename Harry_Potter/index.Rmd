@@ -561,7 +561,7 @@ This leads to a question that simple TFs by book can answer:
 ###### *Who is Harry closest friend?*
 </div>
 
-The *Most Common Terms (TF)* chart shows that, in nearly every book, Ron is mentioned more than Hermoine, indicating that he is Harry's closest friend--although the movies may differ on this.  However, it is worth noting that Hermoine does close this gap as the books progress and is mentioned more times in the **Deathly Hallows (Book 7)**.
+The *Most Common Terms (TF)* chart shows that, in nearly every book, Ron is mentioned more than Hermoine, indicating that he is Harry's closest friend--although the movies may differ on this.  However, it is worth noting that Hermoine does close this gap as the books progress and is mentioned more times in **Deathly Hallows (Book 7)**.  Interestingly, Professor Dumbledore jumps above Ron and Hermoined in **Half-Blood Prince (Book 6)**, where he becomes more than a mentor and partners with Harry in the story's main adventure.
 
 I write "closest" instead of "best" as Ron is more prominent and, therefore, appears more "in Harry's life."  However, some of these appearance can be (and are) of Ron fighting with Harry.  Again, note that we can make this conclusion assuming that Ron and Hermoine appear in the books in relation to Harry.  A book not written as from a single character's perspective could not achieve these conclusions as easily.
 
@@ -598,15 +598,18 @@ top_n(book_tf, 10, n) %>%
   mutate(order = row_number()) %>%
   ungroup %>%
   arrange(book, n) %>%
-  mutate(label = factor(order, levels = order, labels = paste(word, order)),
-         book = factor(book, levels = titles)) %>%
-    ggplot(aes(x=label, y=n, fill=book))+
+  mutate(label = paste(book, order, word),
+         book = factor(book, levels = titles)) %>%  
+  mutate(labels = factor(label, levels = label,
+                         label = paste(word, order))) %>%
+    ggplot(aes(x=reorder(labels,rev(order)), y=n, fill=book))+
     facet_wrap(~ book, scales = "free_y") +
     geom_col()+
     coord_flip()+
     scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
                                  "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
     Grph_theme_facet()+
+    theme(axis.text.x=element_text(size=8, angle=45)) +
     ylab("Term Frequency")+
     xlab("") + ggtitle("Most Common Words (TF)") +
     guides(fill=FALSE) 
@@ -616,9 +619,11 @@ top_n(book_tf_idf, 10, tf_idf) %>%
   mutate(order = row_number()) %>%
   ungroup %>%
   arrange(book, tf_idf) %>%
-  mutate(label = factor(order, levels = order, labels = paste(word, order)),
+  mutate(label = paste(book, order, word),
          book = factor(book, levels = titles)) %>%  
-    ggplot(aes(x=label, y=tf_idf, fill=book))+
+  mutate(labels = factor(label, levels = label,
+                         label = paste(word, order))) %>%
+    ggplot(aes(x=labels, y=tf_idf, fill=book))+
     ylab(word) +
     facet_wrap(~ book, scales = "free_y") +
     geom_col()+
