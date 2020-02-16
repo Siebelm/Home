@@ -318,6 +318,9 @@ a {
 
 /* All Mobile Sizes (devices and browser) */
 @media only screen and (max-width: 1080px) {
+  .main-container {
+    margin: 3rem 0 0 0;
+  }
   html, body {
     color: #fffff0;
     background-color: #042029; 
@@ -352,6 +355,9 @@ a {
     margin-left: 0;
     content: none;
   }
+  .main-container {
+    margin: 3rem 0 0 0;
+  }  
   body {
     font-size: 0.8em;
   }  
@@ -385,7 +391,7 @@ a {
   #blog {
     display: none;
   }
-  #menubar {
+  #menutab.rightbar {
     display: none;
   }
 }
