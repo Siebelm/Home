@@ -110,5 +110,7 @@ include_graphics("logsigmoid.gif")
 
 # Conclusion
 
-We are done!  Now imagine that each iteration was the year and the plot was of U.S. GDP, or each iteration was a decrease in credit score and the plot was the predicted probability of mortagage default.
+We are done!  
+
+Now imagine that each iteration was the year and the plot was of U.S. GDP, or each iteration was a decrease in credit score and the plot was the predicted probability of mortagage default.
 
