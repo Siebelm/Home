@@ -14,6 +14,7 @@ output:
 ---
 
 <br>
+
 > R Programming: <br>
 > Creating a GIF in R <br>
 > Using ggplot 
@@ -24,7 +25,7 @@ Below, I will demonstrate a simple example.  However, it will be clear how to ex
 
 ###### *Why would you want to create a GIF with ggplot?*
 
-The most common answer would be for use with time series data.  Another possibility would be a change in an assumption, for examples see <a href="conclusion">conclusion</a>.
+The most common answer would be for use with time series data.  Another possibility would be a change in an assumption, for examples see <a href="#conclusion">conclusion</a>.
 
 Hans Rosling is one of the best known practicioners of this form of data visualization.  In his most famous lecture, he plots 200 countries over 200 years using 120,000 numbers.  This entails plotting life expectancy against income for every country since 1810.  By having the plots scroll through each consective year, he shows the progress in which the world has made in becoming "less sick" and "more wealthy".
 
