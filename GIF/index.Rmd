@@ -17,18 +17,18 @@ output:
 > Creating a GIF in R <br>
 > Using ggplot 
 
-Creating a GIF in <code>ggplot</code> is extremingly simple and only requires one additional package beyond <code>ggplot2</code>.
+Creating a GIF in <code>ggplot</code> is extremely simple and only requires one additional package beyond <code>ggplot2</code>.
 
 Below, I will demonstrate a simple example.  However, it will be clear how to expand by this use case to create dynamic plots.  
 
 ###### *Why would you want to create a GIF with ggplot?*
 
-The most common answer would be for use with time series data.  Another possibility would be a change in an assumption, for examples see <a href="conclusion>conclusion</a>.
+The most common answer would be for use with time series data.  Another possibility would be a change in an assumption, for examples see <a href="conclusion">conclusion</a>.
 
 Hans Rosling is one of the best known practicioners of this form of data visualization.  In his most famous lecture, he plots 200 countries over 200 years using 120,000 numbers.  This entails plotting life expectancy against income for every country since 1810.  By having the plots scroll through each consective year, he shows the progress in which the world has made in becoming "less sick" and "more wealthy".
 
 An example of his lecture can be found here: <br>
-https://www.youtube.com/watch?v=jbkSRLYSojo
+<a href="https://www.youtube.com/watch?v=jbkSRLYSojo" target="_blank">Youtube Link</a>
 
 # Setup
 
@@ -70,7 +70,7 @@ I will be creating a representation of a Log-Sigmoid function like that used in 
 
 $$\sigma(x) = \frac{1}{1+e^{-x}}$$
 
-To accomplish this, I need to create a function that will loop through several <code>ggplot's</code> in which the x and y values are entered one at a time.  
+To accomplish this, I need to create a function that will loop through several plots in which the x and y values are entered one at a time.  
 
 **Note:** I increased the curvature of the Log-Sigmoid by modifying the formula to:
 

@@ -284,6 +284,7 @@ html, body {
 
 a {
   font-size: 1.2em;
+  text-decoration: none;
   color: #ca2c92;
   border: 0;
 }
