@@ -325,9 +325,12 @@ a {
 /* All Mobile Sizes (devices and browser) */
 @media only screen and (max-width: 1080px) {
   html, body {
-  color: #fffff0;
-  background-color: #042029; 
-  background-image: none !important;  
+    color: #fffff0;
+    background-color: #042029; 
+    background-image: none !important;  
+  }
+  #blog {
+    display: none;
   }
 }
 
@@ -363,6 +366,9 @@ a {
     background-color: #042029; 
     background-image: none !important;  
   }
+  #blog {
+    display: none;
+  }
 }
 
 @media (max-width: 750px) {
@@ -381,6 +387,12 @@ a {
   	color: #fffff0;
   	background-color: #042029;  
 	background-image: none !important;
+  }
+  #blog {
+    display: none;
+  }
+  #menubar {
+    display: none;
   }
 }
 
