@@ -314,7 +314,7 @@ li#menutab .rightbar {
 
 /* Background Color */
 html, body {
-  color: #fffff0; /* #606060 */
+  color: #fffff0; 
   background-image: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
   background-image: -moz-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
   background-image: -ms-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
@@ -339,7 +339,14 @@ a {
   0 0 repeat;
   font-weight: bold;
   border: 0;
+}
+
+.main-container shortcode {
+  background: #fffff0 0 0 repeat;
+  font-weight: bold;  
   color: #c7254e !important;
+  border-radius: 4px;
+  padding: 2px 4px;
 }
 
 .main-container pre {

@@ -19,7 +19,7 @@ output:
 > Creating a GIF in R <br>
 > Using ggplot 
 
-Creating a GIF in <code>ggplot</code> is extremely simple and only requires one additional package beyond <code>ggplot2</code>.
+Creating a GIF in <shortcode>ggplot</shortcode> is extremely simple and only requires one additional package beyond <shortcode>ggplot2</shortcode>.
 
 Below, I will demonstrate a simple example.  However, it will be clear how to expand by this use case to create dynamic plots.  
 
@@ -34,9 +34,9 @@ An example of his lecture can be found here: <br>
 
 # Setup
 
-The two packages we need our <code>ggplot2</code> and <code>gifski</code>.  
+The two packages we need our <shortcode>ggplot2</shortcode> and <shortcode>gifski</shortcode>.  
 
-<code>gifski</code> will be used to convert a series of plots into a gif.
+<shortcode>gifski</shortcode> will be used to convert a series of plots into a gif.
 
 ```{r}
 library(pacman)
@@ -72,7 +72,7 @@ I will be creating a representation of a Log-Sigmoid function like that used in 
 
 $$\sigma(x) = \frac{1}{1+e^{-x}}$$
 
-To accomplish this, I need to create a function that will loop through several plots in which the x and y values are entered one at a time.  
+To accomplish this, I need to create a function that will loop through several plots in which the x and y values are entered one at a time.  The length of the object <shortcode>iterseq</shortcode> sets how many plots are created in the loop.  The larger the length, the more slower and "smoother" the GIF will be.
 
 **Note:** I increased the curvature of the Log-Sigmoid by modifying the formula to:
 
@@ -98,9 +98,9 @@ logsigmoid <- function(s, e, i) {
 
 # Run GIF
 
-Now that the plots are defined, I add my newly defined function to the <code>gifski</code> function <code>save_gif()</code>.  If you simply want a saved copy of the GIF, look in your working directory for "logsigmoid.gif".
+Now that the plots are defined, I add my newly defined function to the <shortcode>gifski</shortcode> function <shortcode>save_gif()</shortcode>.  If you simply want a saved copy of the GIF, look in your working directory for "logsigmoid.gif".
 
-In order to include the GIF in your knitted markdown, add the GIF to the <code>gifski</code> function <code>include_graphics()</code>.
+In order to include the GIF in your knitted markdown, add the GIF to the <shortcode>gifski</shortcode> function <shortcode>include_graphics()</shortcode>.
 
 ```{r}
 invisible(save_gif(logsigmoid(-20, 20, 0.5), "logsigmoid.gif", delay = 0.05, 
