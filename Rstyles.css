@@ -77,7 +77,7 @@ h5 {
 }
 
 .author, project-author {
-  color: #fffff0;
+  color: #fcfbe3;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -85,7 +85,7 @@ h5 {
  }
 
 .date, project-date {
-  color: #fffff0;
+  color: #fcfbe3;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -102,13 +102,13 @@ h5 {
  
 .list-group-item {
   background-color: #042029;
-  color: #fffff0;
+  color: #fcfbe3;
 }
 
 /* TOC highlight div */
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
     z-index: 2;
-    color: #fffff0;
+    color: #fcfbe3;
     background-color: rgb(51,91,116);
     border-color: rgb(51,91,116);
 }
@@ -145,20 +145,20 @@ li#menutab {
 
 li#menutab a, .rightbar {
 	display: inline-block;
-	color: #fffff0;
+	color: #fcfbe3;
 	padding: 14px 16px;
 	text-decoration: none;
 }
 
 li#menutab.selected a {
 	height: 25px;
-	color: #111;
+	color: #042029;
     padding-bottom: 6px;    
 }
 
 li#menutab.selected {
 	margin: 0;
-	background: #fffff0;
+	background: #fcfbe3;
 }
 
 li#menutab a:hover, .dropdown:hover .rightbar {
@@ -199,7 +199,7 @@ li#menutab .rightbar {
 }
 
 .rightbar-content a:hover {
-	background-color: #fffff0;
+	background-color: #fcfbe3;
 }
 
 .dropdown:hover .rightbar-content {
@@ -295,7 +295,7 @@ li#menutab .rightbar {
 .main-container table th {
   font-weight: bold;
   background-color: rgb(51,91,116);
-  color: #fffff0;
+  color: #fcfbe3;
 }
 
 .main-container table caption {
@@ -306,7 +306,7 @@ li#menutab .rightbar {
 .main-container blockquote {
   font-size: 1.3em;
   color: #9ddcff;
-  border-left: .1rem solid #fffff0;
+  border-left: .1rem solid #fcfbe3;
   margin-bottom: 20px;
   margin-left: 0;
   padding: 0 1rem;
@@ -314,12 +314,12 @@ li#menutab .rightbar {
 
 /* Background Color */
 html, body {
-  color: #fffff0; 
-  background-image: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
-  background-image: -moz-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
-  background-image: -ms-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
-  background-image: -o-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
-  background-image: -gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,0.66)) ) ;
+  color: #fcfbe3; 
+  background-image: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
+  background-image: -moz-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
+  background-image: -ms-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
+  background-image: -o-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
+  background-image: -gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
   background-repeat: repeat-y;
   background-size: 280px 100%;
   background-color: #042029;  
@@ -341,7 +341,7 @@ a {
 }
 
 .main-container shortcode {
-  background: #fffff0 0 0 repeat;
+  background: #fcfbe3 0 0 repeat;
   font-weight: bold;  
   color: #c7254e !important;
   border-radius: 4px;
@@ -430,7 +430,7 @@ a {
     margin: 3rem 0 0 0;
   }
   html, body {
-  	color: #fffff0;
+  	color: #fcfbe3;
   	background-color: #042029;  
 	background-image: none !important;
   }

@@ -162,7 +162,7 @@ li#menutab.selected {
 }
 
 li#menutab a:hover, .dropdown:hover .rightbar {
-	color: #999;
+	color: #708284;
 }
 
 /* **********
