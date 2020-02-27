@@ -109,8 +109,8 @@ h5 {
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
     z-index: 2;
     color: #fcfbe3;
-    background-color: rgb(51,91,116);
-    border-color: rgb(51,91,116);
+    background-color: rgb(69,123,157);
+    border-color: rgb(69,123,157);
 }
 
  
@@ -182,7 +182,7 @@ li#menutab .rightbar {
 .rightbar-content {
 	display: none;
 	position: absolute;
-	background-color: rgb(51,91,116);
+	background-color: rgb(69,123,157);
 	width: 160px;
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 	z-index: 1;
@@ -204,6 +204,49 @@ li#menutab .rightbar {
 
 .dropdown:hover .rightbar-content {
 	display: block;
+}
+
+/*
+=====================
+SOCIAL LINKS
+=====================
+*/
+.leftpanel {
+    position: fixed;
+    width: 280px;
+    height: 100%;
+    top: 0px;
+    overflow-y: auto;
+}
+
+p.social {
+  bottom: 20px;
+  position: absolute;
+  width: 220px;
+  left: 30px; 
+  right: 30px;    
+}
+p.social a {
+  margin: 0 5px;
+  color: #fcfbe3;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  line-height: 40px;
+  font-size: 15px;
+  text-align: center;
+  horizontal-align: center;
+  vertical-align: bottom;
+  border: solid 1px #042029;
+  color: #042029;
+  -webkit-transition: all 1s ease-out;
+  -moz-transition: all 1s ease-out;
+  transition: all 1s ease-out;
+}
+p.social a:hover {
+  color: #999999;
+  border-color: #999999;
 }
 
 
@@ -294,7 +337,7 @@ li#menutab .rightbar {
 
 .main-container table th {
   font-weight: bold;
-  background-color: rgb(51,91,116);
+  background-color: rgb(69,123,157);
   color: #fcfbe3;
 }
 
@@ -315,11 +358,11 @@ li#menutab .rightbar {
 /* Background Color */
 html, body {
   color: #fcfbe3; 
-  background-image: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
-  background-image: -moz-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
-  background-image: -ms-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
-  background-image: -o-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
-  background-image: -gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
+  background-image: -webkit-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+  background-image: -moz-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+  background-image: -ms-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+  background-image: -o-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+  background-image: -gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
   background-repeat: repeat-y;
   background-size: 280px 100%;
   background-color: #042029;  
@@ -460,7 +503,7 @@ a {
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: rgb(51,91,116); 
+  background: rgb(69,123,157); 
 }
 
 /* Handle on hover */
@@ -480,7 +523,7 @@ a {
  
 /* Handle */
 ::-moz-scrollbar-thumb {
-  background: rgb(51,91,116); 
+  background: rgb(69,123,157); 
 }
 
 /* Handle on hover */
@@ -500,7 +543,7 @@ code  span.co { color: black; font-style: italic; } /* Comment */
 code  span.ot { color: #007020; } /* Other */
 /* Modified Prettydocs Cayman highlights rgb(216,33,41)*/
 code{white-space: pre;}
-div.sourceCode { overflow-x: auto; background-color: rgb(51,91,116); }
+div.sourceCode { overflow-x: auto; background-color: rgb(69,123,157); }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
 table.sourceCode { width: 100%; line-height: 100%; }

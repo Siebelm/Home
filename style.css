@@ -109,8 +109,8 @@ h5 {
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
     z-index: 2;
     color: #fcfbe3;
-    background-color: rgb(51,91,116);
-    border-color: rgb(51,91,116);
+    background-color: rgb(69,123,157);
+    border-color: rgb(69,123,157);
 }
 
  
@@ -182,7 +182,7 @@ li#menutab .rightbar {
 .rightbar-content {
 	display: none;
 	position: absolute;
-	background-color: rgb(51,91,116);
+	background-color: rgb(69,123,157);
 	width: 160px;
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 	z-index: 1;
@@ -313,6 +313,9 @@ li#menutab .rightbar {
 
 #blog:hover {
   color: #999;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;  
 }
 
 #quote {
@@ -334,9 +337,9 @@ li#menutab .rightbar {
 
 #objective:hover {
   color: #999;
-  -webkit-transition: all 0.2s ease-out;
-  -moz-transition: all 0.2s ease-out;
-  transition: all 0.2s ease-out;  
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
 }
 
 #crest {
@@ -482,7 +485,7 @@ h6 {
 
 .main-container table th {
   font-weight: bold;
-  background-color: rgb(51,91,116);
+  background-color: rgb(69,123,157);
   color: #fcfbe3;
 }
 
@@ -503,11 +506,11 @@ h6 {
 /* Background Color */
 html, body {
   color: #fcfbe3; 
-  background-image: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
-  background-image: -moz-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
-  background-image: -ms-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
-  background-image: -o-gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
-  background-image: -gradient(linear, left top, right top, from(rgba(51,91,116,1)), to(rgba(51,91,116,1)) ) ;
+  background-image: -webkit-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+  background-image: -moz-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+  background-image: -ms-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+  background-image: -o-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+  background-image: -gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
   background-repeat: repeat-y;
   background-size: 280px 100%;
   background-color: #042029;  
@@ -547,6 +550,12 @@ a {
 ================================================== */
 
 /* All Mobile Sizes (devices and browser) */
+@media only screen and (max-height: 410px) {
+  .social {
+    display: none;  
+  }
+}
+
 @media only screen and (max-width: 850px) {
   header {
     padding-top: 10px;
@@ -581,6 +590,12 @@ a {
   .social {
     display: none;  
   }
+  #blog:hover {
+    display: none;  
+  }
+  #objective:hover {
+    display: none;  
+  }
   li#menutab .rightbar {
     display: none;
   }  
@@ -612,6 +627,12 @@ a {
   .social {
     display: none;  
   }
+  #blog:hover {
+    display: none;  
+  }
+  #objective:hover {
+    display: none;  
+  }
   li#menutab .rightbar {
     display: none;
   }
@@ -635,7 +656,7 @@ a {
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: rgb(51,91,116); 
+  background: rgb(69,123,157); 
 }
 
 /* Handle on hover */
@@ -655,7 +676,7 @@ a {
  
 /* Handle */
 ::-moz-scrollbar-thumb {
-  background: rgb(51,91,116); 
+  background: rgb(69,123,157); 
 }
 
 /* Handle on hover */
@@ -675,7 +696,7 @@ code  span.co { color: black; font-style: italic; } /* Comment */
 code  span.ot { color: #007020; } /* Other */
 /* Modified Prettydocs Cayman highlights rgb(216,33,41)*/
 code{white-space: pre;}
-div.sourceCode { overflow-x: auto; background-color: rgb(51,91,116); }
+div.sourceCode { overflow-x: auto; background-color: rgb(69,123,157); }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
 table.sourceCode { width: 100%; line-height: 100%; }
