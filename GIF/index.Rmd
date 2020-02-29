@@ -52,14 +52,14 @@ Grph_theme <- function() {
   theme(panel.grid.minor=element_blank()) +
   theme(axis.ticks=element_blank()) +
   theme(legend.position="none") +
-  theme(legend.title=element_text(size=16,color='#fffff0')) +
-  theme(legend.text=element_text(size=14,color='#fffff0')) +
-  theme(strip.text.x=element_text(size=14,color='#fffff0',vjust=1)) +
+  theme(legend.title=element_text(size=16,color='#fcfbe3')) +
+  theme(legend.text=element_text(size=14,color='#fcfbe3')) +
+  theme(strip.text.x=element_text(size=14,color='#fcfbe3',vjust=1)) +
   theme(plot.title=element_text(size=20, vjust=1.25)) +
-  theme(axis.text.x=element_text(size=10,color='#fffff0')) +
-  theme(axis.text.y=element_text(size=10,color='#fffff0')) +
-  theme(axis.line.x=element_line(color='#fffff0')) +
-  theme(axis.line.y=element_line(color='#fffff0')) +    
+  theme(axis.text.x=element_text(size=10,color='#fcfbe3')) +
+  theme(axis.text.y=element_text(size=10,color='#fcfbe3')) +
+  theme(axis.line.x=element_line(color='#fcfbe3')) +
+  theme(axis.line.y=element_line(color='#fcfbe3')) +    
   theme(axis.title.x= element_blank()) +
   theme(axis.title.y= element_blank()) +
   theme(plot.margin = unit(c(0.35, 0.2, 0.3, 0.35), "cm"))

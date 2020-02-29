@@ -29,7 +29,7 @@ h1.title {
   text-align: center;
   font-size: 2.25em;
   font-weight: bold;
-  color: steelblue;
+  color: #457b9d;
   font-family: 'Montserrat', sans-serif !important;
 }
 h1 {
@@ -60,7 +60,7 @@ h5 {
 /* Page Header */
 #header {
   position: relative;
-  color: steelblue;
+  color: #457b9d;
   text-align: center;
   background-image: rgb(55,90,125); 
   background-repeat: no-repeat;
@@ -288,7 +288,7 @@ p.social a:hover {
   margin-top:1.5rem;
   margin-bottom: .5rem;
   font-weight: bold;
-  color: steelblue;
+  color: #457b9d;
   font-family: 'Montserrat', sans-serif !important;
 }
 
@@ -460,7 +460,7 @@ a {
   }  
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   #TOC {
     display: none;
   }

@@ -43,7 +43,7 @@ Each subsequent book increased its count of unique words.  However, **Goblet of 
 Ron is Harry's closest friend, although Hermoine's friendship grows throughout the Series.
 
 **Secondary Characters** <br>
-Professor Dumbledore is the most prominent secondary characters throughout the books, while the Defense Against Dark Arts teachers are the most prominent within each of the first 6 books.
+Professor Dumbledore is the most prominent secondary character throughout the books, while the Defense Against Dark Arts teachers are the most prominent within each of the first 6 books.
 
 **Major Themes/Settings** <br>
 The Muggle world, the magical community outside Hogwarts, Voldemort's story arch, and the Hogwarts classroom/Quidditch field are the 4 broadest themes/settings.
@@ -631,6 +631,7 @@ top_n(book_tf_idf, 10, tf_idf) %>%
     scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
                                  "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
     Grph_theme_facet()+
+    theme(axis.text.x=element_text(angle=45)) +
     ylab("TF-IDF Score")+
     xlab("") + ggtitle("Most Specific Words (TF-IDF)") + 
     guides(fill=FALSE) 

@@ -29,7 +29,7 @@ h1.title {
   text-align: center;
   font-size: 2.25em;
   font-weight: bold;
-  color: steelblue;
+  color: #457b9d;
   font-family:'Montserrat', sans-serif;  
 }
 h1 {
@@ -60,7 +60,7 @@ h5 {
 /* Page Header */
 #header {
   position: relative;
-  color: steelblue;
+  color: #457b9d;
   text-align: center;
   background-image: rgb(55,90,125); 
   background-repeat: no-repeat;
@@ -332,7 +332,6 @@ li#menutab .rightbar {
   font-size: 1.2em; 
   padding: 14px 28px; 
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-  disply: inline-block;
 }
 
 #objective:hover {
@@ -395,9 +394,9 @@ p.social a {
   vertical-align: bottom;
   border: solid 1px #042029;
   color: #042029;
-  -webkit-transition: all 1s ease-out;
-  -moz-transition: all 1s ease-out;
-  transition: all 1s ease-out;
+  -webkit-transition: all 0.8s ease-out;
+  -moz-transition: all 0.8s ease-out;
+  transition: all 0.8s ease-out;
 }
 p.social a:hover {
   color: #999999;
@@ -436,7 +435,7 @@ p.social a:hover {
   margin-top:1.5rem;
   margin-bottom: .5rem;
   font-weight: bold;
-  color: steelblue;
+  color: #457b9d;
   font-family:'Montserrat', sans-serif;
 }
 
