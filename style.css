@@ -580,7 +580,7 @@ a {
     background-color: #042029; 
     background-image: none !important;  
   }
-  #leftpanel {
+  .leftpanel {
     display: none;
   }
   #quote {
@@ -617,7 +617,7 @@ a {
   	background-color: #042029;  
 	background-image: none !important;
   }
-  #leftpanel {
+  .leftpanel {
     display: none;
   }
   #quote {

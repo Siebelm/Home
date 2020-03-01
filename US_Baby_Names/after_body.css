@@ -1,12 +1,42 @@
 /* Main Container */
 #notebook-container {
-  margin: 3rem 0 0 280px;
+  margin: 3rem 0 0 0;
   padding: 0 20px 0 20px;
 }
 
 /* Background Color */
 html, body {
   padding: 0;
-  line-height: 1.42857143;
+  left: 280px;
 }
 
+/* All Mobile Sizes (devices and browser) */
+@media only screen and (max-height: 410px) {
+  .social {
+    display: none;  
+  }
+}
+
+@media only screen and (max-width: 850px) {
+  html, body {
+    left: 0;
+  }
+  .leftpanel {
+    display: none;
+  }
+  #quote {
+    display: none;  
+  }
+  .social {
+    display: none;  
+  }
+  #blog:hover {
+    display: none;  
+  }
+  #objective:hover {
+    display: none;  
+  }
+  li#menutab .rightbar {
+    display: none;
+  }  
+}
