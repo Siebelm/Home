@@ -1,0 +1,12 @@
+/* Main Container */
+#notebook-container {
+  margin: 3rem 0 0 280px;
+  padding: 0 20px 0 20px;
+}
+
+/* Background Color */
+html, body {
+  padding: 0;
+  line-height: 1.42857143;
+}
+

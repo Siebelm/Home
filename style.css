@@ -273,6 +273,14 @@ li#menutab .rightbar {
     margin-bottom: 20px;
 } 
 
+#photolong {
+  height: 100px; 
+  width: 250px; 
+  position: relative; 
+  display: block; 
+  padding-bottom: 20px;
+}
+
 #phototall {
     border-radius: 10px; 
     height: 130px; 
@@ -348,14 +356,6 @@ li#menutab .rightbar {
   position: relative;
   margin-left: auto; 
   margin-right: auto;   
-}
-
-#gif {
-  height: 100px; 
-  width: 250px; 
-  position: relative; 
-  display: block; 
-  padding-bottom: 20px;
 }
 
 #resume {

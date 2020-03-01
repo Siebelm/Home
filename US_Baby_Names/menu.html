@@ -1,0 +1,375 @@
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* *****************
+   Horizontal Menu
+****************** */
+#menubar {
+	height: 28px;
+	padding: 0;
+	margin: 0;
+	position: absolute;
+	z-index: 1;
+	right: 5%;
+	width: 100%;
+    top: 0;
+    padding-bottom: 6px;
+    background-color: transparent !important;
+} 
+
+ul#menu {
+	float: right;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	top: 0;
+ }
+
+li#menutab {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 6px;
+}
+
+li#menutab a, .rightbar {
+	display: inline-block;
+	color: #fcfbe3;
+	padding: 14px 16px 18px;
+	text-decoration: none;
+}
+
+li#menutab.selected a {
+	height: 25px;
+	color: #1a2028;
+    padding-bottom: 6px;    
+}
+
+li#menutab.selected {
+	margin: 0;
+	background: #fcfbe3;
+}
+
+li#menutab a:hover, .dropdown:hover .rightbar {
+	color: #708284;
+}
+
+/* **********
+   Menu button 
+ ********** */
+li#menutab.dropdown {
+	display: inline-block;
+}
+
+li#menutab .rightbar {
+	text-decoration: none;
+	text-align: left;
+	color: #ca2c92;
+	cursor: pointer;	
+} 
+
+.rightbar-content {
+	display: none;
+	position: absolute;
+	background-color: rgb(69,123,157);
+	width: 160px;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 1;
+	color: black;
+}
+
+.rightbar-content a {
+	color: black;
+	padding: 12px 16px;
+	text-decoration: none;
+	min-width: 160px;
+	display: block;
+	text-align: left;
+}
+
+.rightbar-content a:hover {
+	background-color: #fcfbe3;
+}
+
+.dropdown:hover .rightbar-content {
+	display: block;
+}
+
+/* ********
+   *DIVS* 
+**********/
+
+.leftpanel {
+    position: fixed;
+    width: 280px;
+    height: 100%;
+    top: 0px;
+    overflow-y: auto;
+    left: 0px;
+    background-image: -webkit-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+    background-image: -moz-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+    background-image: -ms-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+    background-image: -o-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+    background-image: -gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
+    background-repeat: repeat-y;
+    background-size: 280px 100%;
+}
+
+#clan {
+  color: #1a2028; 
+  margin-top: 14px; 
+  text-align: center; 
+  font-size: 5em; 
+  padding: 14px 16px 0 14px; 
+  font-weight: bold;
+  font-family: 'Montserrat', sans-serif;
+}
+
+#zodiac_pic {
+  height: 100px; 
+  width: 160px; 
+  display: block; 
+  position: relative;
+  margin-left: auto; 
+  margin-right: auto;   
+}
+
+#zodiac_name {
+  font-size: 1.4em;
+  padding: 0 16px; 
+  font-weight: bold;
+  color: #1a2028;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+#welcome {
+    border-radius: 20px; 
+    height: 220px; 
+    width: 240px; 
+    position: relative; 
+    display: block; 
+    margin-left: auto; 
+    margin-right: auto;
+}
+
+.welcome_text {
+    text-align: center;
+    width: 75%;
+    margin-left: auto; 
+    margin-right: auto;
+}
+
+#photowide {
+    border-radius: 10px; 
+    height: 75px; 
+    width: 150px; 
+    position: relative; 
+    display: block; 
+    margin-bottom: 20px;
+} 
+
+#phototall {
+    border-radius: 10px; 
+    height: 130px; 
+    width: 100px; 
+    position: relative; 
+    display: block; 
+    margin-bottom: 20px;
+}
+
+#square {
+    border-radius: 20px; 
+    height: 200px; 
+    width: 200px; 
+    position: relative; 
+    display: block; 
+    margin-left: auto; 
+    margin-right: auto;
+}
+
+#bio {
+  height: 160px; 
+  width: 160px; 
+  display: block; 
+  margin-left: auto; 
+  margin-right: auto; 
+  border-radius: 20px; 
+}
+
+#blog {
+  color: #1a2028; 
+  margin-top: 14px; 
+  text-align: center; 
+  font-size: 1.8em; 
+  padding: 14px 16px 0 14px; 
+  font-weight: bold;
+  font-family: 'Montserrat', sans-serif;  
+}
+
+#blog:hover {
+  color: #999;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;  
+}
+
+#quote {
+  height: 17px; 
+  width: 17px; 
+  display: inline-block;
+}
+
+#objective {
+  color: #1a2028; 
+  text-align: left; 
+  font-weight: 550;
+  font-style: italic;
+  font-size: 0.9em; 
+  padding: 14px 28px; 
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#objective:hover {
+  color: #999;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
+}
+
+#crest {
+  height: 175px; 
+  width: 150px; 
+  display: block; 
+  position: relative;
+  margin-left: auto; 
+  margin-right: auto;   
+}
+
+#gif {
+  height: 100px; 
+  width: 250px; 
+  position: relative; 
+  display: block; 
+  padding-bottom: 20px;
+}
+
+#resume {
+  border-radius: 3px; 
+  height: 140px; 
+  width: 150px; 
+  position: relative; 
+  display: block; 
+  margin-bottom: 20px;
+}
+
+
+/*
+=====================
+SOCIAL LINKS
+=====================
+*/
+p.social {
+  bottom: 20px;
+  position: absolute;
+  width: 220px;
+  left: 30px; 
+  right: 30px;    
+}
+p.social a {
+  margin: 0 5px;
+  color: #fcfbe3;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  line-height: 40px;
+  font-size: 15px;
+  text-align: center;
+  horizontal-align: center;
+  vertical-align: bottom;
+  border: solid 1px #1a2028;
+  color: #1a2028;
+  -webkit-transition: all 0.8s ease-out;
+  -moz-transition: all 0.8s ease-out;
+  transition: all 0.8s ease-out;
+}
+p.social a:hover {
+  color: #999999;
+  border-color: #999999;
+}
+
+</style>
+
+
+<!-- menubar -->
+<div id="menubar">
+	<ul id="menu"> 
+		<li id="menutab" class="selected"><a href="index.html">GitHub Home</a></li>
+		<li id="menutab"><a href="biography.html">Biography</a></li>	
+		<li id="menutab" class="dropdown">
+		<a class="rightbar">Projects List</a>
+		<div class="rightbar-content"> <!-- rightbar -->
+			<a href="https://siebelm.github.io/Trumps_Twitter" >
+				Trump's Twitter
+			</a>
+			<a href="https://siebelm.github.io/G20_Military_Spending" >
+				G-20 Military Spending
+			</a>
+			<a href="https://siebelm.github.io/Harry_Potter" >
+				Harry Potter NLP
+			</a>            
+			<a href="https://siebelm.github.io/GIF" >
+				Log-Sigmoid GIF
+			</a>              
+			<a href="https://siebelm.github.io/US_Baby_Names" >
+				U.S. Baby Names
+			</a>     
+		</div> <!-- rightbar-content -->	
+		</li> <!-- rightbar -->
+	</ul> <!-- menu -->
+
+</div> <!-- menubar -->
+
+<!-- leftpanel -->
+<div class="leftpanel">
+    <div id="blog">A Blog by<br>Michael Siebel</div>
+    <br>
+    <br>
+    <div id="objective">
+    <img id="quote" src="../Photos/openquote.png"></img>    
+        I enjoy developing and making things using the tools of statistics and programming. 
+        I believe research is only as valuable as how well you are able to communicate it.
+    <img id="quote" src="../Photos/closequote.png"></img>    
+    </div>  
+
+    <p class="social">
+    <a href="mailto:michaeltsiebel@gmail.com">
+        <i class="fa fa-envelope"></i>
+    </a>
+    <a href="https://github.com/Siebelm" target="_blank">
+        <i class="fa fa-github"></i>
+    </a>      
+    <a href="https://www.linkedin.com/in/michael-siebel/" target="_blank">
+        <i class="fa fa-linkedin"></i>
+    </a>
+    <a href="https://twitter.com/siebelm12" target="_blank">
+        <i class="fa fa-twitter"></i>
+    </a>      
+    </p>
+</div> <!-- leftpanel -->   
