@@ -1,10 +1,13 @@
 /* Main Container */
+div#notebook {
+  overflow: auto;
+}
+
 #notebook-container {
   margin: 3rem 0 0 0;
   padding: 0 20px 0 20px;
 }
 
-/* Background Color */
 html, body {
   padding: 0;
   left: 280px;
