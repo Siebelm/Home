@@ -4,7 +4,9 @@ div#notebook {
 }
 
 #notebook-container {
-  margin: 3rem 0 0 0;
+  margin-top: 3rem;
+  margin-left: auto;
+  margin-right: auto;
   padding: 0 20px 0 20px;
 }
 
