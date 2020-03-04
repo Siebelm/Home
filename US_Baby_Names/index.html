@@ -17855,13 +17855,13 @@ div#notebook {
 <style>
 /* Main Container */
 div#notebook {
-  overflow: auto;
+  overflow-x: auto;
 }
 
 #notebook-container {
   margin-top: 3rem;
-  margin-left: auto;
   margin-right: auto;
+  margin-left: auto;
   padding: 0 20px 0 20px;
 }
 
@@ -17869,6 +17869,7 @@ html, body {
   padding: 0;
   left: 280px;
 }
+
 
 /* All Mobile Sizes (devices and browser) */
 @media only screen and (max-height: 410px) {
@@ -17880,6 +17881,9 @@ html, body {
 @media only screen and (max-width: 850px) {
   html, body {
     left: 0;
+  }
+  #notebook-container {
+    margin: 3rem 0 0 0;
   }
   .leftpanel {
     display: none;
