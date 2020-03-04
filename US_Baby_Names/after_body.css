@@ -1,6 +1,6 @@
 /* Main Container */
 div#notebook {
-  overflow-x: auto;
+  overflow-x: scroll;
 }
 
 #notebook-container {
@@ -13,6 +13,30 @@ div#notebook {
 html, body {
   padding: 0;
   left: 280px;
+}
+
+div.cell {
+    margin-top: 1rem; /* */
+    border-radius: 20px !important; 
+}
+
+div.text_cell_render {
+    background: #1a2028 !important;
+    background-color: #1a2028 !important;
+}
+
+div.cell.text_cell.rendered .prompt {
+  background-color: #1a2028 !important;
+  border-right: none !important;
+  border-left: 4px solid rgba(0,156,209,.5) !important;
+}
+
+div.cell.code_cell .input_prompt {
+  border-radius: 5px;
+}
+
+div.cell.code_cell .input {
+  border-left: 0 !important;
 }
 
 
