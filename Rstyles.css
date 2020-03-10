@@ -82,7 +82,7 @@ h5 {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
- }
+}
 
 .date, project-date {
   color: #dddddd;
@@ -90,7 +90,7 @@ h5 {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
- }
+}
  
 /* Table of Contents */
  #TOC, .tocify {
@@ -101,7 +101,7 @@ h5 {
  } 
 
 .tocify-header {
-    text-indent: initial !important;
+  text-indent: initial !important;
 }
 
 .tocify-subheader > .tocify-item {
@@ -116,10 +116,10 @@ h5 {
 
 /* TOC highlight div */
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
-    z-index: 2;
-    color: #dddddd;
-    background-color: rgb(69,123,157);
-    border-color: rgb(69,123,157);
+  z-index: 2;
+  color: #dddddd;
+  background-color: rgb(69,123,157);
+  border-color: rgb(69,123,157);
 }
 
  
@@ -282,8 +282,8 @@ p.social a:hover {
 
 /* Main Container */
 .main-container {
-  margin: 3em 0 0 30%;
-  padding: 0 20px 0 20px;
+  margin: 3em 0 0 0;
+  padding: 0;
 }
 
 .section h1, .section h2, .section h3, .section h4, .section h5 {
