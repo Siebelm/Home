@@ -537,10 +537,9 @@ a {
   }
   #menubar {
     right: 0;
-    overflow-x: hidden;
   }
   li#menutab a, .rightbar {
-    padding: 7px 8px;  
+    padding: 7px 6px;  
   }
 }
 
