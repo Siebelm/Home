@@ -395,21 +395,6 @@ a {
 ================================================== */
 
 /* All Mobile Sizes (devices and browser) */
-@media only screen and (max-width: 1080px) {
-  .level1 h1:before,
-  .level2 h2:before,
-  .level3 h3:before,
-  .level4 h4:before,
-  .level5 h5:before,
-  .level6 h6:before {
-    padding-right: 0;
-    margin-left: 0;
-    content: none;
-  }
-  #blog {
-    display: none;
-  }
-}
 @media only screen and (max-width: 850px) {
   header {
     padding-top: 10px;
@@ -450,7 +435,7 @@ a {
   }
 }
 
-@media (max-width: 767px) {
+@media only screen and (max-width: 767px) {
   #TOC {
     display: none;
   }
