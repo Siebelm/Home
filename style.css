@@ -316,7 +316,7 @@ li#menutab .rightbar {
   color: #042029; 
   margin-top: 14px; 
   text-align: center; 
-  font-size: 2.2em; 
+  font-size: 2em; 
   padding: 14px 16px 0 14px; 
   font-weight: bold;
   font-family: 'Montserrat', sans-serif;  
@@ -340,7 +340,7 @@ li#menutab .rightbar {
   text-align: left; 
   font-weight: 550;
   font-style: italic;
-  font-size: 1.2em; 
+  font-size: 1em; 
   padding: 14px 28px; 
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
