@@ -642,7 +642,6 @@ a {
   .section {
     width: 100%;	
     margin-left: 0;
-    padding-left: 40px;
   }
   .main-container {
     margin: 3em 0 0 0;
@@ -670,6 +669,18 @@ a {
 }
 
 @media only screen and (max-width: 480px) {
+  .toc-content {
+    padding: 1.3em !important;
+  }
+  #menubar {
+    right: 1.3em;
+  }
+  li#menutab a, .rightbar {
+    padding: 7px 6px;  
+  }
+}
+
+@media only screen and (max-width: 410px) {
   li#menutab .rightbar {
     display: none;
   }
