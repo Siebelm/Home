@@ -161,7 +161,8 @@ li#menutab.selected {
 	background: white;
 }
 
-li#menutab a:hover, .dropdown:hover .rightbar {
+li#menutab a:hover, .dropdown:hover .rightbar,
+li#menutab a:active, .dropdown:active .rightbar {
 	color: #708284;
 }
 
