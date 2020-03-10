@@ -404,6 +404,46 @@ a {
 ================================================== */
 
 /* All Mobile Sizes (devices and browser) */
+@media only screen and (min-height: 800px) {
+  #TOC {
+    display: none;
+  }
+  .section {
+    width: 100%;	
+    margin-left: 0;
+    padding-left: 40px;
+  }
+  .main-container {
+    margin: 3em 0 0 0;
+  }
+  body {
+    font-size: 36px;
+  }
+  html, body {
+  	color: #dddddd;
+  	background-color: #042029;  
+	background-image: none !important;
+  }
+  .leftpanel {
+    display: none;
+  }
+  #quote {
+    display: none;  
+  }
+  .social {
+    display: none;  
+  }
+  #blog:hover {
+    display: none;  
+  }
+  #objective:hover {
+    display: none;  
+  }
+  #blog {
+    display: none;
+  }   
+}
+
 @media only screen and (max-height: 410px) {
   .social {
     display: none;  
@@ -494,46 +534,6 @@ a {
 @media only screen and (max-width: 480px) {
   li#menutab .rightbar {
     display: none;
-}
-
-@media only screen and (min-height: 800px) {
-  #TOC {
-    display: none;
-  }
-  .section {
-    width: 100%;	
-    margin-left: 0;
-    padding-left: 40px;
-  }
-  .main-container {
-    margin: 3em 0 0 0;
-  }
-  body {
-    font-size: 36px;
-  }
-  html, body {
-  	color: #dddddd;
-  	background-color: #042029;  
-	background-image: none !important;
-  }
-  .leftpanel {
-    display: none;
-  }
-  #quote {
-    display: none;  
-  }
-  .social {
-    display: none;  
-  }
-  #blog:hover {
-    display: none;  
-  }
-  #objective:hover {
-    display: none;  
-  }
-  #blog {
-    display: none;
-  }   
 }
 
 
