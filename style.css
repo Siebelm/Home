@@ -648,6 +648,39 @@ a {
   .main-container {
     margin: 3rem 0 0 0;
   }
+  html {
+  font-size: 1em;
+  }
+  p {
+  font-size: 1em;
+  }
+  h1.title {
+  text-align: center;
+  font-size: 2.25em;
+  font-weight: bold;
+  color: #457b9d;
+  font-family:'Montserrat', sans-serif;  
+  }
+  h1 {
+  font-size: 2.2em;
+  font-family:'Montserrat', sans-serif;
+  }
+  h2 {
+  font-size: 1.8em;
+  font-family:'Montserrat', sans-serif;
+  }
+  h3 {
+  font-size: 1.6em;
+  font-family:'Montserrat', sans-serif;
+  }
+  h4 {
+  font-size: 1.4em;
+  font-family:'Montserrat', sans-serif;
+  }
+  h5 {
+  font-size: 1.4em;
+  font-family:'Montserrat', sans-serif;
+  }  
   html, body {
   	color: #fcfbe3;
   	background-color: #042029;  
