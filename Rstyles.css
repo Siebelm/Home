@@ -395,6 +395,12 @@ a {
 ================================================== */
 
 /* All Mobile Sizes (devices and browser) */
+@media only screen and (max-height: 410px) {
+  .social {
+    display: none;  
+  }
+}
+
 @media only screen and (max-width: 850px) {
   header {
     padding-top: 10px;
