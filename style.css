@@ -22,6 +22,9 @@
 html {
   font-size: 1em;
 }
+body {
+  font-size: 16px;
+}
 p {
   font-size: 1em;
 }
@@ -648,35 +651,8 @@ a {
   .main-container {
     margin: 3rem 0 0 0;
   }
-  html {
-  font-size: 2em;
-  }
-  p {
-  font-size: 2em;
-  }
-  h1.title {
-  text-align: center;
-  font-size: 4.25em;
-  font-weight: bold;
-  color: #457b9d;
-  }
-  h1 {
-    font-size: 4.2em;
-  }
-  h2 {
-    font-size: 2.8em;
-  }
-  h3 {
-    font-size: 2.6em;
-  }
-  h4 {
-    font-size: 2.4em;
-  }
-  h5 {
-    font-size: 2.4em;
-  }  
-  h6 {
-    font-size: 2.4em;
+  body {
+    font-size: 48px;
   }
   html, body {
   	color: #fcfbe3;
