@@ -252,8 +252,8 @@ li#menutab .rightbar {
 
 #welcome {
     border-radius: 20px; 
-    height: 180px; 
-    width: 200px; 
+    height: 11.3em; 
+    width: 12.5em; 
     position: relative; 
     display: block; 
     margin-left: auto; 
@@ -273,15 +273,15 @@ li#menutab .rightbar {
   width: 9.3em; 
   position: relative; 
   display: block; 
-  margin-bottom: 20px;
+  margin-bottom: 1.3em;
 } 
 
 #photolong {
-  height: 120px; 
-  width: 250px; 
+  height: 7.5em; 
+  width: 15.6em; 
   position: relative; 
   display: block; 
-  padding-bottom: 20px;
+  margin-bottom: 1.3em;
 }
 
 #phototall {
@@ -290,13 +290,13 @@ li#menutab .rightbar {
     width: 6.3em; 
     position: relative; 
     display: block; 
-    margin-bottom: 20px;
+    margin-bottom: 1.3em;
 }
 
 #square {
     border-radius: 20px; 
-    height: 200px; 
-    width: 200px; 
+    height: 12.5em; 
+    width: 12.5em; 
     position: relative; 
     display: block; 
     margin-left: auto; 
@@ -304,8 +304,8 @@ li#menutab .rightbar {
 }
 
 #bio {
-  height: 180px; 
-  width: 180px; 
+  height: 11.3em; 
+  width: 11.3em; 
   display: block; 
   margin-left: auto; 
   margin-right: auto; 
@@ -317,7 +317,7 @@ li#menutab .rightbar {
   margin-top: 14px; 
   text-align: center; 
   font-size: 2em; 
-  padding: 14px 16px 0 14px; 
+  padding: 0.9em 0.7em 0 0.7em; 
   font-weight: bold;
   font-family: 'Montserrat', sans-serif;  
 }
@@ -330,8 +330,8 @@ li#menutab .rightbar {
 }
 
 #quote {
-  height: 17px; 
-  width: 17px; 
+  height: 1em; 
+  width: 1em; 
   display: inline-block;
 }
 
@@ -341,7 +341,7 @@ li#menutab .rightbar {
   font-weight: 550;
   font-style: italic;
   font-size: 1em; 
-  padding: 14px 28px; 
+  padding: 0.9em 1.8em; 
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
@@ -352,22 +352,13 @@ li#menutab .rightbar {
   transition: all 0.5s ease-out;
 }
 
-#crest {
-  height: 175px; 
-  width: 150px; 
-  display: block; 
-  position: relative;
-  margin-left: auto; 
-  margin-right: auto;   
-}
-
 #resume {
   border-radius: 3px; 
-  height: 140px; 
-  width: 150px; 
+  height: 8.75em; 
+  width: 9.4em; 
   position: relative; 
   display: block; 
-  margin-bottom: 20px;
+  margin-bottom: 1.3em;
 }
 
 
@@ -377,7 +368,7 @@ SOCIAL LINKS
 =====================
 */
 p.social {
-  bottom: 20px;
+  bottom: 1em;
   position: absolute;
   width: 220px;
   left: 30px; 
@@ -430,13 +421,13 @@ p.social a:hover {
 
 /* Main Container */
 .main-container {
-  margin: 3rem 0 0 280px;
+  margin: 3em 0 0 280px;
   padding: 0 20px 0 20px;
 }
 
 .main-container h1, h2, h3, h4, h5 {
-  margin-top:1.5rem;
-  margin-bottom: .5rem;
+  margin-top:1.5em;
+  margin-bottom: .5em;
   font-weight: bold;
   color: #457b9d;
   font-family:'Montserrat', sans-serif;
@@ -572,7 +563,7 @@ a {
 	font-size: 1.1em;
   }
   .main-container {
-    margin: 3rem 0 0 0;
+    margin: 3em 0 0 0;
   }  
   body {
     font-size: 0.8em;
@@ -612,7 +603,7 @@ a {
     padding-left: 40px;
   }
   .main-container {
-    margin: 3rem 0 0 0;
+    margin: 3em 0 0 0;
   }
   html, body {
   	color: #fcfbe3;
