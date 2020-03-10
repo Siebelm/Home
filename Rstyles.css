@@ -98,7 +98,16 @@ h5 {
   left: 16px;
   top: 2px;
   width: 250px !important;
- }  
+ } 
+
+.tocify-header {
+    text-indent: initial !important;
+}
+
+.tocify-subheader > .tocify-item {
+  text-indent: initial;
+  padding-left: 2em;
+} 
  
 .list-group-item {
   background-color: #042029;
@@ -428,7 +437,6 @@ a {
   .section {
     width: 100%;	
     margin-left: 0;
-    padding-left: 40px;
   }  
   .main-container {
     margin: 3em 0 0 0;
@@ -436,9 +444,30 @@ a {
   body {
     font-size: 0.8em;
   }  
+  html, body {
+    color: #dddddd;
+    background-color: #042029; 
+    background-image: none !important;  
+  }
+  .leftpanel {
+    display: none;
+  }
+  #quote {
+    display: none;  
+  }
+  .social {
+    display: none;  
+  }
+  #blog:hover {
+    display: none;  
+  }
+  #objective:hover {
+    display: none;  
+  } 
   #blog {
     display: none;
   }
+  
 }
 
 @media only screen and (max-width: 767px) {
@@ -448,7 +477,6 @@ a {
   .section {
     width: 100%;	
     margin-left: 0;
-    padding-left: 40px;
   }
   .main-container {
     margin: 3em 0 0 0;
@@ -461,9 +489,11 @@ a {
   #blog {
     display: none;
   }
+}
+
+@media only screen and (max-width: 480px) {
   li#menutab .rightbar {
     display: none;
-  }
 }
 
 @media only screen and (min-height: 800px) {
