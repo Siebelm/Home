@@ -268,12 +268,12 @@ li#menutab .rightbar {
 }
 
 #photowide {
-    border-radius: 10px; 
-    height: 75px; 
-    width: 150px; 
-    position: relative; 
-    display: block; 
-    margin-bottom: 20px;
+  border-radius: 10px; 
+  height: 4.7em; 
+  width: 9.3em; 
+  position: relative; 
+  display: block; 
+  margin-bottom: 20px;
 } 
 
 #photolong {
@@ -286,8 +286,8 @@ li#menutab .rightbar {
 
 #phototall {
     border-radius: 10px; 
-    height: 130px; 
-    width: 100px; 
+    height: 8.1em; 
+    width: 6.3em; 
     position: relative; 
     display: block; 
     margin-bottom: 20px;
