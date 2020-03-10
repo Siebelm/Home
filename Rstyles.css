@@ -510,6 +510,12 @@ a {
   #objective:hover {
     display: none;  
   }
+  #blog {
+    display: none;
+  }  
+  li#menutab .rightbar {
+    display: content;
+  }  
 }
 
 
