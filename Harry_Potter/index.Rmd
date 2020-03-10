@@ -1,7 +1,7 @@
 ---
 title: "Harry Potter NLP"
 author: "Michael Siebel"
-date: "`r date()`"
+date: "`r format(Sys.Date(), '%B %Y')`"
 output: 
   html_document:
     toc: true
@@ -16,7 +16,7 @@ output:
 
 <br>
 
->  Natural Language Processing (NLP) for: <br>
+>  R Programming for: <br>
 >  Harry Potter and the Philosopher's Stone (1997) <br>
 >  Harry Potter and the Chamber of Secrets (1998) <br>
 >  Harry Potter and the Prisoner of Azkaban (1999) <br>
@@ -27,7 +27,7 @@ output:
 
 # Bottom Line Up Front
 
-Below is a high level analysis of the Harry Potter Series.  It seeks to find answers to the questions:
+Below is a high level, natural language processing (NLP) analysis of the Harry Potter Series.  It seeks to find answers to the questions:
 
 * <a href="#Q1">Which book has a bigger vocab?</a>
 * <a href="#Q2">Who is Harry's closest friend?</a>
@@ -287,7 +287,7 @@ Let's look at how many chapters, pages, and words are in each book as a basic in
 
 Overall, there is a clear break between **Prisoner of Azkaban (Book 3)** and **Goblet of Fire (Book 4)**, where the books became substantially longer.
 
-```{r}
+```{r, fig.show = "hold", out.width = "75%"}
 rawbook_tf <- df[,c("text", "book")] %>%
   unnest_tokens(word, text) %>%
   group_by(book) %>%

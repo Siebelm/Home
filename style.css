@@ -20,10 +20,10 @@
 }
 
 html {
-  font-size: 1.2em;
+  font-size: 1em;
 }
 p {
-  font-size: 1.2em;
+  font-size: 1em;
 }
 h1.title {
   text-align: center;
@@ -249,8 +249,8 @@ li#menutab .rightbar {
 
 #welcome {
     border-radius: 20px; 
-    height: 220px; 
-    width: 240px; 
+    height: 180px; 
+    width: 200px; 
     position: relative; 
     display: block; 
     margin-left: auto; 
@@ -301,8 +301,8 @@ li#menutab .rightbar {
 }
 
 #bio {
-  height: 160px; 
-  width: 160px; 
+  height: 180px; 
+  width: 180px; 
   display: block; 
   margin-left: auto; 
   margin-right: auto; 
@@ -494,7 +494,7 @@ h6 {
 
 /* Block Quotes (#002855) */
 .main-container blockquote {
-  font-size: 1.3em;
+  font-size: 1.2em;
   color: #9ddcff;
   border-left: .1rem solid #fcfbe3;
   margin-bottom: 20px;
@@ -516,7 +516,7 @@ html, body {
 }
 
 a {
-  font-size: 1.2em;
+  font-size: 1.1em;
   text-decoration: none;
   color: #ca2c92;
   border: 0;
