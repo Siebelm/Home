@@ -536,7 +536,7 @@ a {
     padding: 1.3em !important;
   }
   #menubar {
-    right: 0;
+    right: 1em;
   }
   li#menutab a, .rightbar {
     padding: 7px 6px;  
