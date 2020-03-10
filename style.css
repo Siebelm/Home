@@ -207,6 +207,7 @@ li#menutab .rightbar {
 	min-width: 10em;
 	display: block;
 	text-align: left;
+    font-size: 1em;
 }
 
 .rightbar-content a:hover {
