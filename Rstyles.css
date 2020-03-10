@@ -448,9 +448,6 @@ a {
   #blog {
     display: none;
   }
-  li#menutab .rightbar {
-    display: none;
-  }  
 }
 
 @media (max-width: 768px) {
