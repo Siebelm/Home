@@ -649,10 +649,10 @@ a {
     padding-left: 40px;
   }
   .main-container {
-    margin: 3rem 0 0 0;
+    margin: 3em 0 0 0;
   }
   body {
-    font-size: 48px;
+    font-size: 32px;
   }
   html, body {
   	color: #fcfbe3;
