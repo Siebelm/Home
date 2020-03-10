@@ -8,6 +8,7 @@ output:
     toc_float: true
     css: "../Rstyles.css" 
     code_folding: hide
+    self_contained: false
     highlight: tango
     includes:
       in_header: "menu.html"
