@@ -638,7 +638,7 @@ a {
   }
 }
 
-@media only screen and (min-height: 892px) {
+@media only screen and (min-height: 800px) {
   #TOC {
     display: none;
   }
