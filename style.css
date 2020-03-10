@@ -80,7 +80,7 @@ h5 {
 }
 
 .author, project-author {
-  color: #fcfbe3;
+  color: #dddddd;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -88,7 +88,7 @@ h5 {
  }
 
 .date, project-date {
-  color: #fcfbe3;
+  color: #dddddd;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -105,13 +105,13 @@ h5 {
  
 .list-group-item {
   background-color: #042029;
-  color: #fcfbe3;
+  color: #dddddd;
 }
 
 /* TOC highlight div */
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
     z-index: 2;
-    color: #fcfbe3;
+    color: #dddddd;
     background-color: rgb(69,123,157);
     border-color: rgb(69,123,157);
 }
@@ -148,7 +148,7 @@ li#menutab {
 
 li#menutab a, .rightbar {
 	display: inline-block;
-	color: #fcfbe3;
+	color: white;
 	padding: 14px 16px;
 	text-decoration: none;
 }
@@ -161,7 +161,7 @@ li#menutab.selected a {
 
 li#menutab.selected {
 	margin: 0;
-	background: #fcfbe3;
+	background: white;
 }
 
 li#menutab a:hover, .dropdown:hover .rightbar {
@@ -202,7 +202,7 @@ li#menutab .rightbar {
 }
 
 .rightbar-content a:hover {
-	background-color: #fcfbe3;
+	background-color: #dddddd;
 }
 
 .dropdown:hover .rightbar-content {
@@ -376,7 +376,7 @@ p.social {
 }
 p.social a {
   margin: 0 5px;
-  color: #fcfbe3;
+  color: #dddddd;
   display: inline-block;
   width: 40px;
   height: 40px;
@@ -479,7 +479,7 @@ h6 {
 .main-container table th {
   font-weight: bold;
   background-color: rgb(69,123,157);
-  color: #fcfbe3;
+  color: #dddddd;
 }
 
 .main-container table caption {
@@ -490,7 +490,7 @@ h6 {
 .main-container blockquote {
   font-size: 1.2em;
   color: #9ddcff;
-  border-left: .1rem solid #fcfbe3;
+  border-left: .1rem solid #dddddd;
   margin-bottom: 20px;
   margin-left: 0;
   padding: 0 1rem;
@@ -498,7 +498,7 @@ h6 {
 
 /* Background Color */
 html, body {
-  color: #fcfbe3; 
+  color: #dddddd; 
   background-image: -webkit-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
   background-image: -moz-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
   background-image: -ms-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
@@ -524,7 +524,7 @@ a {
 }
 
 .main-container shortcode {
-  background: #fcfbe3 0 0 repeat;
+  background: white 0 0 repeat;
   font-weight: bold;  
   color: #c7254e !important;
   border-radius: 4px;
@@ -569,7 +569,7 @@ a {
     font-size: 0.8em;
   }  
   html, body {
-    color: #fcfbe3;
+    color: #dddddd;
     background-color: #042029; 
     background-image: none !important;  
   }
@@ -606,7 +606,7 @@ a {
     margin: 3em 0 0 0;
   }
   html, body {
-  	color: #fcfbe3;
+  	color: #dddddd;
   	background-color: #042029;  
 	background-image: none !important;
   }
@@ -646,7 +646,7 @@ a {
     font-size: 32px;
   }
   html, body {
-  	color: #fcfbe3;
+  	color: #dddddd;
   	background-color: #042029;  
 	background-image: none !important;
   }

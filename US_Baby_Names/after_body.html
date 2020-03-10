@@ -5,19 +5,21 @@ div#notebook {
 }
 
 #notebook-container {
-  margin-top: 3rem;
+  margin-top: 3em;
   margin-right: auto;
   margin-left: auto;
   padding: 0 20px 0 20px;
+  width: 98%;
 }
 
 html, body {
   padding: 0;
+  font-size: 16px;
   left: 280px;
 }
 
 div.cell {
-    margin-top: 1rem; /* */
+    margin-top: 0.8em; 
     border-radius: 20px !important; 
 }
 
@@ -40,20 +42,28 @@ div.cell.code_cell .input {
   border-left: 0 !important;
 }
 
+div.rendered_html {
+  color: #dddddd !important;
+}
+
 .rendered_html :visited {
   text-decoration: none !important;
-  color: #b0bdd7 !important;
+  color: #dddddd !important;
 }
 
 .rendered_html :link {
   text-decoration: none !important;
-  color: #b0bdd7 !important;
+  color: #dddddd !important;
 }
 
 blockquote {
   color: #9ddcff;
 }
 
+
+
+/* #Media Queries
+================================================== */
 
 /* All Mobile Sizes (devices and browser) */
 @media only screen and (max-height: 410px) {
@@ -62,12 +72,11 @@ blockquote {
   }
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 850px) {
   html, body {
     left: 0;
-  }
-  #notebook-container {
-    margin: 3rem 0 0 0;
+    background-color: #1a2028; 
+    background-image: none !important;  
   }
   .leftpanel {
     display: none;
@@ -87,5 +96,79 @@ blockquote {
   li#menutab .rightbar {
     display: none;
   }  
+}
+
+@media only screen and (max-width: 767px) {
+  #TOC {
+    display: none;
+  }
+  .section {
+    width: 100%;	
+    margin-left: 0;
+    padding-left: 40px;
+  }
+  .main-container {
+    margin: 3em 0 0 0;
+  }
+  html, body {
+  	left: 0;
+  	background-color: #1a2028;  
+	background-image: none !important;
+  }
+  .leftpanel {
+    display: none;
+  }
+  #quote {
+    display: none;  
+  }
+  .social {
+    display: none;  
+  }
+  #blog:hover {
+    display: none;  
+  }
+  #objective:hover {
+    display: none;  
+  }
+  li#menutab .rightbar {
+    display: none;
+  }
+}
+
+@media only screen and (min-height: 892px) {
+  #TOC {
+    display: none;
+  }
+  .section {
+    width: 100%;	
+    margin-left: 0;
+    padding-left: 40px;
+  }
+  .main-container {
+    margin: 3em 0 0 0;
+  }
+  body {
+    font-size: 32px;
+  }
+  html, body {
+  	left: 0;
+  	background-color: #1a2028;  
+	background-image: none !important;
+  }
+  .leftpanel {
+    display: none;
+  }
+  #quote {
+    display: none;  
+  }
+  .social {
+    display: none;  
+  }
+  #blog:hover {
+    display: none;  
+  }
+  #objective:hover {
+    display: none;  
+  }
 }
 </style>
