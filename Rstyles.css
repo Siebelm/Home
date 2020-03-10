@@ -537,10 +537,14 @@ a {
   }
   #menubar {
     right: 0;
+    overflow-x: hidden;
+  }
+  li#menutab a, .rightbar {
+    padding: 7px 8px;  
   }
 }
 
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 420px) {
   li#menutab .rightbar {
     display: none;
   }
