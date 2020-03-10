@@ -535,6 +535,9 @@ a {
   .toc-content {
     padding: 1.3em !important;
   }
+  #menubar {
+    right: 0;
+  }
 }
 
 @media only screen and (max-width: 440px) {
