@@ -161,8 +161,7 @@ li#menutab.selected {
 	background: white;
 }
 
-li#menutab a:hover, .dropdown:hover .rightbar,
-li#menutab a:active, .dropdown:active .rightbar {
+li#menutab a:hover, .dropdown:hover .rightbar {
 	color: #708284;
 }
 
@@ -179,6 +178,13 @@ li#menutab .rightbar {
 	text-align: left;
 	color: #ca2c92;
 	cursor: pointer;	
+    -webkit-touch-callout: none; /* iOS Safari */
+       -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+          -moz-user-select: none; /* Old versions of Firefox */
+           -ms-user-select: none; /* Internet Explorer/Edge */
+               user-select: none; /* Non-prefixed version, currently
+                                     supported by Chrome, Opera and Firefox */
 } 
 
 .rightbar-content {
