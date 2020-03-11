@@ -383,6 +383,7 @@ p.social {
   left: 30px; 
   right: 30px;    
 }
+
 p.social a {
   margin: 0 5px;
   color: #dddddd;
@@ -401,6 +402,7 @@ p.social a {
   -moz-transition: all 0.8s ease-out;
   transition: all 0.8s ease-out;
 }
+
 p.social a:hover {
   color: #999999;
   border-color: #999999;
