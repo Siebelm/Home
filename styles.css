@@ -670,7 +670,7 @@ a {
   }
 }
 
-@media only screen and (max-width: 480px) {
+@media only screen and (max-width: 480px) and (orientation: portrait) {
   .toc-content {
     padding: 1.3em !important;
   }
@@ -682,7 +682,7 @@ a {
   }
 }
 
-@media only screen and (max-width: 410px) {
+@media only screen and (min-width: 0px) and (max-width: 410px) and (orientation: portrait) {
   li#menutab .rightbar {
     display: none;
   }
