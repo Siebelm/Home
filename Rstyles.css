@@ -381,6 +381,7 @@ a {
 
 a:hover {
   color: #999999;
+  text-decoration: none;
 }
 
 .main-container code {
