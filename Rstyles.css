@@ -372,12 +372,15 @@ html, body {
   background-color: #042029;  
 }
 	
-
 a {
   font-size: 1.1em;
   text-decoration: none;
   color: #ca2c92;
   border: 0;
+}
+
+a:hover {
+  color: #999999;
 }
 
 .main-container code {
@@ -493,7 +496,17 @@ a {
   }
 }
 
-@media only screen and (max-width: 480px) and (orientation: portrait) {
+@media only screen and (min-height: 480px) and (max-width: 480px) and (orientation: portrait)
+  and (-webkit-min-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 480px) and (orientation: portrait)
+  and (   min--moz-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 480px) and (orientation: portrait)
+  and (     -o-min-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 480px) and (orientation: portrait)
+  and (        min-device-pixel-ratio: 2), {  
+  body {
+    font-size: 36px;
+  }
   .toc-content {
     padding: 1.3em !important;
   }
@@ -505,7 +518,14 @@ a {
   }
 }
 
-@media only screen and (min-width: 0px) and (max-width: 410px) and (orientation: portrait) {
+@media only screen and (min-height: 480px) and (max-width: 410px) and (orientation: portrait)
+  and (-webkit-min-device-pixel-ratio: 2) 
+@media only screen and (min-height: 480px) and (max-width: 410px) and (orientation: portrait)
+  and (   min--moz-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 410px) and (orientation: portrait)
+  and (     -o-min-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 410px) and (orientation: portrait)
+  and (        min-device-pixel-ratio: 2), {
   li#menutab .rightbar {
     display: none;
   }

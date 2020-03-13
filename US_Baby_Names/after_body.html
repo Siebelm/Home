@@ -43,18 +43,22 @@ div.cell.code_cell .input {
 }
 
 div.rendered_html {
-  color: #dddddd !important;
+  color: #dddddd;
 }
 
 .rendered_html :visited {
-  text-decoration: none !important;
-  color: #dddddd !important;
+  text-decoration: none;
+  color: #dddddd;
 }
 
 .rendered_html :link {
-  text-decoration: none !important;
-  color: #dddddd !important;
+  text-decoration: none;
+  color: #dddddd;
 }
+
+.rendered_html :visited:hover, .rendered_html :link:hover {
+  color: #ca2c92 !important;
+} 
 
 blockquote {
   color: #9ddcff;
@@ -93,9 +97,6 @@ blockquote {
   #objective:hover {
     display: none;  
   }
-  li#menutab .rightbar {
-    display: none;
-  }  
 }
 
 @media only screen and (max-width: 767px) {
@@ -130,45 +131,44 @@ blockquote {
   #objective:hover {
     display: none;  
   }
+}
+
+@media only screen and (min-height: 480px) and (max-width: 480px) and (orientation: portrait)
+  and (-webkit-min-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 480px) and (orientation: portrait)
+  and (   min--moz-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 480px) and (orientation: portrait)
+  and (     -o-min-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 480px) and (orientation: portrait)
+  and (        min-device-pixel-ratio: 2), {
+  body {
+    font-size: 36px;
+  }
+  .toc-content {
+    padding: 1.3em !important;
+  }
+  #menubar {
+    right: 1.3em;
+  }
+  li#menutab a, .rightbar {
+    padding: 7px 6px;  
+  }
+  div.rendered_html {
+    font-size: 24px;
+  }
+}
+
+@media only screen and (min-height: 480px) and (max-width: 410px) and (orientation: portrait)
+  and (-webkit-min-device-pixel-ratio: 2) 
+@media only screen and (min-height: 480px) and (max-width: 410px) and (orientation: portrait)
+  and (   min--moz-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 410px) and (orientation: portrait)
+  and (     -o-min-device-pixel-ratio: 2),
+@media only screen and (min-height: 480px) and (max-width: 410px) and (orientation: portrait)
+  and (        min-device-pixel-ratio: 2), {
   li#menutab .rightbar {
     display: none;
   }
 }
 
-@media only screen and (min-height: 800px) {
-  #TOC {
-    display: none;
-  }
-  .section {
-    width: 100%;	
-    margin-left: 0;
-    padding-left: 40px;
-  }
-  .main-container {
-    margin: 3em 0 0 0;
-  }
-  body {
-    font-size: 36px;
-  }
-  html, body {
-  	left: 0;
-  	background-color: #1a2028;  
-	background-image: none !important;
-  }
-  .leftpanel {
-    display: none;
-  }
-  #quote {
-    display: none;  
-  }
-  .social {
-    display: none;  
-  }
-  #blog:hover {
-    display: none;  
-  }
-  #objective:hover {
-    display: none;  
-  }
-}
 </style>
