@@ -639,13 +639,7 @@ a:hover {
 }
 
 @media only screen and (min-height: 480px) and (max-width: 480px) 
-  and (-webkit-min-device-pixel-ratio: 2),
-@media only screen and (min-height: 480px) and (max-width: 480px) 
-  and (   min--moz-device-pixel-ratio: 2),
-@media only screen and (min-height: 480px) and (max-width: 480px) 
-  and (     -o-min-device-pixel-ratio: 2),
-@media only screen and (min-height: 480px) and (max-width: 480px) 
-  and (        min-device-pixel-ratio: 2) {   
+  and (-webkit-min-device-pixel-ratio: 2) {   
   body {
     font-size: 36px;
   }
@@ -661,13 +655,7 @@ a:hover {
 }
 
 @media only screen and (min-height: 480px) and (max-width: 410px) 
-  and (-webkit-min-device-pixel-ratio: 2), 
-@media only screen and (min-height: 480px) and (max-width: 410px) 
-  and (   min--moz-device-pixel-ratio: 2),
-@media only screen and (min-height: 480px) and (max-width: 410px) 
-  and (     -o-min-device-pixel-ratio: 2),
-@media only screen and (min-height: 480px) and (max-width: 410px) 
-  and (        min-device-pixel-ratio: 2) {
+  and (-webkit-min-device-pixel-ratio: 2) {
   li#menutab .rightbar {
     display: none;
   }
