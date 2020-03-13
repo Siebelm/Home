@@ -670,6 +670,36 @@ a:hover {
   li#menutab a, .rightbar {
     padding: 7px 6px;  
   }
+  #TOC {
+    display: none;
+  }
+  .section {
+    width: 100%;	
+    margin-left: 0;
+  }
+  .main-container {
+    margin: 3em 0 0 0;
+  }
+  html, body {
+  	color: #dddddd;
+  	background-color: #042029;  
+	background-image: none !important;
+  }
+  .leftpanel {
+    display: none;
+  }
+  #quote {
+    display: none;  
+  }
+  .social {
+    display: none;  
+  }
+  #blog:hover {
+    display: none;  
+  }
+  #objective:hover {
+    display: none;  
+  } 
 }
 
 /* ***************************
