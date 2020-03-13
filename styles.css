@@ -638,8 +638,26 @@ a:hover {
   }
 }
 
-@media only screen and (min-height: 480px) and (max-width: 480px) 
-  and (min-resolution: 2dppx) {   
+@media only screen and (max-width: 480px){   
+  .toc-content {
+    padding: 1.3em !important;
+  }
+  #menubar {
+    right: 1.3em;
+  }
+  li#menutab a, .rightbar {
+    padding: 7px 6px;  
+  }
+}
+
+@media only screen and (max-width: 410px) {
+  li#menutab .rightbar {
+    display: none;
+  }
+}
+
+ 
+@media only screen and (min-resolution: 2dppx) {
   body {
     font-size: 36px;
   }
@@ -653,14 +671,6 @@ a:hover {
     padding: 7px 6px;  
   }
 }
-
-@media only screen and (min-height: 480px) and (max-width: 410px) 
-  and (min-resolution: 2dppx) {
-  li#menutab .rightbar {
-    display: none;
-  }
-}
-
 
 /* ***************************
    Small scrollbar
