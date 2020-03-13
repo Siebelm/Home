@@ -514,49 +514,6 @@ a:hover {
   }
 }
 
- 
-@media only screen and (min-resolution: 2dppx) {
-  body {
-    font-size: 36px;
-  }
-  .toc-content {
-    padding: 1.3em !important;
-  }
-  #menubar {
-    right: 1.3em;
-  }
-  #TOC {
-    display: none;
-  }
-  .section {
-    width: 100%;	
-    margin-left: 0;
-  }
-  .main-container {
-    margin: 3em 0 0 0;
-  }
-  html, body {
-  	color: #dddddd;
-  	background-color: #042029;  
-	background-image: none !important;
-  }
-  .leftpanel {
-    display: none;
-  }
-  #quote {
-    display: none;  
-  }
-  .social {
-    display: none;  
-  }
-  #blog:hover {
-    display: none;  
-  }
-  #objective:hover {
-    display: none;  
-  } 
-}
-
 
 /* ***************************
    Small scrollbar
