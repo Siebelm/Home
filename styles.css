@@ -639,7 +639,7 @@ a:hover {
 }
 
 @media only screen and (min-height: 480px) and (max-width: 480px) 
-  and (-webkit-min-device-pixel-ratio: 2) {   
+  and (min-resolution: 2dppx) {   
   body {
     font-size: 36px;
   }
@@ -655,7 +655,7 @@ a:hover {
 }
 
 @media only screen and (min-height: 480px) and (max-width: 410px) 
-  and (-webkit-min-device-pixel-ratio: 2) {
+  and (min-resolution: 2dppx) {
   li#menutab .rightbar {
     display: none;
   }
