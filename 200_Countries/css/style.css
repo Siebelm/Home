@@ -75,8 +75,8 @@ body {
 	color: #dddddd;
 }
 
-text {
-	fill: #dddddd;
+.container {
+    width: 95% !important;
 }
 
 a {
@@ -88,6 +88,11 @@ a {
 
 a:hover {
   color: #999999;
+}
+
+
+text {
+	fill: #dddddd;
 }
 
 .label {
@@ -257,7 +262,7 @@ li#menutab .rightbar {
     }
     #titlebanner {
         left: 270px;
-        font-size: 2.5em;
+        font-size: 2.25em;
         height: 150px;
     }
     #imgbanner {
@@ -268,6 +273,7 @@ li#menutab .rightbar {
         height: 150px;
     }    
     #menubar {
+        top: 150px;
         font-size: 2em;
     }
     p {
