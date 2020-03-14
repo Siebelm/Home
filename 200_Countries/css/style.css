@@ -297,3 +297,48 @@ li#menutab .rightbar {
         font-size: 2em;
     }
 }
+
+/* ***************************
+   Small scrollbar
+   Note: This is not supported 
+   by Firefox or IE and Edge
+****************************** */
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(69,123,157); 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+/* width */
+::-moz-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-moz-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-moz-scrollbar-thumb {
+  background: rgb(69,123,157); 
+}
+
+/* Handle on hover */
+::-moz-scrollbar-thumb:hover {
+  background: #555; 
+}
