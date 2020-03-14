@@ -116,3 +116,10 @@ We are done!
 
 Now imagine that each iteration was the year and the plot was of U.S. GDP, or each iteration was a decrease in credit score and the plot was the predicted probability of mortagage default.
 
+In case you were still interested in Hans Rosling, please check out my recreation of his famous lecture using d3.js: <br>
+<a href="https://siebelm.github.io/200_Countries/"><u>200 Countries</u></a>
+
+
+
+
+
