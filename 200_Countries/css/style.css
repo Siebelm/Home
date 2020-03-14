@@ -56,10 +56,10 @@ img#rosling {
     background: -o-gradient(linear, left top, right top, from(rgba(51,91,116, 1)), to(rgba(51,91,116, .5)) ) ;
     background: -gradient(linear, left top, right top, from(rgba(51,91,116, 1)), to(rgba(51,91,116, .5)) ) ;  
     border-color: transparent;
-    margin-bottom: 100px !important;
-    height: 100px !important;
+    margin-bottom: 100px;
+    height: 100px;
     border-bottom: 1px solid #ddd;
-    border-radius: 0px !important;
+    border-radius: 0px;
 }    
 
 /* ****************
@@ -251,7 +251,33 @@ li#menutab .rightbar {
 
 /* All Mobile Sizes (devices and browser) */
 @media only screen and (min-resolution: 2dppx) {
-  body {
-    font-size: 36px;
-  }
+    #menubar {
+        font-size: 2em;
+    }
+    
+    li#menutab .rightbar {
+        font-size: 2.1em;
+    }
+    
+    .rightbar-content a {
+        min-width: 20em;
+        font-size: 2em;
+    }
+    
+    img#rosling {
+        width: 360px;
+        height: 196px;
+    }
+    
+    #titlebanner {
+        height: 200px;
+    }
+    
+    #imgbanner {
+        height: 200px;
+    }
+    
+    .banner {
+        margin-bottom: 200px;
+    }
 }
