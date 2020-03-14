@@ -84,7 +84,7 @@ text {
 a {
   font-size: 1.1em;
   text-decoration: none;
-  color: #ca2c92;
+  color: #d95f02;
   border: 0;
 }
 
@@ -176,7 +176,7 @@ li#menutab .rightbar {
 	font-size: 1.1em;
 	text-decoration: none;
 	text-align: left;
-	color: #ca2c92;
+	color: #d95f02;
 	cursor: pointer;	
     -webkit-touch-callout: none; /* iOS Safari */
        -webkit-user-select: none; /* Safari */
