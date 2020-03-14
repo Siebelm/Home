@@ -279,6 +279,13 @@ li#menutab .rightbar {
     .rightbar-content {
         width: 7em;
     }
+    .btn {
+        font-size: 28px;
+    }
+    .form-control {
+        height: 68px;
+        font-size: 28px;
+    }
     .container {
         width: 95% !important;
     }
