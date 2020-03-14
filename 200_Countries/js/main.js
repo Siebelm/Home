@@ -57,7 +57,7 @@ var area = d3.scaleLinear()
 		.range([25*Math.PI, 1500*Math.PI]);
 
 //continent colors
-var continentColor = d3.scaleOrdinal(d3.schemePastel1);
+var continentColor = d3.scaleOrdinal(d3.schemeSet3);
 
 //Labels
 var xLabel = g.append("text")
@@ -89,13 +89,11 @@ var xAxisCall = d3.axisBottom(xScale)
 		.tickFormat(d3.format("$"));
 g.append("g")
 	.attr("transform", "translate(0," + height + ")")
-	.attr("color", "#ddd")    
 	.call(xAxisCall);
 
 //y axis
 var yAxisCall = d3.axisLeft(yScale)
-		.tickFormat(function(d){ return +d; })
-		
+		.tickFormat(function(d){ return +d; })		
 g.append("g")
 	.call(yAxisCall);
 	
