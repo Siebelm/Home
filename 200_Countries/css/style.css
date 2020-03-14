@@ -283,6 +283,9 @@ li#menutab .rightbar {
     .btn {
         font-size: 28px;
     }
+    label {
+        font-size: 2em;
+    }
     .form-control {
         height: 68px;
         font-size: 28px;
