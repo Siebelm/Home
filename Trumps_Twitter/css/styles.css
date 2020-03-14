@@ -70,7 +70,11 @@ p {
 	width: 100%;
   	height: 100px;
 	z-index: -1;
-	background: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116, 1)), to(rgba(51,91,116, .5)));
+	background: -webkit-gradient(linear, left top, right top, from(rgba(51,91,116, 1)), to(rgba(51,91,116, .5)) ) ;
+    background: -moz-gradient(linear, left top, right top, from(rgba(51,91,116, 1)), to(rgba(51,91,116, .5)) ) ;
+    background: -ms-gradient(linear, left top, right top, from(rgba(51,91,116, 1)), to(rgba(51,91,116, .5)) ) ;
+    background: -o-gradient(linear, left top, right top, from(rgba(51,91,116, 1)), to(rgba(51,91,116, .5)) ) ;
+    background: -gradient(linear, left top, right top, from(rgba(51,91,116, 1)), to(rgba(51,91,116, .5)) ) ;
 }
 
 #title {
@@ -280,6 +284,11 @@ ul#menu li a:hover {
  
 text {
 	fill: rgb(220, 217, 205);
+}
+
+label {
+    font-size: 1.5em !important;
+	color: rgb(220, 217, 205) !important;
 }
 
 .label {
