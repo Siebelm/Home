@@ -57,7 +57,7 @@ var area = d3.scaleLinear()
 		.range([25*Math.PI, 1500*Math.PI]);
 
 //continent colors
-var continentColor = d3.scaleOrdinal(d3.schemeSet3);
+var continentColor = d3.scaleOrdinal(d3.schemeDark2);
 
 //Labels
 var xLabel = g.append("text")
