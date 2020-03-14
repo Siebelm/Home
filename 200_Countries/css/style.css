@@ -76,7 +76,7 @@ body {
 }
 
 .container {
-    width: 95% !important;
+    width: 90% !important;
 }
 
 a {
@@ -275,6 +275,9 @@ li#menutab .rightbar {
     #menubar {
         top: 150px;
         font-size: 2em;
+    }
+    .container {
+        width: 95% !important;
     }
     p {
         font-size: 2em;
