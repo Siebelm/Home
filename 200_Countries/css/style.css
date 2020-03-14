@@ -101,15 +101,15 @@ a:hover {
 
 .axis path,
 .axis line {
-    display: none;
+    display: contents;
 }
 
 .xAxis line, .yAxis line {
-	stroke: none;
+	stroke: #dddddd !important;
 }
 
 .xAxis path, .yAxis path {
-	stroke: #536870;
+	stroke: #536870 !important;
 }
 
 /* *****************
@@ -119,12 +119,12 @@ a:hover {
 	padding: 0;
 	margin: 0;
 	position: absolute;
-	z-index: 1;
+	z-index: 2;
 	right: 5%;
 	width: 100%;
 	top: 100px;
     padding-bottom: 6px;
-	overflow: hidden;
+	overflow: visible;
 } 
 
 ul#menu {
@@ -191,7 +191,7 @@ li#menutab .rightbar {
 	background-color: rgb(69,123,157);
 	width: 10em;
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-	z-index: 1;
+	z-index: 2;
 	color: black;
 }
 
@@ -254,30 +254,7 @@ li#menutab .rightbar {
     #menubar {
         font-size: 2em;
     }
-    
-    li#menutab .rightbar {
-        font-size: 2.1em;
-    }
-    
-    .rightbar-content a {
-        min-width: 20em;
+    p {
         font-size: 2em;
-    }
-    
-    img#rosling {
-        width: 360px;
-        height: 196px;
-    }
-    
-    #titlebanner {
-        height: 200px;
-    }
-    
-    #imgbanner {
-        height: 200px;
-    }
-    
-    .banner {
-        margin-bottom: 200px;
     }
 }
