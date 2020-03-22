@@ -276,6 +276,16 @@ li#menutab .rightbar {
     margin-right: auto;
 }
 
+#programming {
+    border-radius: 20px; 
+    height: 11.3em; 
+    width: 16.5em; 
+    position: relative; 
+    display: block; 
+    margin-left: auto; 
+    margin-right: auto;
+}
+
 #photowide {
   border-radius: 10px; 
   height: 4.7em; 

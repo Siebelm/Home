@@ -9,7 +9,7 @@ div#notebook {
   margin-right: auto;
   margin-left: auto;
   padding: 0 20px 0 20px;
-  width: 98%;
+  width: 100%;
 }
 
 html, body {
@@ -21,6 +21,10 @@ html, body {
 div.cell {
     margin-top: 0.8em; 
     border-radius: 20px !important; 
+}
+
+div.input_area {
+  border-radius: 4px !important;
 }
 
 div.text_cell_render {
@@ -59,6 +63,14 @@ div.rendered_html {
 .rendered_html :visited:hover, .rendered_html :link:hover {
   color: #ca2c92 !important;
 } 
+
+div.text_cell_render h1, div.rendered_html h1, 
+div.text_cell_render h2, div.rendered_html h2, 
+div.text_cell_render h3, div.rendered_html h3, 
+div.text_cell_render h4, div.rendered_html h4, 
+div.text_cell_render h5, div.rendered_html h5 {
+  margin-left: 0 !important;
+}
 
 blockquote {
   color: #9ddcff;
