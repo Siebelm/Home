@@ -1,0 +1,34 @@
+.list-group-item {
+  background-color: #1a2028 !important;
+}
+li#menutab.selected a {
+	color: #1a2028 !important;
+}
+#blog {
+  color: #1a2028 !important; 
+}
+#objective {
+  color: #1a2028 !important; 
+}
+p.social a {
+  border: solid 1px #1a2028 !important;
+  color: #1a2028 !important;
+}
+html, body {
+  background-color: #1a2028 !important;  
+}
+@media only screen and (max-width: 850px) {
+  html, body {
+    background-color: #1a2028 !important; 
+  }
+}
+@media only screen and (max-width: 767px) {
+  html, body {
+  	background-color: #1a2028 !important;  
+  }
+}
+@media only screen and (min-resolution: 2dppx) {
+  html, body {
+  	background-color: #1a2028 !important;  
+  }
+}
