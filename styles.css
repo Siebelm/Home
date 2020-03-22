@@ -674,6 +674,9 @@ a:hover {
   .toc-content {
     padding: 1.3em !important;
   }
+  .info {
+    width: 98%;
+  }
   #menubar {
     right: 1.3em;
   }
