@@ -31,7 +31,7 @@ h1.title {
   font-weight: bold;
   color: #457b9d;
   font-family: 'Montserrat', sans-serif !important;
-  margin-top: 1.5em;
+  margin-top: 1.5em !important;
 }
 h1 {
   font-size: 2em;
