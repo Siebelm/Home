@@ -1,0 +1,568 @@
+---
+title: "Harry Potter NLP"
+author: "Michael Siebel"
+date: "`r date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: "../Rstyles.css" 
+    code_folding: hide
+    highlight: tango
+    includes:
+      in_header: "menu.html"
+---
+
+<br>
+
+>  Natural Language Processing (NLP) for: <br>
+>  Harry Potter and the Philosopher's Stone (1997) <br>
+>  Harry Potter and the Chamber of Secrets (1998) <br>
+>  Harry Potter and the Prisoner of Azkaban (1999) <br>
+>  Harry Potter and the Goblet of Fire (2000) <br>
+>  Harry Potter and the Order of the Phoenix (2003) <br>
+>  Harry Potter and the Half-Blood Prince (2005) <br>
+>  Harry Potter and the Deathly Hallows (2007)
+
+# Bottom Line Up Front
+
+# Setup
+```{r, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
+rm(list=ls())
+gc()
+
+
+# install.packages("pacman")
+# install.packages("remotes")
+# library(remotes)
+# install.packages("devtools")
+# library(devtools)
+# remotes::install_github("nrguimaraes/sentimentSetsR")
+# library(magrittr)
+# devtools::install_github("wch/webshot")
+# webshot::install_phantomjs()
+# library(BiocManager)
+# BiocManager::install("https://bioconductor.org/biocLite.R")
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("EBImage")
+library(pacman)
+pacman::p_load(devtools, knitr, magrittr, dplyr, ggplot2, rvest, sentimentSetsR, caret, textTinyR, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, wordcloud, prettydoc, cowplot, kable, utf8, corpus, glue, topicmodels, stm, wordcloud2, htmlwidgets, viridis)
+  
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=120)
+
+# Parameters
+## N-gram
+ngrams <- "single words"
+ngram <- c(1, 1)
+
+## Number of Topics
+K <- 4
+
+# Custom functions
+## Remove quotation marks
+pasteNQ <- function(...) {
+  output <- paste(...)
+  noquote(output)
+}
+pasteNQ0 <- function(...) {
+  output <- paste0(...)
+  noquote(output)
+}
+
+## Chart Template
+Grph_theme <- function() {
+  palette <- brewer.pal("Greys", n=9)
+  color.background = palette[2]
+  color.grid.major = palette[3]
+  color.axis.text = palette[6]
+  color.axis.title = palette[7]
+  color.title = palette[9]    
+  theme_bw(base_size=9) + 
+  theme(panel.background=element_rect(fill=color.background, color=color.background)) +
+  theme(plot.background=element_rect(fill=color.background, color=color.background)) +
+  theme(panel.border=element_rect(color=color.background)) +
+  theme(panel.grid.major=element_line(color=color.grid.major,size=.25)) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(axis.ticks=element_blank()) +
+  theme(legend.position="none") +
+  theme(legend.title=element_text(size=16,color='black')) +
+  theme(legend.background = element_rect(fill=color.background)) +
+  theme(legend.text = element_text(size=14,color='black')) +
+  theme(strip.text.x = element_text(size=14,color='black',vjust=1)) +
+  theme(plot.title=element_text(color=color.title, size=20, vjust=1.25)) +
+  theme(axis.text.x=element_text(size=14,color='black')) +
+  theme(axis.text.y=element_text(size=14,color='black')) +
+  theme(axis.title.x=element_text(size=16,color='black', vjust=0)) +
+  theme(axis.title.y=element_text(size=16,color='black', vjust=1.25)) +
+  theme(plot.margin = unit(c(0.35, 0.2, 0.3, 0.35), "cm"))
+}
+
+## Chart Template Facet Wrap
+Grph_theme_facet <- function() {
+  palette <- brewer.pal("Greys", n=9)
+  color.background = palette[2]
+  color.grid.major = palette[3]
+  color.axis.text = palette[6]
+  color.axis.title = palette[7]
+  color.title = palette[9]    
+  theme_bw(base_size=9) + 
+  theme(panel.background=element_rect(fill=color.background, color=color.background)) +
+  theme(plot.background=element_rect(fill=color.background, color=color.background)) +
+  theme(panel.border=element_rect(color=color.background)) +
+  theme(panel.grid.major=element_line(color=color.grid.major,size=.25)) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(axis.ticks=element_blank()) +
+  theme(legend.position="none") +
+  theme(legend.title=element_text(size=11,color='black')) +
+  theme(legend.background = element_rect(fill=color.background)) +
+  theme(legend.text = element_text(size=9,color='black')) +
+  theme(strip.text.x = element_text(size=9,color='black',vjust=1)) +
+  theme(plot.title=element_text(color=color.title, size=20, vjust=1.25)) +
+  theme(axis.text.x=element_text(size=9,color='black')) +
+  theme(axis.text.y=element_text(size=9,color='black')) +
+  theme(axis.title.x=element_text(size=10,color='black', vjust=0)) +
+  theme(axis.title.y=element_text(size=10,color='black', vjust=1.25)) +
+  theme(plot.margin = unit(c(0.35, 0.2, 0.3, 0.35), "cm"))
+}
+
+## Clean Corpus
+basicclean <- function(rawtext) {
+  # Set to lowercase
+  rawtext <- tolower(rawtext)
+  print(pasteNQ("Set to lowercase"))
+
+  # Remove contractions
+  fix_contractions <- function(doc) {
+    doc <- gsub("will not", "won't", doc)
+    doc <- gsub("can't", "can not", doc)
+    doc <- gsub("can not", "cannot", doc)
+    doc <- gsub("shant", "shall not", doc)
+    doc <- gsub("n't", " not", doc)
+    doc <- gsub("'ll", " will", doc)
+    doc <- gsub("'re", " are", doc)
+    doc <- gsub("'ve", " have", doc)
+    doc <- gsub("'m", " am", doc)
+    doc <- gsub("'d", " would", doc)
+    doc <- gsub("'ld", " would", doc)
+    doc <- gsub("'ld", " would", doc)
+    doc <- gsub("'s", "", doc)
+    return(doc)
+  }
+  rawtext <- fix_contractions(rawtext)
+  print(pasteNQ("Fixed contractions"))
+  
+  # Strip whitespace
+  rawtext <- stripWhitespace(rawtext)
+  print(pasteNQ("Stripped whitespace"))
+
+  return(rawtext)
+}
+
+# Remove stop words
+removestopwords <- function(rawtext, remove=NULL, retain=NULL) {
+
+  # Remove stop words
+  stopwords_custom <- stopwords::stopwords("en", source = "snowball")
+  stopwords_custom <- c(stopwords_custom, remove)
+  stopwords_retain <- retain
+  stopwords_custom <- stopwords_custom[!stopwords_custom %in% stopwords_retain]
+  rawtext <- removeWords(rawtext, stopwords_custom)
+  print(pasteNQ("Removed", length(stopwords_custom), "stop words"))
+  
+  return(rawtext)
+}
+
+## Word Stemming
+wordstem <- function(rawtext) {
+  # Stemming words
+  rawtext <- stemDocument(rawtext)
+  print(pasteNQ("Stemmed words"))
+  
+  return(rawtext)
+}
+
+## Remove Non-Alpha
+removenonalpha <- function(rawtext) {
+  # Remove puncutation, numbers, and other none characters
+  rawtext <- removePunctuation(rawtext)
+  rawtext <- removeNumbers(rawtext)
+  rawtext <- gsub("[^[:alnum:]///' ]", "", rawtext)
+  rawtext <- gsub("[']", "", rawtext)
+  print(pasteNQ("Removed punctuation, numbers, and other none characters"))
+  
+  return(rawtext)
+}
+
+# Remove JavaScript from WordClouds
+library("EBImage")
+embed_htmlwidget <- function(widget, rasterise = T) {
+  outputFormat = knitr::opts_knit$get("rmarkdown.pandoc.to")
+  if(rasterise || outputFormat == 'latex') {
+    html.file = tempfile("tp",fileext=".html")
+    png.file = tempfile("tp",fileext=".png")
+
+    htmlwidgets::saveWidget(widget, html.file, selfcontained = FALSE)
+    webshot::webshot(html.file, file = png.file,vwidth = 700, vheight = 500, delay =10)
+    img = EBImage::readImage(png.file)
+    EBImage::display(img)
+  } else {
+    widget
+  }
+}
+```
+
+
+# Load Data
+
+```{r}
+setwd("C:/Users/siebe/Documents/07_Books/Harry Potter/")
+
+titles <- c("Philosopher's Stone", "Chamber of Secrets", "Prisoner of Azkaban",
+            "Goblet of Fire", "Order of the Phoenix", "Half-Blood Prince",
+            "Deathly Hallows")
+html <- c("Harry_Potter_and_the_Philosophers_Stone.html",
+          "Harry_Potter_and_the_Chamber_of_Secrets.html",
+          "Harry_Potter_and_the_Prisoner_of_Azkaban.html",
+          "Harry_Potter_and_the_Goblet_of_Fire.html",
+          "Harry_Potter_and_the_Order_of_the_Phoenix.html",
+          "Harry_Potter_and_the_Half-Blood_Prince.html",
+          "Harry_Potter_and_the_Deathly_Hallows.html")
+
+corpus <- data.frame(Text="", Book="")
+para1 <- data.frame(Text="", Book="")
+for (i in 1:7) {  
+  rawtext <- read_html(html[i])%>%
+      html_nodes(xpath = '/html/body/p') %>%
+          html_text(trim = TRUE)
+  
+  wordcount <- sapply(strsplit(rawtext, " "), length)
+  paragraph <- rawtext[wordcount > 1]
+  
+  para1 <- rbind(para1, 
+                 data.frame(Text = paragraph,
+                            Book = titles[i])
+           )
+  para3t <- do.call(rbind, 
+                   lapply(seq(1, length(paragraph), by = 3),
+                          function(x) 
+                                  data.frame(Text = paste(paragraph[x:(x+2)], 
+                                                          collapse = " "),
+                                             Book = titles[i]
+                                             )
+                          )
+                   )
+  para3 <- rbind(para3, para3t)
+}
+para1 <- para1[2:nrow(para1),] # delete first empty row
+para3 <- para3[2:nrow(para3),] # delete first empty row
+para1$Book  <- factor(para1$Book, levels=titles)
+para3$Book <- factor(para3$Book, levels=titles)
+```
+
+
+# Create Additional Modeling Variables
+
+## Meta data
+```{r, include=F}
+# wordcount
+para3$Wordcount <- sapply(strsplit(para3$Text %>% as.character(), " "), length)
+para1$Wordcount <- sapply(strsplit(para1$Text %>% as.character(), " "), length)
+
+# count exclamation marks
+e_mark <- function(df, text) {
+  for(i in 1:nrow(df)) {
+    exclamation_mark[i] <- sum(gregexpr("[!]", text)[[i]]>0)
+  }
+  exclamation_mark <- ifelse(is.na(exclamation_mark),0,exclamation_mark)
+  return(exclamation_mark)
+}
+para3$exclamation_mark <- e_mark(para3, para3$text)
+para1$exclamation_mark <- e_mark(para1, para1$text)
+
+# count question marks
+q_mark <- function(df, text) {
+  for(i in 1:nrow(df)) {
+    question_mark[i] <- sum(gregexpr("[?]", text)[[i]]>0)
+  }
+  question_mark <- ifelse(is.na(question_mark),0,question_mark)
+}
+para3$question_mark <- q_mark(para3, para3$text)
+para1$question_mark <- q_mark(para1, para1$text)
+
+# count caps-lock words
+c_lock <- function(df, text) {
+  for(i in 1:nrow(df)) {
+    caps_lock[i] <- str_count(text[[i]], "\\b[A-Z]{2,}$\\b")
+  }
+  caps_lock <- ifelse(is.na(caps_lock),0,caps_lock)
+}
+para3$caps_lock <- c_lock(para3, para3$text)
+para1$caps_lock <- c_lock(para1, para1$text)
+
+# animated counts
+para3$animated <- para3$exclamation_mark + para3$question_mark + para3$caps_lock
+para1$animated <- para1$exclamation_mark + para1$question_mark + para1$caps_lock
+```
+
+## Sentiment Scores
+```{r}
+# Sentiment Scores
+average <- function(x) {
+  y <- mean(x, na.rm = TRUE)
+  y <- ifelse(is.nan(y),0,y)
+  return(y)
+}
+CleanText3 <- basicclean(para3$Text)
+para3$sent_score <- sapply(CleanText3, 
+                            function(x) getSentiment(x, dictionary = "afinn", 
+                                                     scale = TRUE, score.type = average)) 
+                            # function(x) getVaderRuleBasedSentiment(x)) 
+CleanText1 <- basicclean(para1$Text)
+para1$sent_score <- sapply(CleanText1, 
+                            function(x) getSentiment(x, dictionary = "afinn", 
+                                                     scale = TRUE, score.type = average)) 
+                            # function(x) getVaderRuleBasedSentiment(x)) 
+
+# write.csv2(corpus, file = "harrypotter_sent.csv")
+```
+
+## Document Term Matrix
+```{r}
+set.seed(0)
+
+CompleteCleanText <- CleanText3 %>%
+                     removestopwords() %>%
+                     wordstem() %>%
+                     removenonalpha()
+ids <- row.names(para3)
+
+# tokenize
+it <- itoken(CompleteCleanText, 
+				ids = ids, 
+				progressbar = FALSE) 
+
+# ngrams
+vocab <- create_vocabulary(it, c(1,1)) 
+vocab <- prune_vocabulary(vocab, term_count_min = 5L)
+
+vectorizer <- vocab_vectorizer(vocab)
+
+# create dtm
+dtm <- create_dtm(it, vectorizer, type="dgCMatrix")
+
+# number of term input
+pasteNQ("")
+pasteNQ("document term matrix specifications:")
+pasteNQ("cleaned", sum(corpus$Wordcount), "words into", ncol(dtm))
+pasteNQ("number of documents:", nrow(dtm))
+```
+
+
+## Word Cloud by Topic
+```{r, fig.show = "hold", out.height = "100%", out.width = "50%"}
+# Convert DTM to list
+documents <- apply(as.matrix(dtm), 1, function(y) {
+      rbind(which(y > 0), as.integer(y[y > 0])) 
+})
+processed <- list(documents=documents, vocab=vocab$term)
+
+# Prep documents for stm package
+out <- prepDocuments(processed$documents, processed$vocab, lower.thresh = 3, verbose=F)
+
+stmmodel <- stm(documents = out$documents, vocab = out$vocab,
+                K = K,
+                prevalence = ~ animated + s(sent_score) + propensed + s(Age_Final) +
+                Northeast + Midwest + South + West,
+                max.em.its = 500, 
+                # data = out$meta,
+                init.type = "Spectral", 
+                verbose=F)
+
+# List defining words for each topic
+topics <- labelTopics(stmmodel, 1:K, n=20)
+for (i in 1:K) {
+  frex <- data.frame(words=topics$frex[i,], n=21-seq(topics$frex[i,]), stringsAsFactors=F)
+  frex$words <- str_replace_all(frex$words, "_", " ")
+  clouds <- data.frame(words = c(frex$words, 
+                                 paste("Topic",i)), 
+                       weight = c(frex$n, 25))
+  assign(paste0("wc_", i), (wordcloud2(clouds, size=0.5,
+        color = "random-light", backgroundColor = "black")))
+}
+embed_htmlwidget(wc_1)
+embed_htmlwidget(wc_2)
+embed_htmlwidget(wc_3)
+embed_htmlwidget(wc_4)
+```
+
+
+## Word Embeddings
+```{r}
+set.seed(0)
+
+# Save IDs
+df$id <- row.names(df)
+
+# Minimum cleaning
+# corpus$TextWE <- stripWhitespace(corpus$Text %>% as.character())
+
+# Tokenize
+CleanText <- basicclean(df$Text)
+df_token <- word_tokenizer(CleanText)
+
+
+# tokenize
+it <- itoken(CleanText, 
+				ids = df$id, 
+				progressbar = FALSE) 
+
+# ngrams
+vocab <- create_vocabulary(it, c(1,1)) 
+vocab <- prune_vocabulary(vocab, term_count_min = 1L)
+
+# create dtm
+dtm <- textTinyR::Doc2Vec$new(token_list = df_token, 
+							                word_vector_FILE = "glove.42B.300d.vec",
+							                copy_data = FALSE) 
+
+dtm <- dtm$doc2vec_methods(method = "sum_sqrt", threads = 3)
+
+pasteNQ("Applied Doc2Vec Word Embeddings")
+pasteNQ("External Word Embeddings: FastText English word vectors released by Facebook")
+pasteNQ("Pretraining on: 2 million word vectors trained on Common Crawl (840B tokens)")
+pasteNQ("Dimensionality Reduction to:", 300)	
+pasteNQ("Final Dimensions")
+dim(data.frame(as.matrix(dtm)))
+```
+
+
+
+*Example*
+docs upsample_n
+3     max(docs) - 3 = 3*2 = 6 + 3 = 9
+4     max(docs) - 4 = 2*2 = 4 + 4 = 8
+6     max(docs) - 6 = 0*2 = 0 + 6 = 6
+2     max(docs) - 2 = 4*2 = 8 + 2 = 10
+6     max(docs) - 6 = 0*2 = 0 + 6 = 6
+
+*Definition*
+1) largest doc count - number of docs #balances
+2) times by 2 #increase upsample for a doubled para3
+3) add orignal para3 to double total doc size
+
+*Result*
+12 docs for all
+doubling docs then upsampling
+never repeating same doc twice
+
+# Defining upsample
+```{r}
+para3 <- corpus
+# sort Book freqs by chronological order
+docs <- table(para3$Book) %>%
+        as.data.frame()
+
+# Define upsample scalars
+upsample_n <- max(docs$Freq) - docs$Freq
+upsample_n <- upsample_n + 594
+# upsample_n <- upsample_n * 2
+# upsample_n <- upsample_n + docs$Freq
+
+# Should all be the same number
+upsample_n + docs$Freq
+```
+
+# Upsample
+```{r}
+# Separate singe paragraph corpus into separate objects by Book title
+for(i in 1:7) {
+    assign(paste0("para_", i),
+           para1[para1$Book==titles[i],] %>%
+           tidyr::drop_na()
+    )
+             
+}
+
+# Upsample from single paragraphs by taking random sample w/o replacement of upsample scalars
+upsamples <- data.frame()
+for (i in 1:7) {
+  t <- get(paste0("para_", i))
+  print(upsample_n[i])
+  upsamples <- rbind(upsamples, (
+                     t[sample(nrow(t), size = upsample_n[i]), ]
+                     )
+  )
+  t <- NULL
+}
+
+df <- rbind(para3, upsamples)
+
+table(df$Book)
+```
+
+
+
+
+
+
+## Split data
+```{r}
+set.seed(0)
+
+df$id <- row.names(df)
+
+train_index <- sample(nrow(dtm), nrow(dtm)*0.80)
+
+model_df <- data.frame(as.matrix(dtm))
+# model_df$Sentiment <- corpus$sent_score
+# model_df$Wordcount <- corpus$Wordcount
+
+train <- model_df[train_index, ]
+test  <- model_df[-train_index, ]
+
+train_dv <- df$Book[train_index]
+test_dv  <- df$Book[-train_index]
+
+# save(model_df, train, test, train_dv, test_dv, file = "harrypotter_BOW.RData")
+save(model_df, train, test, train_dv, test_dv, file = "harrypotter_WEsum3.RData")
+```
+
+
+## Neural Network
+```{r}
+load("harrypotter_WEsum3.RData")
+set.seed(0)
+
+fitControl <- trainControl(method = "repeatedcv",
+                           number = 3,
+                           repeats = 3,
+                           search = "grid")
+
+garbage <- capture.output(
+  nnet_mod <- caret::train(x = train,
+                      y = as.factor(train_dv),
+                      method = "nnet",
+                      trControl = fitControl,
+                      tuneGrid = data.frame(size = 20,
+                                            decay = 1e-4),
+                                 maxit = 1000,
+                                 MaxNWts = 100000)
+)
+
+nnet_pred <- predict(nnet_mod,
+                     newdata = test)
+
+
+nnet_cm <- confusionMatrix(nnet_pred, test_dv)
+nnet_cm
+
+# save(nnet_mod, nnet_pred, nnet_cm, file = "nnet_BOW.RData")
+save(nnet_mod, nnet_pred, nnet_cm, file = "nnet_WEsum4.RData")
+```
+
+
+
+
+
+
+

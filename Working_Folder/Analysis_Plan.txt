@@ -1,0 +1,51 @@
+Harry Potter Analysis
+
+Several R Markdowns
+Links at beginning to each
+
+I) Series and Book level
+1) Vocab size
+  * Do the books gain a larger vocab as readers get older?
+  * Unique stemmed words 
+  * Unique stemmed words / total word count
+  * Unique stemmed words / page count
+2) Chapters
+  * Number of chapters
+  * Words/pages per chapter
+2) Who is main character?
+  * word count
+    - who is Harry's best friend?
+  * TF-IDF
+    - who is most important per book?
+  * Network analysis
+    - who is important as a secondary character across all books?
+3) Sentiment
+  * Sentiment / unique words
+    - Which book is the darkest?
+4) Broadest amount of topics
+  * 4 topics:
+    1) World building: Ministry; journalists
+    2) Muggle world: early of book; summers
+    3) Story arch: later books; horcrux; villians
+    4) Hogwarts classroom: middle of book
+    
+II) Paragraph level
+1) Dictionary analysis
+  * Identity extraction
+    - to decide which dictionaries to create
+  * villians v heros
+    - do paragraphs containing villians contain more negative words?
+    - which villian contains the most negative words
+    - are their more postive words with:
+      * Hermoine or Ron more encouraging/optimistic?
+      * Is Serius, Lily, or Hagrid more encouraging/optimistic?
+2) Topic analysis
+   - Cross with books
+   - Cross with sentiment
+   - Cross with character dictionaries
+3) Classification analysis
+  * Classify each book then decide which book Curse Child is most like?
+  * Classify each book then decide if movie script matches books?
+    - Cosine similiarity of movie script with book
+    
+III) Data wrangling    

@@ -1,0 +1,81 @@
+---
+title: "Web Scripping"
+author: "Michael Siebel"
+date: "`r date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(pacman)
+pacman::p_load(rvest, stringr, magick)
+
+knitr::opts_chunk$set(eval=TRUE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE)
+run_date <- date()
+```
+
+# Grab scripts
+
+```{r}
+URL <- "http://www.hogwartsishere.com/library/book/7391/"
+
+folder <- "C:/Users/siebe/Documents/1 R Scripts/Harry Potter"
+
+titles <- c()
+for(i in 2:8) {
+  films <- paste0('chapter/',i,'/')
+  
+  # Titles
+  title <- read_html(paste0(URL, films)) %>%
+    html_nodes(xpath = '//*[@id="wrapper"]/section[3]/div/div/div[2]/div/h4[2]') %>%
+        html_text()
+  print(title)
+  titles <- c(titles, title)
+  
+  # Text
+  text <- read_html(paste0(URL, films)) %>%
+    html_nodes(xpath = '//*[@id="wrapper"]/section[3]/div/div/div[2]/div/div[2]') %>%
+      html_text()
+  text <- gsub('[^a-zA-Z0-9 _]'," ",text, fixed=F, perl=T)
+  
+  
+  fileConn<-file(paste0(folder,"/", title, ".txt"))
+  writeLines(text, fileConn)
+  close(fileConn)
+}
+
+```
+
+```{r }
+
+```
+
+```{r}
+setwd("C:\\Users\\siebe\\Documents\\1 R Scripts\\Battle through the Heavens")
+
+for (i in 390:nrow(chapters)) { #nrow(chapters)
+  try({
+    ebook_page <- read_html(paste0(URL, "/btth-chapter-",i)) %>%
+                  html_nodes(".fr-view")}, silent = T)
+  try({ebook_page <- read_html(paste0(URL, "/btth-chapter-",i,"-1")) %>%
+                  html_nodes(".fr-view")}, silent = T)
+  ebook_text <- ebook_page
+  ebook_text <- str_replace(ebook_text, "<p>","<h1>")
+  ebook_text <- str_replace(ebook_text, "</p>","</h1>")
+  ebook_text <- str_replace_all(ebook_text, "<br>","<br />")
+  ebook_text <- str_replace_all(ebook_text, "<hr>","")
+  ebook_text <- str_replace_all(ebook_text, "</a>","<br />")
+  ebook_text <- str_replace_all(ebook_text, "/novel/battle-through-the-heavens/btth-chapter-",
+                                "/Users/siebe/Documents/1 R Scripts/Battle through the Heavens/Chapter ")
+  file <- file(paste0(chapters[i,1], ".html")) #, encoding="UTF-8"
+  write(ebook_text, file=file)
+  close(file)
+  assign(paste0("Chapter_",i), ebook_text)
+}
+
+```
+
+
+
+
+
+
