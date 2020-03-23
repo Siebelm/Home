@@ -34,6 +34,7 @@ h1.title {
   font-weight: bold;
   color: #457b9d;
   font-family:'Montserrat', sans-serif;  
+  margin-top: 2.5em;
 }
 h1 {
   font-size: 2.2em;
@@ -447,7 +448,7 @@ p.social a:hover {
 }
 
 .main-container h1, h2, h3, h4, h5 {
-  margin-top: 2.5em;
+  margin-top: 1.5em;
   margin-bottom: .5em;
   font-weight: bold;
   color: #457b9d;
