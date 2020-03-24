@@ -550,6 +550,7 @@ a:hover {
   0 0 repeat;
   font-weight: bold;
   border: 0;
+  color: var(--code-color);
 }
 
 .main-container shortcode {
