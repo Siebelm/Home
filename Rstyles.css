@@ -552,12 +552,12 @@ input:checked + .slider:before {
     width: 88%;	
   }  
   /* Table of Contents */
- #TOC, .tocify {
+  #TOC, .tocify {
     display: block;
- }
-    .leftpanel {
-        display: block;
-    }
+  }
+  .leftpanel {
+      display: block;
+  }
 }
 
 @media only screen and (max-width: 767px) and (min-resolution: 2dppx) {
