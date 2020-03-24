@@ -578,7 +578,7 @@ a:hover {
 }
 
 .theme-switch input {
-  display:none;
+  display: none;
 }
 
 .slider {
@@ -726,7 +726,13 @@ input:checked + .slider:before {
   .theme-switch {
     left: 1.3em;
     top: 0.5em;
-  }    
+    height: 2em;
+    width: 3.75em;
+  }
+  .slider:before {
+    height: 1.5em;
+    width: 1..5em;
+  }   
 }
 
 /* ***************************
