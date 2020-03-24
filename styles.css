@@ -18,7 +18,7 @@
     --side-color: #3e4855;
     --left-font:  #5ED4B6;
     --socl-color: #5ED4B6;
-    --head-color: #3e4855;
+    --head-color: #202131;
     --font-color: #3e4855;
     --mpop-color: #ff685d;
     --blkq-color: #6258ff;
@@ -221,7 +221,7 @@ li#menutab .rightbar {
 	position: absolute;
 	background-color: var(--side-color);
 	width: 8em;
-	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
 	z-index: 1;
 	color: black;
 }
@@ -389,7 +389,7 @@ li#menutab .rightbar {
 
 .card {
     padding: 2em;
-    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.75);
+    box-shadow: 1px 2px 4px 1px rgba(0, 0, 0, 0.5);
 }
 
 
