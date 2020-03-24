@@ -724,8 +724,8 @@ input:checked + .slider:before {
     display: none;  
   } 
   .theme-switch {
-    left: 20px;
-    top: 1em;
+    left: 1.3em;
+    top: 0.5em;
   }    
 }
 
