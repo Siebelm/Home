@@ -35,7 +35,6 @@
    Horizontal Menu
 ****************** */
 #menubar {
-	height: 28px;
 	padding: 0;
 	margin: 0;
 	position: absolute;
@@ -63,7 +62,7 @@ li#menutab {
 
 li#menutab a, .rightbar {
 	display: inline-block;
-	color: white;
+	color: #fff;
 	padding: 14px 16px 18px;
 	text-decoration: none;
     -webkit-touch-callout: none; /* iOS Safari */
@@ -76,18 +75,17 @@ li#menutab a, .rightbar {
 }
 
 li#menutab.selected a {
-	height: 25px;
 	color: #1a2028;
     padding-bottom: 6px;    
 }
 
 li#menutab.selected {
 	margin: 0;
-	background: white;
+	background: #fff;
 }
 
 li#menutab a:hover, .dropdown:hover .rightbar {
-	color: #708284;
+	color: #fff;
 }
 
 /* **********
@@ -108,8 +106,8 @@ li#menutab .rightbar {
 .rightbar-content {
 	display: none;
 	position: absolute;
-	background-color: rgb(69,123,157);
-	width: 10em;
+	background-color: #457b9d;
+	width: 8em;
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 	z-index: 1;
 	color: black;
@@ -119,14 +117,14 @@ li#menutab .rightbar {
 	color: black;
 	padding: 12px 16px;
 	text-decoration: none;
-	min-width: 10em;
+	min-width: 8em;
 	display: block;
 	text-align: left;
     font-size: 1em;
 }
 
 .rightbar-content a:hover {
-	background-color: white;
+	background-color: #fff;
 }
 
 .dropdown:hover .rightbar-content {
@@ -142,69 +140,9 @@ li#menutab .rightbar {
     width: 280px;
     height: 100%;
     top: 0px;
-    overflow-y: auto;
     left: 0px;
-    background-image: -webkit-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
-    background-image: -moz-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
-    background-image: -ms-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
-    background-image: -o-gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
-    background-image: -gradient(linear, left top, right top, from(rgba(69,123,157,1)), to(rgba(69,123,157,1)) ) ;
-    background-repeat: repeat-y;
-    background-size: 280px 100%;
-}
-
-#welcome {
-    border-radius: 20px; 
-    height: 220px; 
-    width: 240px; 
-    position: relative; 
-    display: block; 
-    margin-left: auto; 
-    margin-right: auto;
-}
-
-.welcome_text {
-    text-align: center;
-    width: 75%;
-    margin-left: auto; 
-    margin-right: auto;
-}
-
-#photowide {
-    border-radius: 10px; 
-    height: 75px; 
-    width: 150px; 
-    position: relative; 
-    display: block; 
-    margin-bottom: 20px;
-} 
-
-#phototall {
-    border-radius: 10px; 
-    height: 130px; 
-    width: 100px; 
-    position: relative; 
-    display: block; 
-    margin-bottom: 20px;
-}
-
-#square {
-    border-radius: 20px; 
-    height: 200px; 
-    width: 200px; 
-    position: relative; 
-    display: block; 
-    margin-left: auto; 
-    margin-right: auto;
-}
-
-#bio {
-  height: 160px; 
-  width: 160px; 
-  display: block; 
-  margin-left: auto; 
-  margin-right: auto; 
-  border-radius: 20px; 
+    overflow-y: auto;
+    background-color: #457b9d;
 }
 
 #blog {
@@ -247,33 +185,6 @@ li#menutab .rightbar {
   transition: all 0.5s ease-out;
 }
 
-#crest {
-  height: 175px; 
-  width: 150px; 
-  display: block; 
-  position: relative;
-  margin-left: auto; 
-  margin-right: auto;   
-}
-
-#gif {
-  height: 100px; 
-  width: 250px; 
-  position: relative; 
-  display: block; 
-  padding-bottom: 20px;
-}
-
-#resume {
-  border-radius: 3px; 
-  height: 140px; 
-  width: 150px; 
-  position: relative; 
-  display: block; 
-  margin-bottom: 20px;
-}
-
-
 /*
 =====================
 SOCIAL LINKS
@@ -289,7 +200,6 @@ p.social {
 
 p.social a {
   margin: 0 5px;
-  color: white;
   display: inline-block;
   width: 40px;
   height: 40px;

@@ -91,8 +91,6 @@ blockquote {
 @media only screen and (max-width: 850px) {
   html, body {
     left: 0;
-    background-color: #1a2028; 
-    background-image: none !important;  
   }
   .leftpanel {
     display: none;
@@ -125,8 +123,6 @@ blockquote {
   }
   html, body {
   	left: 0;
-  	background-color: #1a2028;  
-	background-image: none !important;
   }
   .leftpanel {
     display: none;
@@ -145,7 +141,7 @@ blockquote {
   }
 }
 
-@media only screen and (max-width: 480px){   
+@media only screen and (max-width: 527px){   
   .toc-content {
     padding: 1.3em !important;
   }
@@ -155,27 +151,36 @@ blockquote {
   li#menutab a, .rightbar {
     padding: 7px 6px;  
   }
-}
-
-@media only screen and (max-width: 410px) {
   li#menutab .rightbar {
     display: none;
   }
 }
 
  
-@media only screen and (min-resolution: 2dppx) {
+@media only screen 
+and (min-resolution: 2dppx) 
+and (orientation: portrait) {
   div.rendered_html {
     font-size: 36px;
   }
   body {
     font-size: 36px;
+  	left: 0;
   }
   .toc-content {
     padding: 1.3em !important;
   }
+  .info {
+    width: 98%;
+  }
   #menubar {
     right: 1.3em;
+  }
+  .rightbar-content {
+      width: 7em;
+  }
+  .rightbar-content a {
+      min-width: 7em;
   }
   #TOC {
     display: none;
@@ -184,15 +189,19 @@ blockquote {
     width: 100%;	
     margin-left: 0;
     padding-left: 40px;
-  }
+ }
   #notebook-container {
     margin: 3em 0 0 0;
   }
-  html, body {
-  	left: 0;
-  	background-color: #1a2028;  
-	background-image: none !important;
+  pre {
+    font-size: 18pt;
   }
+  div.output_area pre {
+    font-size: 12pt !important;
+  }
+  li#menutab .rightbar {
+    display: inline-block;
+  }  
   .leftpanel {
     display: none;
   }
@@ -207,7 +216,19 @@ blockquote {
   }
   #objective:hover {
     display: none;  
+  } 
+  .theme-switch {
+    left: 1.3em;
+    top: 0.15em;
+    height: 1.6em;
+    width: 2.3em;
   }
+  .slider:before {
+    height: 1.2em;
+    width: 1.25em;
+    bottom: 8px;
+    left: 5px;
+  }   
 }
 
 
