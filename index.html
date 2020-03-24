@@ -19,10 +19,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <title>A Blog by Michael</title>
-	
+
 <!-- menubar -->
 <div id="menubar">
+ 
 	<ul id="menu"> 
+        <li id="menutab">
+    
+        </li>
 		<li id="menutab" class="selected"><a href="index.html">Home</a></li>
 		<li id="menutab"><a href="about.html">About</a></li>	
 		<li id="menutab"><a href="biography.html">Biography</a></li>	
@@ -73,6 +77,48 @@
     </p>
 </div>
 
+<!-- CSS Toggle -->
+<label class="theme-switch" for="checkbox">
+    <input type="checkbox" id="checkbox" />
+    <div class="slider round"></div>
+</label> 
+
+<script>
+const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }
+    else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }    
+}
+
+toggleSwitch.addEventListener('change', switchTheme, false);
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light'); //add this
+    }
+    else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark'); //add this
+    }    
+}
+
+const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+
+if (currentTheme) {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+
+    if (currentTheme === 'light') {
+        toggleSwitch.checked = true;
+    }
+}
+</script>
+	
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-159375178-1"></script>
@@ -111,105 +157,121 @@
         </p>
 		<br>
         
-        <h2>Trump's Twitter Sentiment</h2>
-        <a href="https://siebelm.github.io/Trumps_Twitter">
-        <img id="photowide" src="Photos/trump-twitter.jpg" alt="Trump" />
-        </a>
-        <p>
-        Dashboard of President Trump's twitter account. Displays sentiment of tweets overall and by topic area including news media, policy agenda, Russian investigation, and party politics.
-        </p> 
+        <div class="card">
+            <h2>Trump's Twitter Sentiment</h2>
+            <a href="https://siebelm.github.io/Trumps_Twitter">
+            <img id="photowide" src="Photos/trump-twitter.jpg" alt="Trump" />
+            </a>
+            <p>
+            Dashboard of President Trump's twitter account. Displays sentiment of tweets overall and by topic area including news media, policy agenda, Russian investigation, and party politics.
+            </p> 
+        </div>
 		<br>
         
-        <h2>Creating a GIF of a Log-Sigmoid Curve</h2>
-        <a href="https://siebelm.github.io/GIF">
-        <img id="photolong" src="GIF/logsigmoid.gif" alt="Log-Sigmoid GIF" />
-        </a>
-        <p>
-        A demonstration of how to create GIF's using R.
-        <p>
-        Creating a GIF in <code>ggplot</code> is extremely simple and only requires one additional package beyond <code>ggplot2</code>.
-        </p>
-        <p>
-        I show how the R package <code>gifski</code> can be used to convert a series of plots into a GIF of a Log-Sigmoid curve.
-        </p>
+        <div class="card">
+            <h2>Creating a GIF of a Log-Sigmoid Curve</h2>
+            <a href="https://siebelm.github.io/GIF">
+            <img id="photolong" src="GIF/logsigmoid.gif" alt="Log-Sigmoid GIF" />
+            </a>
+            <p>
+            A demonstration of how to create GIF's using R.
+            <p>
+            Creating a GIF in <shortcode>ggplot</shortcode> is extremely simple and only requires one additional package beyond <shortcode>ggplot2</shortcode>.
+            </p>
+            <p>
+            I show how the R package <shortcode>gifski</shortcode> can be used to convert a series of plots into a GIF of a Log-Sigmoid curve.
+            </p>
+        </div>
 		<br>
         
-        <h2>Dealing with Rare Events</h2>
-        <a href="https://siebelm.github.io/Dealing_With_Rare_Events">
-        <img id="photolong" src="Dealing_With_Rare_Events/foreclosures.png" alt="Dealing With Rare Events" />
-        </a>
-        <p>
-        A demonstration of modeling rare events in Python.
-        <p>
-        Using Fannie Mae mortgage data, I investigated which types of loans are at greatest risk of default (i.e., being foreclosed upon) at the beginning of the 2008 financial crisis. This is made difficult as loan defaults, even at the height of the financial crisis, was a "rare event", meaning it occurs at such a low frequency that a model becomes far better at predicting what DOES NOT cause a default compared to what DOES cause a default.
-        </p>
-        <p>
-        I test how downsampling and upsampling techniques can improve predictions of rare events.
-        </p>
+        <div class="card">
+            <h2>Dealing with Rare Events</h2>
+            <a href="https://siebelm.github.io/Dealing_With_Rare_Events">
+            <img id="photolong" src="Dealing_With_Rare_Events/foreclosures.png" alt="Dealing With Rare Events" />
+            </a>
+            <p>
+            A demonstration of modeling rare events in Python.
+            <p>
+            Using Fannie Mae mortgage data, I investigated which types of loans are at greatest risk of default (i.e., being foreclosed upon) at the beginning of the 2008 financial crisis. This is made difficult as loan defaults, even at the height of the financial crisis, was a "rare event", meaning it occurs at such a low frequency that a model becomes far better at predicting what DOES NOT cause a default compared to what DOES cause a default.
+            </p>
+            <p>
+            I test how downsampling and upsampling techniques can improve predictions of rare events.
+            </p>
+        </div>
 		<br>
 
-        <h2>G-20 Military Spending</h2>
-        <a href="https://siebelm.github.io/G20_Military_Spending">
-        <img id="photowide" src="Photos/G20.jpg" alt="G-20 Spending" />
-        </a>
-        <p>
-        Dashboard of military spending of G-20 countries and comparisons of this spending against domestic priorities in education and health care spending.
-        </p> 
+        <div class="card">
+            <h2>G-20 Military Spending</h2>
+            <a href="https://siebelm.github.io/G20_Military_Spending">
+            <img id="photowide" src="Photos/G20.jpg" alt="G-20 Spending" />
+            </a>
+            <p>
+            Dashboard of military spending of G-20 countries and comparisons of this spending against domestic priorities in education and health care spending.
+            </p> 
+        </div>
 		<br>
         
-        <h2>Harry Potter Text Analysis</h2>
-        <a href="https://siebelm.github.io/Harry_Potter">
-        <img id="phototall" src="Photos/Harry-Potter.jpg" alt="Harry Potter" />
-        </a>
-        <p>
-        Exploring the text of the Harry Potter book series using natural language processing techniques in R.
-        </p>
-        <p>
-        It seeks to find answers to the questions:</p>
-            <ul>
-            <li><a href="https://siebelm.github.io/Harry_Potter/#Q1">Which book has a bigger vocab?</a></li>
-            <li><a href="https://siebelm.github.io/Harry_Potter/#Q2">Who is Harry’s closest friend?</a></li>
-            <li><a href="https://siebelm.github.io/Harry_Potter/#Q3">Who are the most prominent secondary characters?</a></li>
-            <li><a href="https://siebelm.github.io/Harry_Potter/#Q4">What are the 4 major themes/settings in the Series?</a></li>
-            </ul>
-        </p>
+        <div class="card">
+            <h2>Harry Potter Text Analysis</h2>
+            <a href="https://siebelm.github.io/Harry_Potter">
+            <img id="phototall" src="Photos/Harry-Potter.jpg" alt="Harry Potter" />
+            </a>
+            <p>
+            Exploring the text of the Harry Potter book series using natural language processing techniques in R.
+            </p>
+            <p>
+            It seeks to find answers to the questions:</p>
+                <ul>
+                <li><a href="https://siebelm.github.io/Harry_Potter/#Q1">Which book has a bigger vocab?</a></li>
+                <li><a href="https://siebelm.github.io/Harry_Potter/#Q2">Who is Harry’s closest friend?</a></li>
+                <li><a href="https://siebelm.github.io/Harry_Potter/#Q3">Who are the most prominent secondary characters?</a></li>
+                <li><a href="https://siebelm.github.io/Harry_Potter/#Q4">What are the 4 major themes/settings in the Series?</a></li>
+                </ul>
+            </p>
+        </div>
 		<br>
 
-        <h2>U.S. Baby Names</h2>
-        <a href="https://siebelm.github.io/US_Baby_Names">
-        <img id="photolong" src="US_Baby_Names/babynames.png" alt="U.S. Baby Names" />
-        </a>
-        <p>
-        A demonstration of mining baby names by year in Python.
-        <p>
-        I show how the Python packages <code>Pandas</code> and <code>Matplotlib</code> can be used to create tables and charts of the popularity of baby names.
-        </p>
-        <p>
-        Names Millennials give their babies and my family's names are mined.
-        </p>
+        <div class="card">
+            <h2>U.S. Baby Names</h2>
+            <a href="https://siebelm.github.io/US_Baby_Names">
+            <img id="photolong" src="US_Baby_Names/babynames.png" alt="U.S. Baby Names" />
+            </a>
+            <p>
+            A demonstration of mining baby names by year in Python.
+            <p>
+            I show how the Python packages <code>Pandas</code> and <code>Matplotlib</code> can be used to create tables and charts of the popularity of baby names.
+            </p>
+            <p>
+            Names Millennials give their babies and my family's names are mined.
+            </p>
+        </div>
 		<br>
 
-        <h2>200 Countries, 200 Years</h2>
-        <a href="https://siebelm.github.io/200_Countries">
-        <img id="photolong" src="200_Countries/img/200_Countries.png" alt="200 Countries" />
-        </a>
-        <p>
-        A simple recreation of Hans Rosling's famous lecture in d3.js.
-        <p>       
+        <div class="card">
+            <h2>200 Countries, 200 Years</h2>
+            <a href="https://siebelm.github.io/200_Countries">
+            <img id="photolong" src="200_Countries/img/200_Countries.png" alt="200 Countries" />
+            </a>
+            <p>
+            A simple recreation of Hans Rosling's famous lecture in d3.js.
+            </p>       
+        </div>
 		<br>
         
-        <h2>Get in Touch</h2>
-        <a href="https://drive.google.com/file/d/1FbMzGhJEdjNo0JE9_l_ydSXpzRncV1Do/view?usp=sharing" target="_blank">
-        <img id="resume" src="Photos/Resume.png" alt="Resume" />
-        </a>
-        <p>
-        If you’re interested in my work or would like to collaborate, I encourage you to connect with me on 
-        <a href="https://www.linkedin.com/in/michael-siebel/" target="_blank">LinkedIn</a>, 
-        or email me at <a href="mailto:michaeltsiebel@gmail.com">michaeltsiebel@gmail.com</a>.  
-        </p>
-        <p>
-        For more detailed information, please view my resume by clicking the photo above.
-        </p>
+        <div class="card">
+            <h2>Get in Touch</h2>
+            <a href="https://drive.google.com/file/d/1FbMzGhJEdjNo0JE9_l_ydSXpzRncV1Do/view?usp=sharing" target="_blank">
+            <img id="resume" src="Photos/Resume.png" alt="Resume" />
+            </a>
+            <p>
+            If you’re interested in my work or would like to collaborate, I encourage you to connect with me on 
+            <a href="https://www.linkedin.com/in/michael-siebel/" target="_blank">LinkedIn</a>, 
+            or email me at <a href="mailto:michaeltsiebel@gmail.com">michaeltsiebel@gmail.com</a>.  
+            </p>
+            <p>
+            For more detailed information, please view my resume by clicking the photo above.
+            </p>
+        </div>
 		<br>
 
 		
@@ -218,7 +280,6 @@
 
 
 </body>
-
 
 
 

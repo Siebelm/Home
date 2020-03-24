@@ -1,34 +1,26 @@
-.list-group-item {
-  background-color: #1a2028 ;
+:root {
+    --bkgd-color: #1a2028;
+    --side-color: #457b9d;
+    --left-font:  #1a2028;
+    --socl-color: #1a2028;
+    --head-color: #457b9d;
+    --font-color: #dddddd;
+    --mpop-color: #ca2c92;
+    --blkq-color: #9ddcff;
+    --slct-color: #ffffff;
+    --code-color: #c7254e;
 }
-li#menutab.selected a {
-	color: #1a2028 ;
-}
-#blog {
-  color: #1a2028 ; 
-}
-#objective {
-  color: #1a2028 ; 
-}
-p.social a {
-  border: solid 1px #1a2028 ;
-  color: #1a2028 ;
-}
-html, body {
-  background-color: #1a2028 ;  
-}
-@media only screen and (max-width: 850px) {
-  html, body {
-    background-color: #1a2028 ; 
-  }
-}
-@media only screen and (max-width: 767px) {
-  html, body {
-  	background-color: #1a2028 ;  
-  }
-}
-@media only screen and (min-resolution: 2dppx) {
-  html, body {
-  	background-color: #1a2028 ;  
-  }
+
+
+[data-theme="light"] {
+    --bkgd-color: #fff;
+    --side-color: #3e4855;
+    --left-font:  #5ED4B6;
+    --socl-color: #5ED4B6;
+    --head-color: #3e4855;
+    --font-color: #3e4855;
+    --mpop-color: #ff685d;
+    --blkq-color: #6258ff;
+    --slct-color: #5ED4B6;
+    --code-color: #ff685d;
 }

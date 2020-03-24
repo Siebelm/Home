@@ -74,6 +74,49 @@
 </div>
 
 
+<!-- CSS Toggle -->
+<label class="theme-switch" for="checkbox">
+    <input type="checkbox" id="checkbox" />
+    <div class="slider round"></div>
+</label> 
+
+<script>
+const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }
+    else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }    
+}
+
+toggleSwitch.addEventListener('change', switchTheme, false);
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light'); //add this
+    }
+    else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark'); //add this
+    }    
+}
+
+const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+
+if (currentTheme) {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+
+    if (currentTheme === 'light') {
+        toggleSwitch.checked = true;
+    }
+}
+</script>
+	
+
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-159375178-1"></script>
 <script>
@@ -112,46 +155,52 @@
         </p>
 		<br>
         
-        <h2>Dealing with Rare Events</h2>
-        <a href="https://siebelm.github.io/Dealing_With_Rare_Events">
-        <img id="photolong" src="Dealing_With_Rare_Events/foreclosures.png" alt="Dealing With Rare Events" />
-        </a>
-        <p>
-        A demonstration of modeling rare events in Python.
-        <p>
-        Using Fannie Mae mortgage data, I investigated which types of loans are at greatest risk of default (i.e., being foreclosed upon) at the beginning of the 2008 financial crisis. This is made difficult as loan defaults, even at the height of the financial crisis, was a "rare event", meaning it occurs at such a low frequency that a model becomes far better at predicting what DOES NOT cause a default compared to what DOES cause a default.
-        </p>
-        <p>
-        I test how downsampling and upsampling techniques can improve predictions of rare events.
-        </p>
+        <div class="card">
+            <h2>Dealing with Rare Events</h2>
+            <a href="https://siebelm.github.io/Dealing_With_Rare_Events">
+            <img id="photolong" src="Dealing_With_Rare_Events/foreclosures.png" alt="Dealing With Rare Events" />
+            </a>
+            <p>
+            A demonstration of modeling rare events in Python.
+            <p>
+            Using Fannie Mae mortgage data, I investigated which types of loans are at greatest risk of default (i.e., being foreclosed upon) at the beginning of the 2008 financial crisis. This is made difficult as loan defaults, even at the height of the financial crisis, was a "rare event", meaning it occurs at such a low frequency that a model becomes far better at predicting what DOES NOT cause a default compared to what DOES cause a default.
+            </p>
+            <p>
+            I test how downsampling and upsampling techniques can improve predictions of rare events.
+            </p>
+        </div>
 		<br>
 
-        <h2>U.S. Baby Names</h2>
-        <a href="https://siebelm.github.io/US_Baby_Names">
-        <img id="photolong" src="US_Baby_Names/babynames.png" alt="U.S. Baby Names" />
-        </a>
-        <p>
-        A demonstration of mining baby names by year in Python.
-        <p>
-        I show how the Python packages <code>Pandas</code> and <code>Matplotlib</code> can be used to create tables and charts of the popularity of baby names.
-        </p>
-        <p>
-        Names Millennials give their babies and my family's names are mined.
-        </p>
+        <div class="card">
+            <h2>U.S. Baby Names</h2>
+            <a href="https://siebelm.github.io/US_Baby_Names">
+            <img id="photolong" src="US_Baby_Names/babynames.png" alt="U.S. Baby Names" />
+            </a>
+            <p>
+            A demonstration of mining baby names by year in Python.
+            <p>
+            I show how the Python packages <code>Pandas</code> and <code>Matplotlib</code> can be used to create tables and charts of the popularity of baby names.
+            </p>
+            <p>
+            Names Millennials give their babies and my family's names are mined.
+            </p>
+        </div>
 		<br>
 
-        <h2>Get in Touch</h2>
-        <a href="https://drive.google.com/file/d/1FbMzGhJEdjNo0JE9_l_ydSXpzRncV1Do/view?usp=sharing" target="_blank">
-        <img id="resume" src="Photos/Resume.png" alt="Resume" />
-        </a>
-        <p>
-        If you’re interested in my work or would like to collaborate, I encourage you to connect with me on 
-        <a href="https://www.linkedin.com/in/michael-siebel/" target="_blank">LinkedIn</a>, 
-        or email me at <a href="mailto:michaeltsiebel@gmail.com">michaeltsiebel@gmail.com</a>.  
-        </p>
-        <p>
-        For more detailed information, please view my resume by clicking the photo above.
-        </p>
+        <div class="card">
+            <h2>Get in Touch</h2>
+            <a href="https://drive.google.com/file/d/1FbMzGhJEdjNo0JE9_l_ydSXpzRncV1Do/view?usp=sharing" target="_blank">
+            <img id="resume" src="Photos/Resume.png" alt="Resume" />
+            </a>
+            <p>
+            If you’re interested in my work or would like to collaborate, I encourage you to connect with me on 
+            <a href="https://www.linkedin.com/in/michael-siebel/" target="_blank">LinkedIn</a>, 
+            or email me at <a href="mailto:michaeltsiebel@gmail.com">michaeltsiebel@gmail.com</a>.  
+            </p>
+            <p>
+            For more detailed information, please view my resume by clicking the photo above.
+            </p>
+        </div>
 		<br>
 		
 	</div><!-- info -->
