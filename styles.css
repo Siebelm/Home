@@ -698,6 +698,9 @@ input:checked + .slider:before {
   #menubar {
     right: 1.3em;
   }
+.rightbar-content {
+	width: 6em;
+}
   #TOC {
     display: none;
   }
