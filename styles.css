@@ -9,7 +9,7 @@
     --mpop-color: #ca2c92;
     --blkq-color: #9ddcff;
     --slct-color: #ffffff;
-    --code-color: #c7254e;
+    --code-color: #ca2c92;
 }
 
 
@@ -732,12 +732,14 @@ input:checked + .slider:before {
   .theme-switch {
     left: 1.3em;
     top: 0.15em;
-    height: 1.4em;
-    width: 2.2em;
+    height: 1.6em;
+    width: 2.3em;
   }
   .slider:before {
     height: 1.2em;
     width: 1.25em;
+    bottom: 8px;
+    left: 5px;
   }   
 }
 
