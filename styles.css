@@ -723,6 +723,10 @@ input:checked + .slider:before {
   #objective:hover {
     display: none;  
   } 
+  .theme-switch {
+    left: 20px;
+    top: 1em;
+  }    
 }
 
 /* ***************************
