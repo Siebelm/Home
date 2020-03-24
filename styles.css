@@ -729,12 +729,12 @@ input:checked + .slider:before {
   .theme-switch {
     left: 1.3em;
     top: 0.3em;
-    height: 1.2em;
-    width: 2em;
+    height: 1.3em;
+    width: 2.1em;
   }
   .slider:before {
-    height: 0.95em;
-    width: 0.95em;
+    height: 1.1em;
+    width: 1.1em;
   }   
 }
 
