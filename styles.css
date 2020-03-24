@@ -1,29 +1,31 @@
 /* Globals */
 :root {
     --bkgd-color: #042029;
-    --side-color: #457b9d;
-    --left-font:  #042029;
+    --side-bkgd:  #457b9d;
+    --side-color: #042029;
     --socl-color: #042029;
     --head-color: #457b9d;
     --font-color: #dddddd;
     --mpop-color: #ca2c92;
-    --blkq-color: #9ddcff;
+    --spop-color: #9ddcff;
     --slct-color: #ffffff;
-    --code-color: #ca2c92;
+    --toc-bkgd:   #457b9d;
+    --toc-color:  #dddddd;
 }
 
 
 [data-theme="light"] {
     --bkgd-color: #fff;
-    --side-color: #3e4855;
-    --left-font:  #5ED4B6;
+    --side-bkgd:  #3e4855;
+    --side-color: #5ED4B6;
     --socl-color: #5ED4B6;
     --head-color: #373d81;
     --font-color: #3e4855;
     --mpop-color: #ff685d;
-    --blkq-color: #6258ff;
+    --spop-color: #6258ff;
     --slct-color: #5ED4B6;
-    --code-color: #ff685d;
+    --toc-bkgd:   #5ED4B6;
+    --toc-color:  #3e4855;
 }
 
 /* latin-ext */
@@ -92,9 +94,6 @@ h5 {
   position: relative;
   color: var(--head-color);
   text-align: center;
-  background-image: rgb(55,90,125); 
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
   padding-right: 0;
   padding-left: 0;
 }
@@ -138,9 +137,9 @@ h5 {
 /* TOC highlight div */
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
     z-index: 2;
-    color: var(--font-color);
-    background-color: var(--head-color);
-    border-color: var(--head-color);
+    color: var(--toc-color);
+    background-color: var(--toc-bkgd);
+    border-color: var(--toc-bkgd);
 }
 
  
@@ -179,7 +178,6 @@ li#menutab a, .rightbar {
 }
 
 li#menutab.selected a {
-	height: 25px;
 	color: var(--bkgd-color);
     padding-bottom: 6px;    
 }
@@ -190,7 +188,7 @@ li#menutab.selected {
 }
 
 li#menutab a:hover, .dropdown:hover .rightbar {
-	color: var(--side-color); /*#708284*/
+	color: var(--side-bkgd);
 }
 
 /* **********
@@ -219,25 +217,20 @@ li#menutab .rightbar {
 .rightbar-content {
 	display: none;
 	position: absolute;
-	background-color: var(--side-color);
+	background-color: var(--side-bkgd);
 	width: 8em;
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
 	z-index: 1;
-	color: black;
 }
 
 .rightbar-content a {
-	color: black;
-	padding: 12px 16px;
-	text-decoration: none;
 	min-width: 8em;
-	display: block;
 	text-align: left;
     font-size: 1em;
 }
 
 .rightbar-content a:hover {
-	background-color: #ddd;
+	background-color: var(--slct-color);
 }
 
 .dropdown:hover .rightbar-content {
@@ -255,7 +248,7 @@ li#menutab .rightbar {
     height: 100%;
     top: 0px;
     overflow-y: auto;
-    background-color: var(--side-color);
+    background-color: var(--side-bkgd);
 }
 
 #welcome {
@@ -338,7 +331,7 @@ li#menutab .rightbar {
 }
 
 #blog {
-  color: var(--left-font); 
+  color: var(--side-color); 
   margin-top: 14px; 
   text-align: center; 
   font-size: 2em; 
@@ -361,7 +354,7 @@ li#menutab .rightbar {
 }
 
 #objective {
-  color: var(--left-font); 
+  color: var(--side-color); 
   text-align: left; 
   font-weight: 550;
   font-style: italic;
@@ -457,7 +450,7 @@ p.social a:hover {
 }
 
 .main-container h1, h2, h3, h4, h5 {
-  margin-top: 1.5em;
+  margin-top: 1em;
   margin-bottom: .5em;
   font-weight: bold;
   color: var(--head-color);
@@ -475,7 +468,7 @@ h6 {
 .level1 h1:before {
   padding-right: 0.3em;
   margin-left: -0.8em;
-  color: var(--blkq-color);
+  color: var(--spop-color);
   content: "/";
 }
 
@@ -483,28 +476,28 @@ h6 {
   padding-right: 0.3em;
   margin-left: -1.2em;
   content: "//";
-  color: var(--blkq-color);
+  color: var(--spop-color);
 }
 
 .level3 h3:before {
   padding-right: 0.3em;
   margin-left: -1.7em;
   content: "///";
-  color: var(--blkq-color);
+  color: var(--spop-color);
 }
 
 .level4 h4:before {
   padding-right: 0.3em;
   margin-left: -2em;
   content: "////";
-  color: var(--blkq-color);
+  color: var(--spop-color);
 }
 
 .level5 h5:before {
   padding-right: 0.3em;
   margin-left: -2.4em;
   content: "/////";
-  color: var(--blkq-color);
+  color: var(--spop-color);
 }
 
 .main-container table th {
@@ -520,7 +513,7 @@ h6 {
 /* Block Quotes (#002855) */
 .main-container blockquote {
   font-size: 1.2em;
-  color: var(--blkq-color);
+  color: var(--spop-color);
   border-left: .1rem solid var(--font-color);
   margin-bottom: 20px;
   margin-left: 0;
@@ -550,13 +543,13 @@ a:hover {
   0 0 repeat;
   font-weight: bold;
   border: 0;
-  color: var(--code-color);
+  color: var(--mpop-color);
 }
 
 .main-container shortcode {
   background: var(--slct-color) 0 0 repeat;
   font-weight: bold;  
-  color: var(--code-color) !important;
+  color: var(--mpop-color) !important;
   border-radius: 4px;
   padding: 2px 4px;
 }
@@ -681,9 +674,9 @@ input:checked + .slider:before {
   li#menutab a, .rightbar {
     padding: 7px 6px;  
   }
-  .theme-switch {
+  li#menutab .rightbar {
     display: none;
-  }  
+  }
 }
  
 @media only screen and (min-resolution: 2dppx) {
@@ -715,6 +708,9 @@ input:checked + .slider:before {
   .main-container {
     margin: 3em 0 0 0;
   }
+  li#menutab .rightbar {
+    display: inline-block;
+  }  
   .leftpanel {
     display: none;
   }
@@ -761,7 +757,7 @@ input:checked + .slider:before {
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: var(--side-color); 
+  background: var(--side-bkgd); 
 }
 
 /* Handle on hover */
@@ -781,7 +777,7 @@ input:checked + .slider:before {
  
 /* Handle */
 ::-moz-scrollbar-thumb {
-  background: var(--side-color); 
+  background: var(--side-bkgd); 
 }
 
 /* Handle on hover */
@@ -801,7 +797,7 @@ code  span.co { color: black; font-style: italic; } /* Comment */
 code  span.ot { color: #007020; } /* Other */
 /* Modified Prettydocs Cayman highlights rgb(216,33,41)*/
 code{white-space: pre;}
-div.sourceCode { overflow-x: auto; background-color: var(--side-color); }
+div.sourceCode { overflow-x: auto; background-color: var(--head-color); }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
 table.sourceCode { width: 100%; line-height: 100%; }
