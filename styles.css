@@ -18,7 +18,7 @@
     --side-color: #3e4855;
     --left-font:  #5ED4B6;
     --socl-color: #5ED4B6;
-    --head-color: #202131;
+    --head-color: #232435;
     --font-color: #3e4855;
     --mpop-color: #ff685d;
     --blkq-color: #6258ff;
@@ -572,7 +572,7 @@ a:hover {
   height: 32px;
   position: absolute;
   width: 60px;
-  margin-top: 7px;
+  margin-top: 6px;
   left: 300px;
   top: 0px;
 }
