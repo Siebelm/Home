@@ -679,7 +679,9 @@ input:checked + .slider:before {
   }
 }
  
-@media only screen and (min-resolution: 2dppx) {
+@media only screen 
+and (min-resolution: 2dppx) 
+and (orientation: portrait) {
   body {
     font-size: 36px;
   }
