@@ -15,7 +15,7 @@
 
 [data-theme="dark"] {
     --bkgd-color: rgb(6, 47, 60);
-    --side-bkgd:  #457b9d;
+    --side-bkgd:  rgb(66, 139, 199);
     --side-color: rgb(6, 47, 60);
     --socl-color: rgb(6, 47, 60);
     --head-color: #9ddcff;
@@ -23,7 +23,7 @@
     --mpop-color: rgb(241, 131, 134);
     --spop-color: rgb(241, 131, 134);
     --slct-color: #ffffff;
-    --toc-bkgd:   #457b9d;
+    --toc-bkgd:   rgb(66, 139, 199);
     --toc-color:  #dddddd;
 }
 
