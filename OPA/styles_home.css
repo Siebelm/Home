@@ -575,7 +575,7 @@ input:checked + .slider:before {
 ================================================== */
 
 /* All Mobile Sizes (devices and browser) */
-@media only screen and (max-height: 410px) {
+@media only screen and (max-height: 500px) {
   .social {
     display: none;  
   }
