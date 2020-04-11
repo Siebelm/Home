@@ -232,7 +232,7 @@ li#menutab .rightbar {
 .rightbar-content a {
 	min-width: 8em;
 	text-align: left;
-    font-size: 1em;
+    font-size: 1em !important;
 }
 
 .rightbar-content a:hover {
