@@ -1,6 +1,7 @@
 /* Globals */
 :root {
     --bkgd-color: #042029;
+    --card-color: rgb(6, 52, 66);
     --side-bkgd:  #457b9d;
     --side-color: #042029;
     --socl-color: #042029;
@@ -15,16 +16,17 @@
 
 
 [data-theme="light"] {
-    --bkgd-color: #fff;
+    --bkgd-color: #eee;
+    --card-color: #fff;
     --side-bkgd:  #3e4855;
-    --side-color: #5ED4B6;
-    --socl-color: #5ED4B6;
+    --side-color: rgb(52, 198, 160);
+    --socl-color: rgb(52, 198, 160);
     --head-color: #373d81;
     --font-color: #3e4855;
     --mpop-color: #ff685d;
     --spop-color: #6258ff;
-    --slct-color: #5ED4B6;
-    --toc-bkgd:   #5ED4B6;
+    --slct-color: rgb(52, 198, 160);
+    --toc-bkgd:   rgb(52, 198, 160);
     --toc-color:  #3e4855;
 }
 
@@ -51,7 +53,7 @@ html {
   font-size: 1em;
 }
 body {
-  font-size: 16px;
+  font-size: 14px;
 }
 p {
   font-size: 1em;
@@ -170,6 +172,10 @@ li#menutab {
 	padding: 0 0 0 6px;
 }
 
+li#menutab a {
+    font-size: 1.1em;
+}
+
 li#menutab a, .rightbar {
 	display: inline-block;
 	color: var(--slct-color);
@@ -282,31 +288,22 @@ li#menutab .rightbar {
 
 #photowide {
   border-radius: 10px; 
-  height: 4.7em; 
-  width: 9.3em; 
-  position: relative; 
-  display: block; 
-  margin-bottom: 1.3em;
-    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
-} 
-
-#photolong {
   height: 7.5em; 
-  width: 15.6em; 
+  width: 15.6em;  
   position: relative; 
   display: block; 
   margin-bottom: 1.3em;
-  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
-}
+  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.25);
+} 
 
 #phototall {
     border-radius: 10px; 
-    height: 8.1em; 
-    width: 6.3em; 
+    height: 10.3em; 
+    width: 7.8em; 
     position: relative; 
     display: block; 
     margin-bottom: 1.3em;
-    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
+    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 #square {
@@ -377,14 +374,20 @@ li#menutab .rightbar {
   position: relative; 
   display: block; 
   margin-bottom: 1.3em;
-  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
+  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .card {
-    padding: 2em;
+    background-color: var(--card-color);
+    padding: 0.1em 2em 1em;
     box-shadow: 1px 2px 4px 1px rgba(0, 0, 0, 0.5);
 }
 
+.card:hover {
+    background-color: var(--bkgd-color);
+    box-shadow: 0px 0px 0px 1px rgba(255, 255, 255, 0.5);
+    border: 1px solid #999;
+}
 
 /*
 =====================
@@ -525,10 +528,11 @@ html, body {
   color: var(--font-color); 
   background-size: 280px 100%;
   background-color: var(--bkgd-color);  
+  line-height: 1.4 !important;
 }
 
 a {
-  font-size: 1.1em;
+  font-size: 1em;
   text-decoration: none;
   color: var(--mpop-color);
   border: 0;
@@ -752,6 +756,17 @@ and (orientation : portrait) {
   .main-container {
     margin: 3em 0 0 280px;
   }
+  h2 {
+    text-align: center;
+  }
+  #photowide {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #phototall {
+    margin-left: auto;
+    margin-right: auto;
+  }  
   /* Table of Contents */
   #TOC, .tocify {
     display: block;
