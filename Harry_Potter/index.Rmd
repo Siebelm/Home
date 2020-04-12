@@ -44,7 +44,7 @@ Each subsequent book increased its count of unique words.  However, **Goblet of 
 Ron is Harry's closest friend, although Hermoine's friendship grows throughout the Series.
 
 **Secondary Characters** <br>
-Professor Dumbledore is the most prominent secondary character throughout the books, while the Defense Against Dark Arts teachers are the most prominent within each of the first 6 books.
+Professor Dumbledore is the most prominent secondary character throughout the books, while the new teachers at Hogwarts are the most prominent within 5 of the 7 books. Four of these times, the new teacher is the Defense Against the Dark Arts teacher.  
 
 **Major Themes/Settings** <br>
 The Muggle world, the magical community outside Hogwarts, Voldemort's story arch, and the Hogwarts classroom/Quidditch field are the 4 broadest themes/settings.
@@ -574,7 +574,7 @@ The TF chart can also help us understand who is the most prominent secondary cha
 
 TF-IDF provides us with a proxy for secondary characters specific to a certain book:  characters important in certain books, but not in every book.  Therefore, we are not searching for secondary characters who are consistently present throughout the series, such as Hagrid or Dumbledore.
 
-In the **Most Specific Words (TF-IDF)** chart, we can see an obvious pattern: the most prominent secondary character is the Defense Against the Dark Arts in 5 of the first 6 books in which Harry takes classes at Hogwarts. Interestly, Professor Moody, the Defense Against Dark Arts teacher, is only ranked fifth in **Goblet of Fire (Book 4)**.  This is likely because there are many important characters specific to that book and that Mad-Eye Moody remains prominent after Book 4.
+In the **Most Specific Words (TF-IDF)** chart, we can see an obvious pattern: the most prominent secondary character is the new teacher at Hogwarts in 5 of the 7 books. Four of these times, the new teacher is the Defense Against the Dark Arts teacher. Interestly, Professor Moody, the Defense Against Dark Arts teacher, is only ranked fifth in **Goblet of Fire (Book 4)**.  This is likely because there are many important characters specific to that book and that Mad-Eye Moody remains prominent after Book 4.
 
 ```{r, fig.show = "hold", out.width = "100%"}
 # TF
