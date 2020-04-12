@@ -49,14 +49,12 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-html {
-  font-size: 1em;
-}
-body {
+html, body {
   font-size: 14px;
 }
 p {
   font-size: 1em;
+  margin: 0 0 0.9em;
 }
 h1.title {
   text-align: center;
@@ -428,17 +426,8 @@ p.social a:hover {
 /* ********
    *Tabs* 
 ********* */
-.container {
-  width: 92%;
-  max-width: 1200px;
-  margin: 0 auto;
-  margin-top: 48px;
-  height: 80px;
-  right: 130px;
-}
-
 .info {
-  width: 92%;
+  width: 97%;
   max-width: 1200px;
   margin: 0 auto;
   margin-top: 48px;
@@ -707,10 +696,6 @@ and (orientation: portrait) {
   #TOC {
     display: none;
   }
-  .section {
-    width: 100%;	
-    margin-left: 0;
-  }
   .main-container {
     margin: 3em 0 0 0;
   }
@@ -744,6 +729,17 @@ and (orientation: portrait) {
     bottom: 8px;
     left: 5px;
   }   
+  h2 {
+    text-align: center;
+  }
+  #photowide {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #phototall {
+    margin-left: auto;
+    margin-right: auto;
+  }    
 }
 
 @media only screen and (min-device-width: 769px) 
@@ -756,17 +752,6 @@ and (orientation : portrait) {
   .main-container {
     margin: 3em 0 0 280px;
   }
-  h2 {
-    text-align: center;
-  }
-  #photowide {
-    margin-left: auto;
-    margin-right: auto;
-  }
-  #phototall {
-    margin-left: auto;
-    margin-right: auto;
-  }  
   /* Table of Contents */
   #TOC, .tocify {
     display: block;
