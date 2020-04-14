@@ -287,7 +287,7 @@ Let's look at how many chapters, pages, and words are in each book as a basic in
 
 Overall, there is a clear break between **Prisoner of Azkaban (Book 3)** and **Goblet of Fire (Book 4)**, where the books became substantially longer.
 
-```{r, fig.show = "hold", out.width = "75%"}
+```{r, fig.show = "hold", out.extra='id="chart75"'}
 rawbook_tf <- df[,c("text", "book")] %>%
   unnest_tokens(word, text) %>%
   group_by(book) %>%
@@ -334,7 +334,7 @@ ggplot(pagecount, aes(x=book, y=as.numeric(total)/100, fill=book))+
 
 Let's look a little closer at the length of chapters.  The average chapter in Harry Potter is over 5,000 words or 20 pages.  The shortest book, **Philosopher's Stone (Book 1)** also has the fewest average pages per chapter, while the longest book, **Order of the Phoenix (Book 5)** has the largest average pages per chapter.
 
-```{r, fig.show = "hold", out.width = "50%"}
+```{r, fig.show = "hold", out.extra='id="chartSBS"'}
 # Word Count
 df$totalwords <- sapply(strsplit(stripWhitespace(corpus), " "), length)
 
@@ -427,7 +427,7 @@ Further, we can see that the early books actually contained a more dense vocabul
 However, **Order of the Phoenix (Book 5)** appears to have the lowest density of vocabulary, because its unique word count is only fourth in the Series, despite easily containing the highest total word count.  This indicates that **Order of the Phoenix (Book 5)** is the most repetitive in vocabulary.
 
 
-```{r, fig.show = "hold", out.width = "50%"}
+```{r, fig.show = "hold", out.extra='id="chartSBS"'}
 # Words by Book
 book_tf <- df[,c("clean","book")] %>%
   unnest_tokens(word, clean, token="words") %>%
@@ -499,7 +499,7 @@ Term frequency-inverse document frequency (TF-IDF) analysis shows us which chara
 The TF-IDF charts show that Professor Slughorn is the most specific character to a book.  This means that he played a prominent role in **Half-Blood Prince (Book 6)**, but was made few appearances in other books.  Because Book 6 was his first appearance and only appeared a little in Book 7, his IDF score is very high.  More interestingly, Reamus Lupin contains the third highest score, despite appearing early in the series in **Prisoner of Azkaban (Book 3)**.  This means that he is not prominent in many books, but when he is prominent (Book 3, Book 5, and Book 7), he is mentioned frequently.  
 
 ## Most Prominent Terms
-```{r, fig.show = "hold", out.width = "50%"}
+```{r, fig.show = "hold", out.extra='id="chartSBS"'}
 # Remove Stopwords 
 df$clean_sw <- removestopwords(df$clean, remove=c("said","c"))
 
@@ -686,7 +686,7 @@ pasteNQ("number of documents:", nrow(dtm))
 
 
 ## Word Cloud by Topic
-```{r, fig.show = "hold", out.height = "50%", out.width = "50%"}
+```{r, fig.show = "hold", out.extra='id="chartSBS"'}
 # Convert DTM to list
 documents <- apply(as.matrix(dtm), 1, function(y) {
       rbind(which(y > 0), as.integer(y[y > 0])) 

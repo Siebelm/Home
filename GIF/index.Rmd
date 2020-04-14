@@ -1,7 +1,7 @@
 ---
 title: "Log-Sigmoid GIF"
 author: "Michael Siebel"
-date: "`r format(Sys.Date(), '%B %Y')`"
+date: "March 2020"
 output: 
   html_document:
     toc: true
@@ -16,7 +16,7 @@ output:
 
 <br>
 
-> R Programming: <br>
+> Animated graphs: <br>
 > Creating a GIF in R <br>
 > Using ggplot 
 

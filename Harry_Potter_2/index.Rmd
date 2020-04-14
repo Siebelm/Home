@@ -8,6 +8,7 @@ output:
     toc_float: true
     css: "../Rstyles.css" 
     code_folding: hide
+    self_contained: false
     highlight: tango
     includes:
       in_header: "menu.html"
@@ -70,7 +71,7 @@ gc()
 library(pacman)
 pacman::p_load(devtools, knitr, magrittr, dplyr, ggplot2, rvest, sentimentSetsR, caret, textTinyR, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, wordcloud, prettydoc, cowplot, kable, utf8, corpus, glue, topicmodels, stm, wordcloud2, htmlwidgets, viridis)
   
-knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=240, out.width = "75%", out.height = "75%")
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=240, out.width = "75%")
 
 
 # Custom functions
@@ -348,7 +349,7 @@ Professor Moody had the most negative sentiment.  This can be both due to his us
 
 Harry's mother, Lily, unsurprisingly has the second most negative sentiment as she is mostly mentioned when Harry is thinking back about her death.
 
-```{r, out.width="75%"}
+```{r, out.extra='id="chart75"'}
 # Subset text mentioning a hero
 heroes_sent <- data.frame(Hero=NA, 
                           Sentiment=NA)
@@ -411,7 +412,7 @@ I intentionally defined "demonator" and "demonators", separately.  In the plural
 
 Unsurprisingly, the werewolf, ancient snake, and giant spider all have extremely negative sentiment.
 
-```{r, out.width="75%"}
+```{r, out.extra='id="chart75"'}
 # Subset text mentioning a villian
 villians_sent <- data.frame(Villian=NA, 
                             Sentiment=NA)
@@ -468,7 +469,7 @@ villians_sent %>%
 
 Harry has less positive sentiment in the text around him then Ron and Hermione.  This probably has a lot to do with his angsty stint in **Order of the Phoenix (Book 5)**, where I think the caps lock on J.K. Rowling's keyboard may have broke under heavy-use.
 
-```{r, out.width="50%"}
+```{r, out.extra='id="chart50"'}
 # Subset text mentioning a main character
 trio_sent <- data.frame(Trio=NA, 
                         Sentiment=NA)
@@ -528,7 +529,7 @@ Here, I wanted to note the prevalance of the main trio, the heroes, and the vill
 
 This demonstrates that J.K. Rowling prefers to focus on the likeable characters and keeps the overall story arch, featuring the villians, to a minimum.
 
-```{r, out.width="50%"}
+```{r, out.extra='id="chart50"'}
 docs_prop <- tibble(
   Percentage = c(
     round(length(trio_ID)/nrow(para3)*100,1),
@@ -571,7 +572,7 @@ In the chart below, I showed the average sentiment for the main trio, heroes, an
 * **Chamber of Secrets (Book 2)** was the only book where text mentioning the main trio or the heroes was more negative then text mentioning the villians - largely because  Tom Riddle's tale likely starts with positive sentiment
 * **Deathly Hallows (Book 7)** was the book featuring the most negative sentiment
 
-```{r, out.width="50%"}
+```{r, out.extra='id="chart50"'}
 # Main Characters Sentiment
 trio_grp <- para3[trio_ID,] %>%
   mutate(Negative = recode(Cross, Positive = 0, Neutral = 0, Negative = 1),
@@ -634,7 +635,7 @@ paste(houses)
 
 ...and the best house, Hufflepuff!, easily contained the most positive sentiment.
 
-```{r, out.width="50%"}
+```{r, out.extra='id="chart50"'}
 # Subset text mentioning a main character
 houses_sent <- data.frame(Houses=NA, 
                           Sentiment=NA)
@@ -693,7 +694,7 @@ houses_sent %>%
 
 It seemed that the houses were rarely mentioned.  Gryffindor was easily mentioned the most, but was only mentioned in roughly 4% of the text.  Slytherin was mentioned in a little over 2% of the text.  Poor Hufflepuff and Ravenclaw were mentioned less than 1% of the text.
 
-```{r, out.width="50%"}
+```{r, out.extra='id="chart50"'}
 docs_prop <- tibble(
   Percentage = c(
     round(length(gryffindor_ID)/nrow(para3)*100,1),
@@ -728,8 +729,8 @@ ggplot(docs_prop, mapping = aes(x = Houses,
 
 For fun, here are the most specific words (using TF-IDF scores) to describe the four Houses.
 
-```{r, fig.show = "hold", out.width="50%", out.height="50%"} 
-seed(20)
+```{r, fig.show = "hold", out.extra='id="chartSBS"'} 
+set.seed(20)
 para3$ID <- row.names(para3)
 para3$CleanText <- para3$Text %>%
                    basicclean() %>% 
