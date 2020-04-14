@@ -132,21 +132,21 @@ basicclean <- function(rawtext) {
   print(pasteNQ("Set to lowercase"))
 
   # Remove contractions
-  fix_contractions <- function(doc) {
-    doc <- gsub("will not", "won't", doc)
-    doc <- gsub("can't", "can not", doc)
-    doc <- gsub("can not", "cannot", doc)
-    doc <- gsub("shant", "shall not", doc)
-    doc <- gsub("n't", " not", doc)
-    doc <- gsub("'ll", " will", doc)
-    doc <- gsub("'re", " are", doc)
-    doc <- gsub("'ve", " have", doc)
-    doc <- gsub("'m", " am", doc)
-    doc <- gsub("'d", " would", doc)
-    doc <- gsub("'ld", " would", doc)
-    doc <- gsub("'ld", " would", doc)
-    doc <- gsub("'s", "", doc)
-    return(doc)
+  fix_contractions <- function(rawtext) {
+    rawtext <- gsub("will not", "won't", rawtext)
+    rawtext <- gsub("can't", "can not", rawtext)
+    rawtext <- gsub("can not", "cannot", rawtext)
+    rawtext <- gsub("shant", "shall not", rawtext)
+    rawtext <- gsub("n't", " not", rawtext)
+    rawtext <- gsub("'ll", " will", rawtext)
+    rawtext <- gsub("'re", " are", rawtext)
+    rawtext <- gsub("'ve", " have", rawtext)
+    rawtext <- gsub("'m", " am", rawtext)
+    rawtext <- gsub("'d", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'s", "", rawtext)
+    return(rawtext)
   }
   rawtext <- fix_contractions(rawtext)
   print(pasteNQ("Fixed contractions"))
@@ -212,7 +212,7 @@ embed_htmlwidget <- function(widget, rasterise = T) {
 ```
 
 
-# Load Data
+## Load Data
 
 ```{r}
 setwd("C:/Users/siebe/Documents/07_Books/Harry Potter/")
@@ -228,50 +228,213 @@ html <- c("Harry_Potter_and_the_Philosophers_Stone.html",
           "Harry_Potter_and_the_Half-Blood_Prince.html",
           "Harry_Potter_and_the_Deathly_Hallows.html")
 
-corpus <- data.frame(Text="", Book="")
-para1 <- data.frame(Text="", Book="")
+para3 <- tibble(Text=as.character(), Book=as.character())
+para1 <- tibble(Text=as.character(), Book=as.character())
+books <- tibble(Text=as.character(), Book=as.character())
+
 for (i in 1:7) {  
   rawtext <- read_html(html[i])%>%
       html_nodes(xpath = '/html/body/p') %>%
           html_text(trim = TRUE)
   
   wordcount <- sapply(strsplit(rawtext, " "), length)
-  paragraph <- rawtext[wordcount > 1]
+  paragraph <- rawtext[wordcount > 2]
   
   para1 <- rbind(para1, 
-                 data.frame(Text = paragraph,
+                 tibble(Text = paragraph,
                             Book = titles[i])
            )
-  para3 <- do.call(rbind, 
-                   lapply(seq(1, length(paragraph), by = 3),
+  
+  books <- rbind(books,
+                 tibble(Text = str_c(paragraph, 
+                                         collapse = " "),
+                            Book = titles[i]
+                            )
+           )
+
+  triplet <- do.call(rbind, 
+                     lapply(seq(1, length(paragraph), by = 3),
                           function(x) 
-                                  data.frame(Text = paste(paragraph[x:(x+2)], 
+                                  tibble(Text = str_c(paragraph[x:(x+2)], 
                                                           collapse = " "),
                                              Book = titles[i]
                                              )
                           )
                    )
-  corpus <- rbind(corpus, para3)
+  para3 <- rbind(para3, triplet)
 }
-corpus <- corpus[2:nrow(corpus),] # delete first empty row
-corpus$Book <- factor(corpus$Book, levels=titles)
 
-dim(corpus)
+pages <- books %>%
+  unnest_tokens(Text, Text, strip_punct = T, to_lower = F) %>%
+  group_by(Book, Page = dplyr::row_number() %/% 250) %>%
+  dplyr::summarize(Text = stringr::str_c(Text, collapse = " ")) %>%
+  mutate(Page = dplyr::row_number()) %>%
+  ungroup()
+
+para3$Book <- factor(para3$Book, levels=titles)
+books$Book <- factor(books$Book, levels=titles)
+pages$Book <- factor(pages$Book, levels=titles)
 ```
 
+
+# Sentiment of Book
+
+## Sentiment Scores
+```{}
+# Sentiment Scores
+average <- function(x) {
+  pos <- sum(x[x>0], na.rm = T)
+  neg <- sum(x[x<0], na.rm = T) %>% abs()
+  neu <- length(x[x==0])
+  bal <- ( (pos-neg)/(pos+neg) )*100
+  y <- ifelse(is.nan(bal),0,bal)
+  return(y)
+}
+books$Text <- basicclean(books$Text)
+books$Score <- sapply(books$Text, 
+                            function(x) getSentiment(x, dictionary = "vader", 
+                                                     score.type = average))
+pasteNQ("")
+pasteNQ("Overall Sentiment")
+mean(books$Score)
+```
+
+
+## Graph Sentiment of Books
+```{}
+# Graph
+books %>%
+  mutate(Book=factor(Book, levels=Book),
+         Sentiment=Score) %>% 
+    ggplot(aes(x=Book, y=Sentiment %>% as.numeric() %>% round(1), fill=Book))+
+        geom_col()+
+        coord_flip()+
+        Grph_theme_facet()+
+        ylab("Sentiment (-100% to 100%)")+
+        xlab("") + ggtitle("Sentiment of Books") + 
+        scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500"))
+        guides(fill=FALSE) 
+```
+
+## Bigram Network Analysis
+```{}
+book_sent <- para3[ , c("Book", "Score")]
+
+book_sent %>%
+  group_by(Book) %>% 
+  mutate(Paragraph=row_number()) %>% 
+  ggplot(aes(Paragraph, Score, fill = Book)) +
+  Grph_theme_facet()+
+  geom_bar(alpha = 0.5, stat = "identity", show.legend = FALSE) +
+  facet_wrap(~ Book, ncol = 2, scales = "free_x")
+
+book_bigram <- para3_text %>% 
+  unnest_tokens(Bigram, Text, token = "ngrams", n = 2) %>%
+  tidyr::separate(Bigram, c("word1", "word2"), sep = " ") %>%
+  dplyr::filter(!word1 %in% stop_words$word) %>%
+  dplyr::filter(!word2 %in% stop_words$word) %>%
+  dplyr::count(Book, word1, word2, sort = TRUE) 
+
+library(igraph)
+bigram_graph <- book_bigram %>%
+  filter(n > 100) %>%
+  graph_from_data_frame()
+
+library(ggraph)
+set.seed(20)
+ggraph(bigram_graph, layout = "fr") +
+  Grph_theme()+
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name), vjust = 1, hjust = 1)
+```
+
+# Sentiment of Films
+
+```{}
+folder <- "C:/Users/siebe/Documents/01_R/Harry Potter/"
+
+scripts <- c("HP_Script_1.txt",
+             "HP_Script_2.txt",
+             "HP_Script_3.txt",
+             "HP_Script_4.txt",
+             "HP_Script_5.txt",
+             "HP_Script_6.txt",
+             "HP_Script_7.txt",
+             "HP_Script_8.txt")
+film_titles <- c(titles, "Deathly Hallows Part II")
+
+films <- data.frame(Text=as.character(), Film=as.character())
+
+for(i in 1:8) {
+  con <- file(paste0(folder, scripts[i]), open = "r")
+  rawtext <- readLines(con)
+  
+  films <- rbind(films,
+                 data.frame(Text = rawtext,
+                            Film = film_titles[i]
+                            )
+           )
+}
+```
+
+
+## Sentiment Scores
+```{}
+# Sentiment Scores
+average <- function(x) {
+  pos <- sum(x[x>0], na.rm = T)
+  neg <- sum(x[x<0], na.rm = T) %>% abs()
+  neu <- length(x[x==0])
+  bal <- ( (pos-neg)/(pos+neg) )*100
+  y <- ifelse(is.nan(bal),0,bal)
+  return(y)
+}
+films$Text <- basicclean(films$Text)
+films$Score <- sapply(films$Text, 
+                           function(x) getSentiment(x, dictionary = "vader", 
+                                                    score.type = average)) 
+
+pasteNQ("")
+pasteNQ("Overall Sentiment")
+round(mean(films$Score), 1)
+films[ , c("Film", "Score")]
+```
+
+
+## Graph Sentiment of Films
+```{}
+# Graph
+books %>%
+  mutate(Book=factor(Book, levels=Book),
+         Sentiment=Score) %>% 
+    ggplot(aes(x=Book, y=Sentiment %>% as.numeric() %>% round(1), fill=Book))+
+        geom_col()+
+        coord_flip()+
+        Grph_theme_facet()+
+        ylab("Sentiment (-100% to 100%)")+
+        xlab("") + ggtitle("Sentiment of Films") + 
+        scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500", "Black"))
+        guides(fill=FALSE) 
+```
+
+
+# Sentiment of Paragraph (Triplets)
 
 ## Word Distributions
 
 The distributions are similar across books, making it a comparable level of analysis.
 
 ```{r}
-corpus$Wordcount <- sapply(strsplit(corpus$Text %>% as.character(), " "), length)
+para3$Wordcount <- sapply(strsplit(para3$Text %>% as.character(), " "), length)
 
 pasteNQ0("Average Amount of Words per Paragraph Triplet")
-summary(corpus$Wordcount)
+summary(para3$Wordcount)
 
 # Graph distribution of words all
-ggplot(corpus, aes(Wordcount, fill=I("maroon"))) + 
+ggplot(para3, aes(Wordcount, fill=I("maroon"))) + 
   geom_histogram() + 
   stat_bin(bins = 100) +
   Grph_theme() +
@@ -279,7 +442,7 @@ ggplot(corpus, aes(Wordcount, fill=I("maroon"))) +
   ggtitle('Words per Paragraph Triplet')
 
 # Graph with book fill
-ggplot(corpus, aes(Wordcount, fill=Book)) + 
+ggplot(para3, aes(Wordcount, fill=Book)) + 
   geom_area(stat = "bin") + 
   scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
                                  "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
@@ -291,40 +454,105 @@ ggplot(corpus, aes(Wordcount, fill=Book)) +
 ```
 
 
+## Heroes and Villians
 
-
-# Heroes and Villians
 ```{r}
 # Create Dictionaries
-heroes <- c("harry","ron","hermione","hagrid","dumbledore","weasley","sirius","lupin","moody","slughorn","dobby","cedric","luna","tonks","mcgonagall","ginny")
-pasteNQ("Number of Heroes:", length(heroes))
+trio <- c("harry","ron","hermione")
+pasteNQ("Main Characters:")
+paste(trio)
+cat("\n")
 
-villians <- c("snape","dudley","malfoy","umbridge","voldemort","quirrel","bane","pettigrew","dementor","karkaroff","greyback","bellatrix","lucius","vernon","petunia","riddle")
+heroes <- c("lily","james","hagrid","dumbledore","sirius","lupin","moody","slughorn","dobby","cedric","luna","tonks","mcgonagall","ginny","order of the phoenix","neville")
+pasteNQ("Number of Heroes:", length(heroes))
+pasteNQ("Including:")
+paste(heroes)
+cat("\n")
+
+villians <- c("snape","draco","lucius","umbridge","voldemort","quirrell","pettigrew","dementor","greyback","bellatrix","dudley","vernon","petunia","riddle","death eaters","aragog","basilisk","nagini","dementors")
 pasteNQ("Number of Villians:", length(villians))
+pasteNQ("Including:")
+paste(villians)
 ```
 
 
 ## Sentiment Scores
+
 ```{r}
 # Sentiment Scores
 average <- function(x) {
-  y <- mean(x, na.rm = TRUE)
-  y <- ifelse(is.nan(y),0,y)
+  pos <- sum(x[x>0], na.rm = T)
+  neg <- sum(x[x<0], na.rm = T) %>% abs()
+  neu <- length(x[x==0])
+  bal <- ( (pos-neg)/(pos+neg) )*100
+  y <- ifelse(is.nan(bal),0,bal %>% as.numeric())
   return(y)
 }
-CleanText <- basicclean(corpus$Text)
-corpus$sent_score <- sapply(CleanText, 
-                            function(x) getSentiment(x, dictionary = "afinn", 
-                                                     scale = TRUE, score.type = average)) 
-                            # function(x) getVaderRuleBasedSentiment(x)) 
-corpus$sent_cross <- NA
-corpus$sent_cross <- ifelse(corpus$sent_score<0, "Negative", corpus$sent_cross)
-corpus$sent_cross <- ifelse(corpus$sent_score>0, "Positive", corpus$sent_cross)
-corpus$sent_cross <- ifelse(corpus$sent_score==0, "Neutral", corpus$sent_cross)
+CleanText <- basicclean(para3$Text)
+para3$Score <- sapply(CleanText, 
+                      function(x) getSentiment(x, dictionary = "vader", 
+                                               score.type = average)) 
+para3$Cross <- NA
+para3$Cross <- ifelse(para3$Score<0, "Negative", para3$Cross)
+para3$Cross <- ifelse(para3$Score>0, "Positive", para3$Cross)
+para3$Cross <- ifelse(para3$Score==0, "Neutral", para3$Cross)
 pasteNQ("Sentiment Levels")
-table(corpus$sent_cross)
+table(para3$Cross)
+```
 
-# write.csv2(corpus, file = "harrypotter_sent.csv")
+
+## Graph Sentiment of Main Trio
+
+```{r}
+# Subset text mentioning a main character
+trio_sent <- data.frame(Trio=NA, 
+                        Sentiment=NA)
+
+# Find mean of sentiment scores for each main character and
+# create ID of all trio for total row
+trio_ID <- c()
+for(string in trio) {
+  findstr <- paste0("\\b",string,"\\b")
+  trio_sent <- rbind(trio_sent, 
+                       c(string, 
+                         para3 %>%
+                           as.data.frame() %>%
+                           .[grepl(findstr,CleanText),"Score"] %>%
+                             average() %>% as.numeric()
+                       )
+  )
+  trio_ID <- c(trio_ID, grep(findstr,CleanText))
+}
+
+# Sort data
+trio_sent <- trio_sent %>%
+               .[order(trio_sent$Sentiment %>% as.numeric()),] %>%
+               tidyr::drop_na()
+max_sent <- max(trio_sent$Sentiment %>% as.numeric() %>% abs()+1) 
+
+# Add main character total
+trio_ID <- unique(trio_ID)
+trio_sent <- rbind(trio_sent, c("average of trio",
+                                    para3 %>%
+                                      as.data.frame() %>%
+                                      .[trio_ID,"Score"] %>%
+                                        average() %>% as.numeric()
+                                  )
+               )
+
+# Graph
+trio_sent %>%
+  mutate(Trio=factor(Trio, levels=Trio)) %>% 
+    ggplot(aes(x=Trio, y=Sentiment %>% as.numeric() %>% round(1), fill=Trio))+
+        geom_col()+
+        coord_flip()+
+        Grph_theme_facet()+
+        ylab("Sentiment (-100% to 100%)")+
+        xlab("") + ggtitle("Sentiment of trio") + 
+        ylim(max_sent*-1, max_sent) + 
+        scale_fill_manual(values = c("#FFC500", "#AAAAAA", "#7F0909", 
+                                     "black")) +
+        guides(fill=FALSE) 
 ```
 
 
@@ -341,9 +569,10 @@ for(string in heroes) {
   findstr <- paste0("\\b",string,"\\b")
   heroes_sent <- rbind(heroes_sent, 
                        c(string, 
-                         corpus %>%
-                           .[grepl(findstr,CleanText),"sent_score"] %>%
-                             average()*100
+                         para3 %>%
+                           as.data.frame() %>%
+                           .[grepl(findstr,CleanText),"Score"] %>%
+                             average() %>% as.numeric()
                        )
   )
   heroes_ID <- c(heroes_ID, grep(findstr,CleanText))
@@ -351,15 +580,17 @@ for(string in heroes) {
 
 # Sort data
 heroes_sent <- heroes_sent %>%
-               .[order(heroes_sent$Sentiment),] %>%
+               .[order(heroes_sent$Sentiment %>% as.numeric()),] %>%
                tidyr::drop_na()
+max_sent <- max(heroes_sent$Sentiment %>% as.numeric() %>% abs()+1) 
 
 # Add hero total
 heroes_ID <- unique(heroes_ID)
 heroes_sent <- rbind(heroes_sent, c("average of heroes",
-                                    corpus %>%
-                                      .[heroes_ID,"sent_score"] %>%
-                                        average()*100
+                                    para3 %>%
+                                      as.data.frame() %>%
+                                      .[heroes_ID,"Score"] %>%
+                                        average() %>% as.numeric()
                                   )
                )
 
@@ -372,12 +603,11 @@ heroes_sent %>%
         Grph_theme_facet()+
         ylab("Sentiment (-100% to 100%)")+
         xlab("") + ggtitle("Sentiment of Heroes") + 
+        ylim(max_sent*-1, max_sent) + 
         scale_fill_manual(values = c(viridis(nrow(heroes_sent)-1),
                                      "black")) +
         guides(fill=FALSE) 
 ```
-
-
 
 
 ## Graph Sentiment of Villians
@@ -392,27 +622,30 @@ villians_ID <- c()
 for(string in villians) {
   findstr <- paste0("\\b",string,"\\b")
   villians_sent <- rbind(villians_sent, 
-                       c(string, 
-                         corpus %>%
-                           .[grepl(findstr,CleanText),"sent_score"] %>%
-                             average()*100
-                       )
+                         c(string, 
+                           para3 %>%
+                             as.data.frame() %>%
+                             .[grepl(findstr,CleanText),"Score"] %>%
+                               average() %>% as.numeric()
+                         )
   )
   villians_ID <- c(villians_ID, grep(findstr,CleanText))
 }
 
 # Sort data
 villians_sent <- villians_sent %>%
-               .[order(villians_sent$Sentiment),] %>%
+               .[order(villians_sent$Sentiment %>% as.numeric()),] %>%
                tidyr::drop_na()
+max_sent <- max(villians_sent$Sentiment %>% as.numeric() %>% abs()+1) 
 
 # Add hero total
 villians_ID <- unique(villians_ID)
 villians_sent <- rbind(villians_sent, c("average of villians",
-                                    corpus %>%
-                                      .[villians_ID,"sent_score"] %>%
-                                        average()*100
-                                  )
+                                        para3 %>%
+                                          as.data.frame() %>%
+                                          .[villians_ID,"Score"] %>%
+                                            average() %>% as.numeric()
+                                      )
                )
 
 # Graph
@@ -423,216 +656,95 @@ villians_sent %>%
         coord_flip()+
         Grph_theme_facet()+
         ylab("Sentiment (-100% to 100%)")+
-        ylim(-10, 10) +
         xlab("") + ggtitle("Sentiment of Villians") + 
+        ylim(max_sent*-1, max_sent) + 
         scale_fill_manual(values = c(viridis(nrow(villians_sent)-1),
                                      "black")) +
         guides(fill=FALSE) 
 ```
 
 
-*Example*
-docs upsample_n
-3     max(docs) - 3 = 3*2 = 6 + 3 = 9
-4     max(docs) - 4 = 2*2 = 4 + 4 = 8
-6     max(docs) - 6 = 0*2 = 0 + 6 = 6
-2     max(docs) - 2 = 4*2 = 8 + 2 = 10
-6     max(docs) - 6 = 0*2 = 0 + 6 = 6
+## Sentiment of Characters Across Books
 
-*Definition*
-1) largest doc count - number of docs #balances
-2) times by 2 #increase upsample for a doubled para3
-3) add orignal para3 to double total doc size
-
-*Result*
-12 docs for all
-doubling docs then upsampling
-never repeating same doc twice
-
-# Defining upsample
 ```{r}
-para3 <- corpus[,1:2]
-# sort Book freqs by chronological order
-docs <- table(para3$Book) %>%
-        as.data.frame()
-# docs <- docs[order(titles),]
+# Main Characters Sentiment
+trio_grp <- para3[trio_ID,] %>%
+  mutate(Negative = recode(Cross, Positive = 0, Neutral = 0, Negative = 1),
+         Neutral = recode(Cross, Positive = 0, Neutral = 1, Negative = 0)) %>%
+  group_by(Book) %>%
+  summarize(`Trio Sentiment` = mean(Negative, na.rm=T)*100) 
 
-# Define upsample scalars
-upsample_n <- max(docs$Freq) - docs$Freq
-# upsample_n <- upsample_n * 2
-# upsample_n <- upsample_n + docs$Freq
+# Heroes Sentiment
+heroes_grp <- para3[heroes_ID,] %>%
+  mutate(Negative = recode(Cross, Positive = 0, Neutral = 0, Negative = 1),
+         Neutral = recode(Cross, Positive = 0, Neutral = 1, Negative = 0)) %>%
+  group_by(Book) %>%
+  summarize(`Heroes Sentiment` = mean(Negative, na.rm=T)*100) 
 
-# Should all be the same number
-upsample_n + docs$Freq
+# Villians Sentiment
+villians_grp <- para3[villians_ID,] %>%
+  mutate(Negative = recode(Cross, Positive = 0, Neutral = 0, Negative = 1),
+         Neutral = recode(Cross, Positive = 0, Neutral = 1, Negative = 0)) %>%
+  group_by(Book) %>%
+  summarize(`Villians Sentiment` = mean(Negative, na.rm=T)*100) 
+
+# Plot
+df <- inner_join(heroes_grp, villians_grp, by = "Book") %>% as_tibble()
+df <- inner_join(trio_grp, df, by = "Book") 
+colors <- c("Heroes" = "maroon", "Villians" = "forestgreen", 
+            "Main Trio" = "#FFC500")
+ggplot(df, mapping = aes(x=Book, group=NA)) +
+  geom_line(aes(y = `Trio Sentiment`, color = "Main Trio"), size = 3) +
+  geom_line(aes(y = `Heroes Sentiment`, color = "Heroes"), size = 1.5) +
+  geom_line(aes(y = `Villians Sentiment`, color = "Villians"), size = 1.5) +
+  ggtitle("Sentiment of Heroes and Villians Across Books") +
+  Grph_theme_facet() +
+  scale_color_manual(values = colors) +
+  theme(axis.text.x=element_text(size=8, angle=45)) +
+  theme(legend.position="right") +
+  ylim(0, 60) +
+  labs(x = "Books",
+       y = "Negative Sentiment (%)",
+       color = "Legend") 
+
+    
 ```
 
-# Upsample
+
+# Page
+
+## Sentiment Scores
 ```{r}
-# Separate singe paragraph corpus into separate objects by Book title
-for(i in 1:7) {
-    assign(paste0("para_", i),
-           para1[para1$Book==titles[i],] %>%
-           tidyr::drop_na()
-    )
-             
+# Sentiment Scores
+average <- function(x) {
+  pos <- sum(x[x>0], na.rm = T)
+  neg <- sum(x[x<0], na.rm = T) %>% abs()
+  neu <- length(x[x==0])
+  bal <- ( (pos-neg)/(pos+neg) )*100
+  y <- ifelse(is.nan(bal),0,bal %>% as.numeric())
+  return(y)
 }
-
-# Upsample from single paragraphs by taking random sample w/o replacement of upsample scalars
-upsamples <- data.frame()
-for (i in 1:7) {
-  t <- get(paste0("para_", i))
-  print(upsample_n[i])
-  upsamples <- rbind(upsamples, (
-                     t[sample(nrow(t), size = upsample_n[i]), ]
-                     )
-  )
-  t <- NULL
-}
-
-df <- rbind(para3, upsamples)
-
-table(df$Book)
+CleanText <- basicclean(pages$Text)
+pages$Score <- sapply(CleanText, 
+                      function(x) getSentiment(x, dictionary = "vader", 
+                                               score.type = average)) 
+pages$Cross <- NA
+pages$Cross <- ifelse(pages$Score<0, "Negative", pages$Cross)
+pages$Cross <- ifelse(pages$Score>0, "Positive", pages$Cross)
+pages$Cross <- ifelse(pages$Score==0, "Neutral", pages$Cross)
+pasteNQ("Sentiment Levels")
+table(pages$Cross)
 ```
 
 
+## Sentiment by Page
 
-# Modeling
-
-## Document Term Matrix
-```{}
-set.seed(0)
-
-corpus$CleanText <- CleanText %>%
-                    removestopwords() %>%
-                    wordstem() %>%
-                    removenonalpha()
-corpus$id <- row.names(corpus)
-
-# tokenize
-it <- itoken(corpus$CleanText, 
-				ids = corpus$id, 
-				progressbar = FALSE) 
-
-# ngrams
-vocab <- create_vocabulary(it, c(1,1)) 
-vocab <- prune_vocabulary(vocab, term_count_min = 5L)
-
-vectorizer <- vocab_vectorizer(vocab)
-
-# create dtm
-dtm <- create_dtm(it, vectorizer, type="dgCMatrix")
-
-# number of term input
-pasteNQ("")
-pasteNQ("document term matrix specifications:")
-pasteNQ("cleaned", sum(corpus$Wordcount), "words into", ncol(dtm))
-pasteNQ("number of documents:", nrow(dtm))
-```
-
-
-# Word Embeddings
 ```{r}
-set.seed(0)
-
-# Save IDs
-df$id <- row.names(df)
-
-# Minimum cleaning
-# corpus$TextWE <- stripWhitespace(corpus$Text %>% as.character())
-
-# Tokenize
-CleanText <- basicclean(df$Text)
-df_token <- word_tokenizer(CleanText)
-
-
-# tokenize
-it <- itoken(CleanText, 
-				ids = df$id, 
-				progressbar = FALSE) 
-
-# ngrams
-vocab <- create_vocabulary(it, c(1,1)) 
-vocab <- prune_vocabulary(vocab, term_count_min = 5L)
-
-# create dtm
-dtm <- textTinyR::Doc2Vec$new(token_list = df_token, 
-							                word_vector_FILE = "glove.42B.300d.vec",
-							                copy_data = FALSE) 
-
-# dtm <- dtm$doc2vec_methods(method = "sum_sqrt", threads = 3)
-utl <- textTinyR::sparse_term_matrix$new(vector_data = unlist(vocab), file_data = NULL,
-										                     document_term_matrix = TRUE)
-tm <- utl$Term_Matrix(verbose=F)
-gl_term_w <- utl$global_term_weights()
-dtm <- dtm$doc2vec_methods(method = "idf", global_term_weights = gl_term_w, threads = 3)
-
-pasteNQ("Applied Doc2Vec Word Embeddings")
-pasteNQ("External Word Embeddings: FastText English word vectors released by Facebook")
-pasteNQ("Pretraining on: 2 million word vectors trained on Common Crawl (840B tokens)")
-pasteNQ("Dimensionality Reduction to:", 300)	
-pasteNQ("Final Dimensions")
-dim(data.frame(as.matrix(dtm)))
+pages %>%
+  group_by(Book) %>% 
+  mutate(Paragraph=row_number()) %>% 
+  ggplot(aes(Page, Score, fill = Book)) +
+  Grph_theme_facet() +
+  geom_bar(alpha = 0.5, stat = "identity", show.legend = FALSE) +
+  facet_wrap(~ Book, ncol = 2, scales = "free_x")
 ```
-
-
-## Split data
-```{r}
-set.seed(0)
-
-df$id <- row.names(df)
-
-train_index <- sample(nrow(dtm), nrow(dtm)*0.80)
-
-model_df <- data.frame(as.matrix(dtm))
-# model_df$Sentiment <- corpus$sent_score
-# model_df$Wordcount <- corpus$Wordcount
-
-train <- model_df[train_index, ]
-test  <- model_df[-train_index, ]
-
-train_dv <- df$Book[train_index]
-test_dv  <- df$Book[-train_index]
-
-# save(model_df, train, test, train_dv, test_dv, file = "harrypotter_BOW.RData")
-save(model_df, train, test, train_dv, test_dv, file = "harrypotter_WEidf3.RData")
-```
-
-
-## Neural Network
-```{r}
-load("harrypotter_WEidf3.RData")
-set.seed(0)
-
-fitControl <- trainControl(method = "repeatedcv",
-                           number = 3,
-                           repeats = 3,
-                           search = "grid")
-
-garbage <- capture.output(
-  nnet_mod <- caret::train(x = train,
-                      y = as.factor(train_dv),
-                      method = "nnet",
-                      trControl = fitControl,
-                      tuneGrid = data.frame(size = 20,
-                                            decay = 1e-3),
-                                 maxit = 1000,
-                                 MaxNWts = 100000)
-)
-
-nnet_pred <- predict(nnet_mod,
-                     newdata = test)
-
-
-nnet_cm <- confusionMatrix(nnet_pred, test_dv)
-nnet_cm
-
-# save(nnet_mod, nnet_pred, nnet_cm, file = "nnet_BOW.RData")
-save(nnet_mod, nnet_pred, nnet_cm, file = "nnet_WEidf3.RData")
-```
-
-
-
-
-
-
-
