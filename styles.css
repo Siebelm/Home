@@ -739,7 +739,11 @@ and (orientation: portrait) {
   #phototall {
     margin-left: auto;
     margin-right: auto;
-  }    
+  }  
+  #resume {
+    margin-left: auto;
+    margin-right: auto;
+  }  
 }
 
 @media only screen and (min-device-width: 769px) 
