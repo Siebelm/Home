@@ -16,7 +16,7 @@ output:
 
 <br>
 
->  R Programming for: <br>
+>  Basic text analysis for: <br>
 >  Harry Potter and the Philosopher's Stone (1997) <br>
 >  Harry Potter and the Chamber of Secrets (1998) <br>
 >  Harry Potter and the Prisoner of Azkaban (1999) <br>
