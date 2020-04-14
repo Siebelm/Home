@@ -337,28 +337,28 @@ p.social a:hover {
 }
 
 .level2 h2:before {
-  padding: 0 0.3em;
+  padding: 0 0.5em;
   margin-left: -1.2em;
   content: "//";
   color: var(--spop-color);
 }
 
 .level3 h3:before {
-  padding: 0 0.3em;
+  padding: 0 0.6em;
   margin-left: -1.7em;
   content: "///";
   color: var(--spop-color);
 }
 
 .level4 h4:before {
-  padding: 0 0.3em;
+  padding: 0 0.7em;
   margin-left: -2em;
   content: "////";
   color: var(--spop-color);
 }
 
 .level5 h5:before {
-  padding: 0 0.3em;
+  padding: 0 0.8em;
   margin-left: -2.4em;
   content: "/////";
   color: var(--spop-color);
