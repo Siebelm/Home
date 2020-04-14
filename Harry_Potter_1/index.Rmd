@@ -1,7 +1,7 @@
 ---
-title: "Harry Potter NLP"
+title: "Harry Potter NLP 1"
 author: "Michael Siebel"
-date: "`r format(Sys.Date(), '%B %Y')`"
+date: "March 2020"
 output: 
   html_document:
     toc: true
@@ -154,21 +154,21 @@ cleancorpus <- function(rawtext, remove=NULL, retain=NULL) {
   print(pasteNQ("Set to lowercase"))
 
   # Remove contractions
-  fix_contractions <- function(doc) {
-    doc <- gsub("will not", "won't", doc)
-    doc <- gsub("can't", "can not", doc)
-    doc <- gsub("can not", "cannot", doc)
-    doc <- gsub("shant", "shall not", doc)
-    doc <- gsub("n't", " not", doc)
-    doc <- gsub("'ll", " will", doc)
-    doc <- gsub("'re", " are", doc)
-    doc <- gsub("'ve", " have", doc)
-    doc <- gsub("'m", " am", doc)
-    doc <- gsub("'d", " would", doc)
-    doc <- gsub("'ld", " would", doc)
-    doc <- gsub("'ld", " would", doc)
-    doc <- gsub("'s", "", doc)
-    return(doc)
+  fix_contractions <- function(rawtext) {
+    rawtext <- gsub("will not", "won't", rawtext)
+    rawtext <- gsub("can't", "cannot", rawtext)
+    rawtext <- gsub("can not", "cannot", rawtext)
+    rawtext <- gsub("shall not", "shant", rawtext)
+    rawtext <- gsub("n't", " not", rawtext)
+    rawtext <- gsub("'ll", " will", rawtext)
+    rawtext <- gsub("'re", " are", rawtext)
+    rawtext <- gsub("'ve", " have", rawtext)
+    rawtext <- gsub("'m", " am", rawtext)
+    rawtext <- gsub("'d", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'s", "", rawtext)
+    return(rawtext)
   }
   rawtext <- fix_contractions(rawtext)
   print(pasteNQ("Fixed contractions"))
@@ -686,7 +686,7 @@ pasteNQ("number of documents:", nrow(dtm))
 
 
 ## Word Cloud by Topic
-```{r, fig.show = "hold", out.height = "100%", out.width = "50%"}
+```{r, fig.show = "hold", out.height = "50%", out.width = "50%"}
 # Convert DTM to list
 documents <- apply(as.matrix(dtm), 1, function(y) {
       rbind(which(y > 0), as.integer(y[y > 0])) 
@@ -745,4 +745,4 @@ for (i in 1:K) {
 
 # Next Steps
 
-This was an extremely broad and high level look at Harry Potter.  Subsequent analysis will look more in depth at heros and villians and comparisons of the books to the films.
+This was an extremely broad and high level look at Harry Potter.  Subsequent analysis look more in depth at the tone of the <a href="https://siebelm.github.io/Harry_Potter_2">heros and villians</a> and comparisons of the books to the films (upcoming).

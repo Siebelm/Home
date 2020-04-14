@@ -324,6 +324,11 @@ p.social a:hover {
   color: var(--mpop-color);
 }
 
+.section h7 {
+  font-size: 1em;
+  color: var(--mpop-color);
+}
+
 .level1 h1:before {
   padding: 0 0.3em;
   margin-left: -0.8em;

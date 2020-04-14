@@ -485,7 +485,7 @@ div.tocify {
 <p><br> It finds that:</p>
 <p><strong>Vocab</strong> <br> Each subsequent book increased its count of unique words. However, <strong>Goblet of Fire (Book 4)</strong> is a notable exception with the second most unique words. Meanwhile, <strong>Order of the Phoenix (Book 5)</strong> contains the most repetitive vocabulary.</p>
 <p><strong>Best Friend</strong> <br> Ron is Harry’s closest friend, although Hermoine’s friendship grows throughout the Series.</p>
-<p><strong>Secondary Characters</strong> <br> Professor Dumbledore is the most prominent secondary character throughout the books, while the Defense Against Dark Arts teachers are the most prominent within each of the first 5 books.</p>
+<p><strong>Secondary Characters</strong> <br> Professor Dumbledore is the most prominent secondary character throughout the books, while the new teachers at Hogwarts are the most prominent within 5 of the 7 books. Four of these times, the new teacher is the Defense Against the Dark Arts teacher.</p>
 <p><strong>Major Themes/Settings</strong> <br> The Muggle world, the magical community outside Hogwarts, Voldemort’s story arch, and the Hogwarts classroom/Quidditch field are the 4 broadest themes/settings.</p>
 </div>
 <div id="setup" class="section level1">
@@ -580,21 +580,21 @@ div.tocify {
 <span id="cb1-88"><a href="#cb1-88"></a>    <span class="kw">print</span>(<span class="kw">pasteNQ</span>(<span class="st">&quot;Set to lowercase&quot;</span>))</span>
 <span id="cb1-89"><a href="#cb1-89"></a>    </span>
 <span id="cb1-90"><a href="#cb1-90"></a>    <span class="co"># Remove contractions</span></span>
-<span id="cb1-91"><a href="#cb1-91"></a>    fix_contractions &lt;-<span class="st"> </span><span class="cf">function</span>(doc) {</span>
-<span id="cb1-92"><a href="#cb1-92"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;will not&quot;</span>, <span class="st">&quot;won&#39;t&quot;</span>, doc)</span>
-<span id="cb1-93"><a href="#cb1-93"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;can&#39;t&quot;</span>, <span class="st">&quot;can not&quot;</span>, doc)</span>
-<span id="cb1-94"><a href="#cb1-94"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;can not&quot;</span>, <span class="st">&quot;cannot&quot;</span>, doc)</span>
-<span id="cb1-95"><a href="#cb1-95"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;shant&quot;</span>, <span class="st">&quot;shall not&quot;</span>, doc)</span>
-<span id="cb1-96"><a href="#cb1-96"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;n&#39;t&quot;</span>, <span class="st">&quot; not&quot;</span>, doc)</span>
-<span id="cb1-97"><a href="#cb1-97"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;ll&quot;</span>, <span class="st">&quot; will&quot;</span>, doc)</span>
-<span id="cb1-98"><a href="#cb1-98"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;re&quot;</span>, <span class="st">&quot; are&quot;</span>, doc)</span>
-<span id="cb1-99"><a href="#cb1-99"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;ve&quot;</span>, <span class="st">&quot; have&quot;</span>, doc)</span>
-<span id="cb1-100"><a href="#cb1-100"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;m&quot;</span>, <span class="st">&quot; am&quot;</span>, doc)</span>
-<span id="cb1-101"><a href="#cb1-101"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;d&quot;</span>, <span class="st">&quot; would&quot;</span>, doc)</span>
-<span id="cb1-102"><a href="#cb1-102"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;ld&quot;</span>, <span class="st">&quot; would&quot;</span>, doc)</span>
-<span id="cb1-103"><a href="#cb1-103"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;ld&quot;</span>, <span class="st">&quot; would&quot;</span>, doc)</span>
-<span id="cb1-104"><a href="#cb1-104"></a>        doc &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;s&quot;</span>, <span class="st">&quot;&quot;</span>, doc)</span>
-<span id="cb1-105"><a href="#cb1-105"></a>        <span class="kw">return</span>(doc)</span>
+<span id="cb1-91"><a href="#cb1-91"></a>    fix_contractions &lt;-<span class="st"> </span><span class="cf">function</span>(rawtext) {</span>
+<span id="cb1-92"><a href="#cb1-92"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;will not&quot;</span>, <span class="st">&quot;won&#39;t&quot;</span>, rawtext)</span>
+<span id="cb1-93"><a href="#cb1-93"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;can&#39;t&quot;</span>, <span class="st">&quot;cannot&quot;</span>, rawtext)</span>
+<span id="cb1-94"><a href="#cb1-94"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;can not&quot;</span>, <span class="st">&quot;cannot&quot;</span>, rawtext)</span>
+<span id="cb1-95"><a href="#cb1-95"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;shall not&quot;</span>, <span class="st">&quot;shant&quot;</span>, rawtext)</span>
+<span id="cb1-96"><a href="#cb1-96"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;n&#39;t&quot;</span>, <span class="st">&quot; not&quot;</span>, rawtext)</span>
+<span id="cb1-97"><a href="#cb1-97"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;ll&quot;</span>, <span class="st">&quot; will&quot;</span>, rawtext)</span>
+<span id="cb1-98"><a href="#cb1-98"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;re&quot;</span>, <span class="st">&quot; are&quot;</span>, rawtext)</span>
+<span id="cb1-99"><a href="#cb1-99"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;ve&quot;</span>, <span class="st">&quot; have&quot;</span>, rawtext)</span>
+<span id="cb1-100"><a href="#cb1-100"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;m&quot;</span>, <span class="st">&quot; am&quot;</span>, rawtext)</span>
+<span id="cb1-101"><a href="#cb1-101"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;d&quot;</span>, <span class="st">&quot; would&quot;</span>, rawtext)</span>
+<span id="cb1-102"><a href="#cb1-102"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;ld&quot;</span>, <span class="st">&quot; would&quot;</span>, rawtext)</span>
+<span id="cb1-103"><a href="#cb1-103"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;ld&quot;</span>, <span class="st">&quot; would&quot;</span>, rawtext)</span>
+<span id="cb1-104"><a href="#cb1-104"></a>        rawtext &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;&#39;s&quot;</span>, <span class="st">&quot;&quot;</span>, rawtext)</span>
+<span id="cb1-105"><a href="#cb1-105"></a>        <span class="kw">return</span>(rawtext)</span>
 <span id="cb1-106"><a href="#cb1-106"></a>    }</span>
 <span id="cb1-107"><a href="#cb1-107"></a>    rawtext &lt;-<span class="st"> </span><span class="kw">fix_contractions</span>(rawtext)</span>
 <span id="cb1-108"><a href="#cb1-108"></a>    <span class="kw">print</span>(<span class="kw">pasteNQ</span>(<span class="st">&quot;Fixed contractions&quot;</span>))</span>
@@ -831,8 +831,8 @@ div.tocify {
 <span id="cb9-14"><a href="#cb9-14"></a>vocabsize &lt;-<span class="st"> </span>(uniquewords<span class="op">/</span>totalwords)</span>
 <span id="cb9-15"><a href="#cb9-15"></a>vocabsize &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(vocabsize) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">2</span>)</span>
 <span id="cb9-16"><a href="#cb9-16"></a><span class="kw">pasteNQ</span>(<span class="st">&quot;Vocab Ratio:&quot;</span>, vocabsize)</span></code></pre></div>
-<pre><code>[1] Total Words: 1073020
-[1] Unique Words: 35014
+<pre><code>[1] Total Words: 1073007
+[1] Unique Words: 35015
 [1] Vocab Ratio: 0.03</code></pre>
 </div>
 <div id="vocab-by-book" class="section level2">
@@ -956,7 +956,7 @@ div.tocify {
 </div>
 <p>The TF chart can also help us understand who is the most prominent secondary character across books. Professor Dumbledore is the most frequently mentioned character after the three main characters (see the <em>Most Used Terms</em> charts in the previous section). The <em>Most Common Terms (TF)</em> chart below shows that he was not mentioned as much in the first three books, but became very prominent by <strong>Goblet of Fire (Book 4)</strong>.</p>
 <p>TF-IDF provides us with a proxy for secondary characters specific to a certain book: characters important in certain books, but not in every book. Therefore, we are not searching for secondary characters who are consistently present throughout the series, such as Hagrid or Dumbledore.</p>
-<p>In the <strong>Most Specific Words (TF-IDF)</strong> chart, we can see an obvious pattern: the most prominent secondary character is the new teacher at Hogwarts in 5 of the 7 books. Four of these times, the new teacher is the Defense Against the Dark Arts teacher.  Interestly, Professor Moody, the Defense Against Dark Arts teacher, is only ranked fifth in <strong>Goblet of Fire (Book 4)</strong>. This is likely because there are many important characters specific to that book and that Mad-Eye Moody remains prominent after Book 4.</p>
+<p>In the <strong>Most Specific Words (TF-IDF)</strong> chart, we can see an obvious pattern: the most prominent secondary character is the new teacher at Hogwarts in 5 of the 7 books. Four of these times, the new teacher is the Defense Against the Dark Arts teacher. Interestly, Professor Moody, the Defense Against Dark Arts teacher, is only ranked fifth in <strong>Goblet of Fire (Book 4)</strong>. This is likely because there are many important characters specific to that book and that Mad-Eye Moody remains prominent after Book 4.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># TF</span></span>
 <span id="cb14-2"><a href="#cb14-2"></a>book_tf &lt;-<span class="st"> </span>df[,<span class="kw">c</span>(<span class="st">&quot;clean_sw&quot;</span>,<span class="st">&quot;book&quot;</span>)] <span class="op">%&gt;%</span></span>
 <span id="cb14-3"><a href="#cb14-3"></a><span class="st">  </span><span class="kw">unnest_tokens</span>(word, clean_sw, <span class="dt">token=</span><span class="st">&quot;words&quot;</span>) <span class="op">%&gt;%</span></span>
@@ -1066,7 +1066,7 @@ div.tocify {
 <span id="cb15-17"><a href="#cb15-17"></a><span class="kw">pasteNQ</span>(<span class="st">&quot;cleaned&quot;</span>, totalwords, <span class="st">&quot;words into&quot;</span>, <span class="kw">ncol</span>(dtm))</span>
 <span id="cb15-18"><a href="#cb15-18"></a><span class="kw">pasteNQ</span>(<span class="st">&quot;number of documents:&quot;</span>, <span class="kw">nrow</span>(dtm))</span></code></pre></div>
 <pre><code>[1] document term matrix specifications:
-[1] cleaned 1073020 words into 6416
+[1] cleaned 1073007 words into 6417
 [1] number of documents: 200</code></pre>
 </div>
 <div id="word-cloud-by-topic" class="section level2">
@@ -1102,7 +1102,7 @@ div.tocify {
 <span id="cb17-29"><a href="#cb17-29"></a><span class="kw">embed_htmlwidget</span>(wc_<span class="dv">2</span>)</span>
 <span id="cb17-30"><a href="#cb17-30"></a><span class="kw">embed_htmlwidget</span>(wc_<span class="dv">3</span>)</span>
 <span id="cb17-31"><a href="#cb17-31"></a><span class="kw">embed_htmlwidget</span>(wc_<span class="dv">4</span>)</span></code></pre></div>
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-11-2.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-11-3.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-11-4.png" width="50%" height="100%" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="50%" height="50%" /><img src="index_files/figure-html/unnamed-chunk-11-2.png" width="50%" height="50%" /><img src="index_files/figure-html/unnamed-chunk-11-3.png" width="50%" height="50%" /><img src="index_files/figure-html/unnamed-chunk-11-4.png" width="50%" height="50%" /></p>
 </div>
 <div id="chapters-represented-in-topic" class="section level2">
 <h2>Chapters Represented in Topic</h2>
@@ -1139,7 +1139,7 @@ div.tocify {
 </div>
 <div id="next-steps" class="section level1">
 <h1>Next Steps</h1>
-<p>This was an extremely broad and high level look at Harry Potter. Subsequent analysis will look more in depth at heros and villians and comparisons of the books to the films.</p>
+<p>This was an extremely broad and high level look at Harry Potter. Subsequent analysis look more in depth at the tone of the <a href="siebelm.github.io/Harry_Potter_2">heros and villians</a> and comparisons of the books to the films (upcoming).</p>
 </div>
 
 

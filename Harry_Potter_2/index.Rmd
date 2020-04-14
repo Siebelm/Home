@@ -1,7 +1,7 @@
 ---
-title: "Harry Potter NLP"
+title: "Harry Potter NLP 2"
 author: "Michael Siebel"
-date: "`r date()`"
+date: "April 2020"
 output: 
   html_document:
     toc: true
@@ -15,7 +15,7 @@ output:
 
 <br>
 
->  Natural Language Processing (NLP) for: <br>
+>  Sentiment Analysis for: <br>
 >  Harry Potter and the Philosopher's Stone (1997) <br>
 >  Harry Potter and the Chamber of Secrets (1998) <br>
 >  Harry Potter and the Prisoner of Azkaban (1999) <br>
@@ -29,24 +29,24 @@ output:
 Below is a sentiment analysis of the Harry Potter Series.  It seeks to find answers to the questions:
 
 * <a href="#Q1">Which of the heroes and villians have the most positive/negative sentiment?</a>
-* <a href="#Q2">How does the sentiment of these heroes and villians?</a>
-* <a href="#Q3">Who are the most prominent secondary characters?</a>
-* <a href="#Q4">What are the 4 major themes/settings in the Series?</a>
+* <a href="#Q2">How does the sentiment of these heroes and villians change across each book?</a>
+* <a href="#Q3">Which Hogwarts House contains the most positive sentiment?</a>
+* <a href="#Q4">How does sentiment usually change of the course of one school year?</a>
 
 <br>
 It finds that: 
 
-**Vocab** <br>
-Each subsequent book increased its count of unique words.  However, **Goblet of Fire (Book 4)** is a notable exception with the second most unique words.  Meanwhile, **Order of the Phoenix (Book 5)** contains the most repetitive vocabulary.
+**Heroes and Villians Rankings** <br>
+Among the heroes, surprisingly, Professor Slughorn had the most positive text around him with Luna Lovegood the second.  Death Eaters contained the most negative sentiment.   Unsurprisingly, the werewolf (Greyback), ancient snake (Basilisk), and giant spider (Aragog) all had extremely negative sentiment.
 
-**Best Friend** <br>
-Ron is Harry's closest friend, although Hermoine's friendship grows throughout the Series.
+**Heroes and Villians Across the Books** <br>
+Negative sentiment in the text around the villians grew substantially as the story progress, while the sentiment in the text around the heroes stayed relatively stable.  *The Deathly Hallows* was the book featuring the most negative sentiment.
 
-**Secondary Characters** <br>
-Professor Dumbledore is the most prominent secondary character throughout the books, while the new teachers at Hogwarts are the most prominent within 5 of the 7 books. Four of these times, the new teacher is the Defense Against the Dark Arts teacher.  
+**Treatment of the Hogwarts Houses** <br>
+As it should be, Hufflepuff was the house that has the most positive sentiment in the text around it. 
 
-**Major Themes/Settings** <br>
-The Muggle world, the magical community outside Hogwarts, Voldemort's story arch, and the Hogwarts classroom/Quidditch field are the 4 broadest themes/settings.
+**Sentiment Across the Pages** <br>
+The end of each book was negative until the final chapter, which always seems to end on a positive note - whether the heroes were victories or Harry's friends were providing him some support over a more difficult ending.
 
 # Setup
 ```{r, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
@@ -70,7 +70,7 @@ gc()
 library(pacman)
 pacman::p_load(devtools, knitr, magrittr, dplyr, ggplot2, rvest, sentimentSetsR, caret, textTinyR, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, wordcloud, prettydoc, cowplot, kable, utf8, corpus, glue, topicmodels, stm, wordcloud2, htmlwidgets, viridis)
   
-knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=120, out.width = "75%")
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=240, out.width = "75%", out.height = "75%")
 
 
 # Custom functions
@@ -84,7 +84,7 @@ pasteNQ0 <- function(...) {
   noquote(output)
 }
 
-# Proportions
+# Percentages
 propTab <- function(data, 
                     exclude=NULL,
                     useNA = "no",
@@ -128,16 +128,19 @@ Grph_theme <- function() {
 
 ## Clean Corpus
 basicclean <- function(rawtext) {
+  
   # Set to lowercase
   rawtext <- tolower(rawtext)
-  print(pasteNQ("Set to lowercase"))
+
+  # Fix apostorphe
+  rawtext <- gsub("’", "'", rawtext)
 
   # Remove contractions
   fix_contractions <- function(rawtext) {
     rawtext <- gsub("will not", "won't", rawtext)
-    rawtext <- gsub("can't", "can not", rawtext)
+    rawtext <- gsub("can't", "cannot", rawtext)
     rawtext <- gsub("can not", "cannot", rawtext)
-    rawtext <- gsub("shant", "shall not", rawtext)
+    rawtext <- gsub("shall not", "shant", rawtext)
     rawtext <- gsub("n't", " not", rawtext)
     rawtext <- gsub("'ll", " will", rawtext)
     rawtext <- gsub("'re", " are", rawtext)
@@ -150,11 +153,9 @@ basicclean <- function(rawtext) {
     return(rawtext)
   }
   rawtext <- fix_contractions(rawtext)
-  print(pasteNQ("Fixed contractions"))
-  
+
   # Strip whitespace
   rawtext <- stripWhitespace(rawtext)
-  print(pasteNQ("Stripped whitespace"))
 
   return(rawtext)
 }
@@ -168,29 +169,28 @@ removestopwords <- function(rawtext, remove=NULL, retain=NULL) {
   stopwords_retain <- retain
   stopwords_custom <- stopwords_custom[!stopwords_custom %in% stopwords_retain]
   rawtext <- removeWords(rawtext, stopwords_custom)
-  print(pasteNQ("Removed", length(stopwords_custom), "stop words"))
-  
+
   return(rawtext)
 }
 
 ## Word Stemming
 wordstem <- function(rawtext) {
+  
   # Stemming words
   rawtext <- stemDocument(rawtext)
-  print(pasteNQ("Stemmed words"))
-  
+
   return(rawtext)
 }
 
 ## Remove Non-Alpha
 removenonalpha <- function(rawtext) {
+  
   # Remove puncutation, numbers, and other none characters
   rawtext <- removePunctuation(rawtext)
   rawtext <- removeNumbers(rawtext)
   rawtext <- gsub("[^[:alnum:]///' ]", "", rawtext)
   rawtext <- gsub("[']", "", rawtext)
-  print(pasteNQ("Removed punctuation, numbers, and other none characters"))
-  
+
   return(rawtext)
 }
 
@@ -203,7 +203,8 @@ embed_htmlwidget <- function(widget, rasterise = T) {
     png.file = tempfile("tp",fileext=".png")
 
     htmlwidgets::saveWidget(widget, html.file, selfcontained = FALSE)
-    webshot::webshot(html.file, file = png.file,vwidth = 700, vheight = 500, delay =10)
+    webshot::webshot(html.file, file = png.file,
+                     vwidth = 700, vheight = 500, delay =10)
     img = EBImage::readImage(png.file)
     EBImage::display(img)
   } else {
@@ -212,6 +213,10 @@ embed_htmlwidget <- function(widget, rasterise = T) {
 }
 ```
 
+
+Sentiment analysis is a subfield of natural language processing (NLP), which uses sentiment scores of individual words to describe positive language and negative language in a text.  For this analysis, I parsed the text of each of the seven books into paragraph triplets, roughly averaging around 80-90 words.  I then scored the words within those paragraph triplets to define the sentiment of these "text snapshots".  
+
+Next, I organized the text by characters (heroes and villians) and then Hogwarts Houses to understand which had the most positive or negative sentiment in the 80-90 or so words around their mention.  Finally, a looked at sentiment per page to see the "rollercoaster of emotions" that occurs during each Hogwarts school years.
 
 ## Load Data
 
@@ -279,7 +284,11 @@ pages$Book <- factor(pages$Book, levels=titles)
 
 # Heroes and Villians
 
-In this sentiment analysis, I am interested in seeing which characters have the most positive and, conversely, negative sentiment in the text around them.  Using paragraph triplets (averaging around 80 words), I observe the count of positive and negative words around select characters.
+<div id="Q1">
+<h6>*Which of the heroes and villians have the most positive/negative sentiment?*</h6>
+</div>
+
+In this sentiment analysis, I was interested in seeing which characters have the most positive and, conversely, negative sentiment in the text around them.  Using paragraph triplets (averaging around 80-90 words), I observed the count of positive and negative words around select characters.
 
 I created three character dictionaries to compare against each other.  The first contains our main trio, who are mentioned in most of the text.  The second contains the heroes (and organizations) outside of the main trio.  The third contains villians of the story arch.  Note, without mentioning spoilers, at least one of the villians arguably turns out to be a good character - but in terms of text spends most the story on the dark side.
 
@@ -303,7 +312,7 @@ paste(villians)
 ```
 
 
-## Sentiment Scores (Paragraphs)
+## Sentiment Levels
 
 ```{r}
 # Sentiment Scores
@@ -323,23 +332,23 @@ para3$Cross <- NA
 para3$Cross <- ifelse(para3$Score<0, "Negative", para3$Cross)
 para3$Cross <- ifelse(para3$Score>0, "Positive", para3$Cross)
 para3$Cross <- ifelse(para3$Score==0, "Neutral", para3$Cross)
-cat("\n")
-pasteNQ("Sentiment Levels")
+
+pasteNQ("Sentiment in Paragraphs (%)")
 propTab(para3$Cross)
 ```
 
 
 ## Sentiment of Heroes
 
-Surprisingly, Professor Slughorn has the most positive text around him.  This perhaps is because Harry for the first time enjoyed and excelled in potions with him as teacher.  Additionally, Harry spends a non-trival amount of time under the Felix Felicis potion while with Professor Slughorn.
+Surprisingly, Professor Slughorn has the most positive text around him.  This perhaps was because Harry for the first time enjoyed and excelled in potions with him as teacher.  Additionally, Harry spent a non-trival amount of time under the Felix Felicis potion while with Professor Slughorn.
 
-Fan favorite, Luna Lovegood, has the second most positive text around her.  This is not surprising as she has a quirky, upbeat personality.
+Fan favorite, Luna Lovegood, has the second most positive text around her.  This was not surprising as she has a quirky, upbeat personality.
 
-Professor Moody has the most negative sentiment.  This can be both due to his usual sour personality and that the majority of the time we were reading about him, it was villian Barty Crouch, Jr. in disguise.
+Professor Moody had the most negative sentiment.  This can be both due to his usual sour personality and that the majority of the time we were reading about him, it was villian Barty Crouch, Jr. in disguise.
 
 Harry's mother, Lily, unsurprisingly has the second most negative sentiment as she is mostly mentioned when Harry is thinking back about her death.
 
-```{r}
+```{r, out.width="75%"}
 # Subset text mentioning a hero
 heroes_sent <- data.frame(Hero=NA, 
                           Sentiment=NA)
@@ -402,7 +411,7 @@ I intentionally defined "demonator" and "demonators", separately.  In the plural
 
 Unsurprisingly, the werewolf, ancient snake, and giant spider all have extremely negative sentiment.
 
-```{r}
+```{r, out.width="75%"}
 # Subset text mentioning a villian
 villians_sent <- data.frame(Villian=NA, 
                             Sentiment=NA)
@@ -457,9 +466,9 @@ villians_sent %>%
 
 ## Sentiment of Main Trio
 
-Harry has less positive sentiment in the text around him then Ron and Hermione.  This probably has a lot to do with his angsty stint in *Order of the Phoenix*, where I think the caps lock on J.K. Rowling's keyboard may have broke under heavy-use.
+Harry has less positive sentiment in the text around him then Ron and Hermione.  This probably has a lot to do with his angsty stint in **Order of the Phoenix (Book 5)**, where I think the caps lock on J.K. Rowling's keyboard may have broke under heavy-use.
 
-```{r}
+```{r, out.width="50%"}
 # Subset text mentioning a main character
 trio_sent <- data.frame(Trio=NA, 
                         Sentiment=NA)
@@ -484,7 +493,6 @@ for(string in trio) {
 trio_sent <- trio_sent %>%
                .[order(trio_sent$Sentiment %>% as.numeric()),] %>%
                tidyr::drop_na()
-max_sent <- max(trio_sent$Sentiment %>% as.numeric() %>% abs()+1) 
 
 # Add main character total
 trio_ID <- unique(trio_ID)
@@ -498,28 +506,31 @@ trio_sent <- rbind(trio_sent, c("average",
 
 # Graph
 trio_sent %>%
-  mutate(Trio=factor(Trio, levels=Trio)) %>% 
-    ggplot(aes(x=Trio, y=Sentiment %>% as.numeric() %>% round(1), fill=Trio))+
+  mutate(Trio=factor(Trio, levels = Trio)) %>% 
+    ggplot(aes(x = Trio, y = Sentiment %>% as.numeric() %>% round(1), 
+               fill = Trio, label = Sentiment))+
         geom_col()+
+        geom_text(aes(label = Sentiment %>% as.numeric() %>% round(1)), 
+                  vjust = -0.5) +
         Grph_theme()+
-        ylab("Positive Sentiment")+
+        ylab("Positive Sentiment (%)")+
         xlab("") + ggtitle("Sentiment of the Main Trio") + 
-        ylim(0, max_sent) + 
+        ylim(0, 25) + 
         scale_fill_manual(values = c("#FFC500", "#AAAAAA", "#7F0909", 
                                      "black")) +
         guides(fill=FALSE) 
 ```
 
 
-## Proportion of Documents
+## Percentage of Documents
 
-Here, I want to note the prevalance of the main trio, the heroes, and the villians.  The main trio is mentioned in ~85% of each paragraph triplet.  The heroes outside the main trio are in less than 50% of each paragraph triplet, while villians are much more rare (less than 30%).
+Here, I wanted to note the prevalance of the main trio, the heroes, and the villians.  The main trio were mentioned in ~85% of each paragraph triplet.  The heroes outside the main trio were in less than 50% of each paragraph triplet, while villians are much more rare (less than 30%).
 
 This demonstrates that J.K. Rowling prefers to focus on the likeable characters and keeps the overall story arch, featuring the villians, to a minimum.
 
-```{r}
+```{r, out.width="50%"}
 docs_prop <- tibble(
-  Proportion = c(
+  Percentage = c(
     round(length(trio_ID)/nrow(para3)*100,1),
     round(length(heroes_ID)/nrow(para3)*100,1),
     round(length(villians_ID)/nrow(para3)*100,1)
@@ -529,34 +540,38 @@ docs_prop <- tibble(
 
 colors <- c("Heroes" = "#7F0909", "Villians" = "#0D6217", 
             "Main Trio" = "#AAAAAA")
-ggplot(docs_prop, mapping = aes(x=Characters, 
-                                y = Proportion,
-                                fill=Characters,
-                                label=Proportion)) +
+ggplot(docs_prop, mapping = aes(x = Characters, 
+                                y = Percentage,
+                                fill = Characters,
+                                label = Percentage)) +
   geom_col() +
-  geom_text(aes(label = Proportion), vjust = -0.5) +
-  ggtitle("Characters as Proportion of Documents") +
+  geom_text(aes(label = Percentage), vjust = -0.5) +
+  ggtitle("Characters as Percentage of Documents") +
   Grph_theme() +
   scale_fill_manual(values = colors) +
-  theme(legend.position="right") +
+  theme(legend.position = "right") +
   ylim(0, 100) +
   labs(x = "Books",
-       y = "Proportion (%)",
+       y = "Percentage (%)",
        color = "Legend")
 ```
 
 
 # Characters Across Books
 
-In the chart below, I show the average sentiment for the main trio, heroes, and villians as the series progresses.  The main takeaways I see are:
+<div id="Q2">
+<h6>*How does the sentiment of these heroes and villians change across each book?*</h6>
+</div>
 
-* <h6>Negative sentiment in the text around the villians grows substantially</h6>
-* <h6>Negative sentiment is more stable for the main trio and the heroes</h6>
-* <h6>*Goblet of Fire* has the largest disconnect between the text mentiong villians versus text mentioning the main trio or the heroes, where negative sentiment is high for the villians but is low relative to the other books for non-villians</h6>
-* <h6>*The Chamber of Secrets* is the only book where text mentioning the main trio or the heroes is more negative then text mentioning the villians--largely because of Tom Riddle's tale likely starts with positive sentiment</h6>
-* <h6>*The Deathly Hallows* is the books featuring the most negative sentiment</h6>
+In the chart below, I showed the average sentiment for the main trio, heroes, and villians as the series progresses.  The main takeaways I saw are:
 
-```{r}
+* Negative sentiment in the text around the villians grows substantially
+* Negative sentiment was more stable for the main trio and the heroes
+* **Goblet of Fire (Book 4)** had the largest disconnect between the text mentiong villians versus text mentioning the main trio or the heroes, where negative sentiment was high for the villians but was low relative to the other books for non-villians
+* **Chamber of Secrets (Book 2)** was the only book where text mentioning the main trio or the heroes was more negative then text mentioning the villians - largely because  Tom Riddle's tale likely starts with positive sentiment
+* **Deathly Hallows (Book 7)** was the book featuring the most negative sentiment
+
+```{r, out.width="50%"}
 # Main Characters Sentiment
 trio_grp <- para3[trio_ID,] %>%
   mutate(Negative = recode(Cross, Positive = 0, Neutral = 0, Negative = 1),
@@ -599,9 +614,13 @@ ggplot(df, mapping = aes(x=Book, group=NA)) +
 ```
 
 
-# Treatment of the Houses
+# Treatment of the Hogwarts Houses
 
-Ok, I need to know the sentiment surrounding the four houses:  Gryffindor, Slytherin, Ravenclaw and Hufflepuff.
+<div id="Q3">
+<h6>*Which Hogwarts House contains the most positive sentiment?*</h6>
+</div>
+
+Ok, I needed to know the sentiment surrounding the four Howgarts Houses:  Gryffindor, Slytherin, Ravenclaw and Hufflepuff.
 
 ```{r}
 # Create Dictionaries
@@ -613,9 +632,9 @@ paste(houses)
 
 ## Sentiment of Houses
 
-...and the best house, Hufflepuff!, easily contains the most positive sentiment.
+...and the best house, Hufflepuff!, easily contained the most positive sentiment.
 
-```{r}
+```{r, out.width="50%"}
 # Subset text mentioning a main character
 houses_sent <- data.frame(Houses=NA, 
                           Sentiment=NA)
@@ -656,8 +675,11 @@ houses_sent <- rbind(houses_sent, c("average",
 # Graph
 houses_sent %>%
   mutate(Houses=factor(Houses, levels=Houses)) %>% 
-    ggplot(aes(x=Houses, y=Sentiment %>% as.numeric() %>% round(1), fill=Houses))+
+    ggplot(aes(x=Houses, y=Sentiment %>% as.numeric() %>% round(1), 
+               fill=Houses, label=Sentiment))+
         geom_col()+
+        geom_text(aes(label = Sentiment %>% as.numeric() %>% round(1)), 
+                  vjust = -0.5) +        
         Grph_theme()+
         ylab("Positive Sentiment")+
         xlab("") + ggtitle("Sentiment of Houses") + 
@@ -667,13 +689,13 @@ houses_sent %>%
         guides(fill=FALSE) 
 ```
 
-## Proportion of Documents
+## Percentage of Documents
 
-It seems that the houses are rarely mentioned.  Gryffindor is easily mentioned the most, but is only mentioned in roughly 4% of the text.  Slytherin is mentioned in a little over 2% of the text.  Poor Hufflepuff and Ravenclaw are mentioned less than 1% of the text.
+It seemed that the houses were rarely mentioned.  Gryffindor was easily mentioned the most, but was only mentioned in roughly 4% of the text.  Slytherin was mentioned in a little over 2% of the text.  Poor Hufflepuff and Ravenclaw were mentioned less than 1% of the text.
 
-```{r}
+```{r, out.width="50%"}
 docs_prop <- tibble(
-  Proportion = c(
+  Percentage = c(
     round(length(gryffindor_ID)/nrow(para3)*100,1),
     round(length(slytherin_ID)/nrow(para3)*100,1),
     round(length(ravenclaw_ID)/nrow(para3)*100,1),
@@ -685,27 +707,116 @@ docs_prop <- tibble(
 colors <- c("Gryffindor" = "#7F0909", "Slytherin" = "#0D6217", 
             "Ravenclaw" = "#000A90", "Hufflepuff" = "#FFC500")
 ggplot(docs_prop, mapping = aes(x = Houses, 
-                                y = Proportion,
+                                y = Percentage,
                                 fill = Houses,
-                                label = Proportion)) +
+                                label = Percentage)) +
   geom_col() +
-  geom_text(aes(label = Proportion), vjust = -0.5) +
-  ggtitle("Houses as Proportion of Documents") +
+  geom_text(aes(label = Percentage), 
+            vjust = -0.5) +
+  ggtitle("Houses as Percentage of Documents") +
   Grph_theme() +
   scale_fill_manual(values = colors) +
   theme(legend.position="right") +
   ylim(0, 5) +
   labs(x = "Books",
-       y = "Proportion (%)",
+       y = "Percentage (%)",
        color = "Legend")
+```
+
+
+## Descriptions of the Houses
+
+For fun, here are the most specific words (using TF-IDF scores) to describe the four Houses.
+
+```{r, fig.show = "hold", out.width="50%", out.height="50%"} 
+seed(20)
+para3$ID <- row.names(para3)
+para3$CleanText <- para3$Text %>%
+                   basicclean() %>% 
+                   removestopwords(remove="said") %>%
+                   removenonalpha()
+
+# TFIDF Scores
+TFIDF <- para3[houses_ID, ] %>%
+  unnest_tokens(word, CleanText) %>% 
+  anti_join(get_stopwords()) %>%
+  count(ID, word, sort = T) %>%
+  bind_tf_idf(word, ID, n) %>%
+  arrange(desc(tf_idf)) 
+
+Gryffindor_d <- TFIDF[TFIDF$ID %in% gryffindor_ID, ]
+
+Slytherin_d <- TFIDF[TFIDF$ID %in% slytherin_ID, ] 
+
+Ravenclaw_d <- TFIDF[TFIDF$ID %in% ravenclaw_ID, ]
+
+Hufflepuff_d <- TFIDF[TFIDF$ID %in% hufflepuff_ID, ]
+
+# Gryffindor
+Gryffindor <- Gryffindor_d %>% 
+  anti_join(Slytherin_d) %>% 
+  anti_join(Ravenclaw_d) %>% 
+  anti_join(Hufflepuff_d) 
+
+cloud <- data.frame(words = rbind(Gryffindor[1:20, "word"], 
+                              "GRYFFINDOR"), 
+                    weight = rbind(Gryffindor[1:20, "tf_idf"], 0.8))
+wc_1 <- wordcloud2(cloud, size=0.4,
+                   color = "random-light", 
+                   backgroundColor = "black")
+
+# Slytherin
+Slytherin <- Slytherin_d %>% 
+  anti_join(Gryffindor_d) %>% 
+  anti_join(Ravenclaw_d) %>% 
+  anti_join(Hufflepuff_d) 
+
+cloud <- data.frame(words = rbind(Slytherin[1:20, "word"], 
+                              "SLYTHERIN"), 
+                    weight = rbind(Slytherin[1:20, "tf_idf"], 0.8))
+wc_2 <- wordcloud2(cloud, size=0.5,
+                   color = "random-light", 
+                   backgroundColor = "black")
+
+# Ravenclaw
+Ravenclaw <- Ravenclaw_d %>% 
+  anti_join(Slytherin_d) %>% 
+  anti_join(Gryffindor_d) %>% 
+  anti_join(Hufflepuff_d)  
+
+cloud <- data.frame(words = rbind(Ravenclaw[1:20, "word"], 
+                              "RAVENCLAW"), 
+                    weight = rbind(Ravenclaw[1:20, "tf_idf"], 0.8))
+wc_3 <- wordcloud2(cloud, size=0.4,
+                   color = "random-light", 
+                   backgroundColor = "black")
+
+# Hufflepuff
+Hufflepuff <- Hufflepuff_d %>% 
+  anti_join(Slytherin_d) %>% 
+  anti_join(Ravenclaw_d) %>% 
+  anti_join(Gryffindor_d)  
+
+cloud <- data.frame(words = rbind(Hufflepuff[1:20, "word"], 
+                              "HUFFLEPUFF"), 
+                    weight = rbind(Hufflepuff[1:20, "tf_idf"], 0.8))
+wc_4 <- wordcloud2(cloud, size=0.45,
+                   color = "random-light", 
+                   backgroundColor = "black")
+
+embed_htmlwidget(wc_1)
+embed_htmlwidget(wc_2)
+embed_htmlwidget(wc_3)
+embed_htmlwidget(wc_4)
 ```
 
 
 # Emotional Rollercoaster
 
-At the beginning of this document, I defined page the level as containing 250 words.
+At the beginning of this document, I defined page the level as containing 250 words.  I used the page level to observe how sentiment changed over the pages of each book.
 
-## Sentiment Scores (Pages)
+## Sentiment Levels
+
 ```{r}
 # Sentiment Scores
 average <- function(x) {
@@ -724,31 +835,46 @@ pages$Cross <- NA
 pages$Cross <- ifelse(pages$Score<0, "Negative", pages$Cross)
 pages$Cross <- ifelse(pages$Score>0, "Positive", pages$Cross)
 pages$Cross <- ifelse(pages$Score==0, "Neutral", pages$Cross)
-cat("/n")
-pasteNQ("Sentiment Levels")
+
+pasteNQ("Sentiment in Pages (%)")
 propTab(pages$Cross)
 ```
 
 
 ## Sentiment by Page
 
-Finally, we can view sentiment per page to see the rollercoaster of emotions throughout the books.  The main takeaways that I see are:
+<div id="Q4">
+<h6>*How does sentiment usually change of the course of one school year?*</h6>
+</div>
 
-* <h6>*Prisoner of Azkaban* has a more negative final third than I remember</h6>
-* <h6>*Goblet of Fire* has a very happy middle, when Harry is focusing on the Tri-Wizard tournament and the Yule Ball</h6>
-* <h6>Despite containing a lot of Voldmort's background, *Half-Blood Prince* is surprisingly positive until the end</h6>
-* <h6>*Deathly Hallows* is mostly negative throughout</h6>
-* <h6>And the most obvious trend has to be that the end of each book is negative until the final chapter, which always seems to end on a positive note--whether the heroes are victories or Harry's friends are providing him some support over a more difficult ending</h6>
+Finally, we can view sentiment per page to see the rollercoaster of emotions throughout the books.  The main takeaways that I saw are:
 
-```{r}
+* **Prisoner of Azkaban (Book 3)** has a more negative final third than I remember
+* **Goblet of Fire (Book 4)** has a very happy middle, when Harry was focusing on the Tri-Wizard tournament and the Yule Ball
+* Despite containing a lot of Voldmort's background, **Half-Blood Prince (Book 6)** was surprisingly positive until the end
+* **Deathly Hallows (Book 7)** was mostly negative throughout
+* And the most obvious trend has to be that the end of each book was negative until the final chapter, which always seems to end on a positive note - whether the heroes were victories or Harry's friends were providing him some support over a more difficult ending
+
+```{r, out.width="100%", out.height="100%"}
 # Grouping by pages for the x-axis
 pages %>%
   group_by(Book) %>% 
   mutate(Paragraph=row_number()) %>% 
-  ggplot(aes(Page, Score, fill = Book)) +
+  ggplot(aes(Page, Score, color = Book)) +
   Grph_theme() +
-  geom_bar(alpha = 0.5, stat = "identity", show.legend = FALSE) +
-  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+  theme(panel.background=element_rect(fill="#FFFFFF", color="#FFFFFF")) +
+  geom_line(alpha = 0.3, show.legend = FALSE) +
+  geom_smooth(method = lm, formula = y ~ splines::bs(x, 15), 
+              se = F, show.legend = FALSE) +  
+  geom_line(y = 0) +
+  scale_color_manual(values = c("#946B2D", "#0D6217", "#000A90", 
                                  "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  ylim(-100, 100) +
+  labs(x = "Page Number",
+       y = "Sentiment (-100% to 100%)") + 
   facet_wrap(~ Book, ncol = 2, scales = "free_x")
 ```
+
+# Next Steps
+
+This was an analysis of the series' tone.  Previous analysis looked more broadly at the <a href="https://siebelm.github.io/Harry_Potter_1">vocab, word distributions, and major themes/settings</a>.  Subsequent analysis will model comparisons of the books to the films (upcoming).
