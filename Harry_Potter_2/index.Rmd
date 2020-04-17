@@ -32,7 +32,7 @@ Below is a sentiment analysis of the Harry Potter Series.  It seeks to find answ
 * <a href="#Q1">Which of the heroes and villians have the most positive/negative sentiment?</a>
 * <a href="#Q2">How does the sentiment of these heroes and villians change across each book?</a>
 * <a href="#Q3">Which Hogwarts House contains the most positive sentiment?</a>
-* <a href="#Q4">How does sentiment usually change of the course of one school year?</a>
+* <a href="#Q4">How does sentiment usually change over the course of one school year?</a>
 
 <br>
 It finds that: 
@@ -845,7 +845,7 @@ propTab(pages$Cross)
 ## Sentiment by Page
 
 <div id="Q4">
-<h6>*How does sentiment usually change of the course of one school year?*</h6>
+<h6>*How does sentiment usually change over the course of one school year?*</h6>
 </div>
 
 Finally, we can view sentiment per page to see the rollercoaster of emotions throughout the books.  The main takeaways that I saw are:
