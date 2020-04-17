@@ -123,6 +123,7 @@ h5 {
   font-size: 1.1em;  
   left: 16px;
   top: 2px;
+  z-index: 3;
   width: 250px !important;
  } 
 
@@ -258,6 +259,7 @@ SOCIAL LINKS
     width: 280px;
     height: 100%;
     top: 0px;
+    z-index: 2;
     overflow-y: auto;
     background-color: var(--side-bkgd);
 }
