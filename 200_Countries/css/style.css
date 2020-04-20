@@ -125,11 +125,9 @@ text {
 	margin: 0;
 	position: absolute;
 	z-index: 2;
-	right: 5%;
-	width: 100%;
+	right: 20px;
 	top: 100px;
     padding-bottom: 6px;
-	overflow: visible;
 } 
 
 ul#menu {
@@ -154,7 +152,6 @@ li#menutab a, .rightbar {
 }
 
 li#menutab.selected a {
-	height: 25px;
 	color: #042029;
     padding-bottom: 6px;    
 }
@@ -194,19 +191,15 @@ li#menutab .rightbar {
 	display: none;
 	position: absolute;
 	background-color: rgb(69,123,157);
-	width: 10em;
+	width: 8em;
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 	z-index: 2;
-	color: black;
 }
 
 .rightbar-content a {
-	color: black;
-	padding: 12px 16px;
-	text-decoration: none;
-	display: block;
+	min-width: 8em;
 	text-align: left;
-    font-size: 1em;
+    font-size: 1em !important;
 }
 
 .rightbar-content a:hover {

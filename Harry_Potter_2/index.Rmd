@@ -269,7 +269,9 @@ for (i in 1:7) {
 
 # Page Level Documents
 pages <- books %>%
-  unnest_tokens(Text, Text, strip_punct = T, to_lower = F) %>%
+  unnest_tokens(Text, Text, 
+                token = "regex", pattern = " ",
+                to_lower = F) %>%
   group_by(Book, Page = dplyr::row_number() %/% 250) %>%
   dplyr::summarize(Text = stringr::str_c(Text, collapse = " ")) %>%
   mutate(Page = dplyr::row_number()) %>%
