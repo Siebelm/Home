@@ -262,10 +262,11 @@ li#menutab .rightbar {
     height: 11.3em; 
     width: 12.5em; 
     position: relative; 
+    object-fit: cover;
     display: block; 
     margin-left: auto; 
     margin-right: auto;
-    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
+    /*box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);*/
 }
 
 .welcome_text {
