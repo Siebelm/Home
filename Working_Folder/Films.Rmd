@@ -18,16 +18,17 @@ run_date <- date()
 ```{r}
 URL <- "http://www.hogwartsishere.com/library/book/7391/"
 
-folder <- "C:/Users/siebe/Documents/1 R Scripts/Harry Potter"
+folder <- "C:/Users/siebe/Documents/01_R/Harry Potter"
 
 titles <- c()
-for(i in 2:8) {
+for(i in 1:1) {
   films <- paste0('chapter/',i,'/')
   
   # Titles
   title <- read_html(paste0(URL, films)) %>%
     html_nodes(xpath = '//*[@id="wrapper"]/section[3]/div/div/div[2]/div/h4[2]') %>%
-        html_text()
+      html_text()
+  title <- gsub('Sorcerer/', "", title, fixed=F, perl=T)
   print(title)
   titles <- c(titles, title)
   
@@ -45,9 +46,48 @@ for(i in 2:8) {
 
 ```
 
-```{r }
+
+```{r}
+URL <- "http://www.hogwartsishere.com/library/book/7391/"
+
+folder <- "C:/Users/siebe/Documents/01_R/Harry Potter"
+
+
+titles <- c()
+for(i in 1:1) {
+  films <- paste0('chapter/',i,'/')
+  
+  # Titles
+  title <- read_html(paste0(URL, films)) %>%
+    html_nodes(xpath = '//*[@id="wrapper"]/section[3]/div/div/div[2]/div/h4[2]') %>%
+    html_text()
+  title <- gsub('Sorcerer/', "", title, fixed=F, perl=T)
+  print(title)
+  titles <- c(titles, title)
+  
+  # Text
+  text <- read_html(paste0(URL, films)) %>%
+    html_nodes(xpath = '//*[@id="wrapper"]/section[3]/div/div/div[2]/div/div[2]') %>%
+    html_text()
+  data.frame(Text = paste(paragraph, collapse = "\n\n"))
+  text <- gsub('[^a-zA-Z0-9 _]'," ",text, fixed=F, perl=T)
+  
+  
+  fileConn<-file(paste0(folder,"/", title, "_p", ".html"))
+  writeLines(text, fileConn)
+  close(fileConn)
+}
 
 ```
+
+
+```{r }
+x <- html_text("<p>This is some text. <br> </br> This is <b>bold!</b></p>")
+xml_text(x)
+xml_text(xml_children(x))
+```
+
+
 
 ```{r}
 setwd("C:\\Users\\siebe\\Documents\\1 R Scripts\\Battle through the Heavens")

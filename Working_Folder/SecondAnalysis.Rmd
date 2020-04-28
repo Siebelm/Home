@@ -493,7 +493,7 @@ dtm_bow <- function(train_text, test_text, df) {
   
   ## ngrams
   vocab <- create_vocabulary(it_train, c(1,1)) 
-  vocab <- prune_vocabulary(vocab, doc_proportion_min = 0.01)
+  vocab <- prune_vocabulary(vocab, doc_proportion_min = 0.005)
   
   vectorizer <- vocab_vectorizer(vocab)
   
@@ -508,7 +508,7 @@ dtm_bow <- function(train_text, test_text, df) {
 
   # Test
   ## IDs
-  ids <- 1:length(train_text)
+  ids <- 1:length(test_text)
 
   ## tokenize
   it_test <- itoken(test_text_cleaned, 
@@ -553,7 +553,7 @@ dtm_we <- function(train_text, test_text) {
   
   pasteNQ("Train: Doc2Vec Word Embeddings")
   pasteNQ("External Word Embeddings: FastText English word vectors released by Facebook")
-  pasteNQ("Pretraining on: 2 million word vectors trained on Common Crawl (840B tokens)")
+  pasteNQ("Pretraining on: 1.9 million word vectors trained on Common Crawl (42B tokens)")
   pasteNQ("Dimensionality Reduction to:", 300)	
   pasteNQ("Final Dimensions")
   dim(data.frame(as.matrix(dtm_train)))
@@ -572,7 +572,7 @@ dtm_we <- function(train_text, test_text) {
   
   pasteNQ("Train: Doc2Vec Word Embeddings")
   pasteNQ("External Word Embeddings: FastText English word vectors released by Facebook")
-  pasteNQ("Pretraining on: 2 million word vectors trained on Common Crawl (840B tokens)")
+  pasteNQ("Pretraining on: 1.9 million word vectors trained on Common Crawl (42B tokens)")
   pasteNQ("Dimensionality Reduction to:", 300)	
   pasteNQ("Final Dimensions")
   dim(data.frame(as.matrix(dtm_test)))
@@ -736,7 +736,7 @@ sent_test  <- xgb.DMatrix(as.matrix(sent_test),
 # Bag of words TF-IDF model
 tfidf <- TfIdf$new()
 bowtfidf_train <- fit_transform(bow_train, tfidf)
-bowtfidf_test <- fit_transform(bow_test, tfidf)
+bowtfidf_test <- transform(bow_test, tfidf)
 bowtfidf_train <- xgb.DMatrix(bowtfidf_train,
                               label=num_train,
                               missing=NaN)
@@ -764,8 +764,8 @@ we_test  <- xgb.DMatrix(we_test,
 num_class <- 7
 
 # cross validation
-cv_tune <- function(data, iteration = 25, num_class = 7, 
-                    nrounds = 1, nfold = 5, 
+cv_tune <- function(data, iterations = 25, num_class = 7, 
+                    nrounds = 500, nfold = 4, 
                     eval_metric = "mlogloss", 
                     objective = "multi:softprob") {
   best_param = list()
@@ -773,17 +773,14 @@ cv_tune <- function(data, iteration = 25, num_class = 7,
   best_logloss = Inf
   best_logloss_index = 0
   
-  for (i in 1:iteration) {
+  for (i in 1:iterations) {
       param <- list(
             objective = objective,
             num_class = num_class,
             eval_metric = eval_metric,
-            eta = runif(1, .01, .1),
+            eta = runif(1, .01, .8),
             max_depth = sample(4:8, 1),
-            subsample = 0.9 #runif(1, .6, .9),
-            # gamma = runif(1, 0.0, 0.2), 
-            # min_child_weight = sample(1:40, 1),
-            # max_delta_step = sample(1:10, 1)
+            subsample = 1
             )
       seed.number <- sample.int(10000, 1)[[1]]
       set.seed(seed.number)          
@@ -857,6 +854,7 @@ ggplot(results_test,
        subtitle="Predicted vs. Observed",
        y="Predicted",
        x="Observed") + 
+  Grph_theme() +
   theme(legend.position='none',
         axis.text.x = element_text(angle = 45, hjust = 1))
 ```
@@ -896,6 +894,7 @@ ggplot(results_test,
        subtitle="Predicted vs. Observed",
        y="Predicted",
        x="Observed") + 
+  Grph_theme() +
   theme(legend.position='none',
         axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
@@ -915,7 +914,7 @@ bowtfidf_model <- xgboost(data=bowtfidf_train, verbose=F,
                       nrounds=cv_best[[1]], param=cv_best[[2]])
 
 # prediction
-cols <- 8:14
+cols <- 15:21
 pred_test[ , cols] <- predict(bowtfidf_model, bowtfidf_test) %>% 
                               matrix(ncol=num_class, byrow=TRUE)
 results_test[ , "BoWtfidf_Label"] <- max.col(pred_test[ , cols])
@@ -935,6 +934,7 @@ ggplot(results_test,
        subtitle="Predicted vs. Observed",
        y="Predicted",
        x="Observed") + 
+  Grph_theme() +
   theme(legend.position='none',
         axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
@@ -955,7 +955,7 @@ we_model <- xgboost(data=we_train, verbose=F,
                     nrounds=cv_best[[1]], param=cv_best[[2]])
 
 # prediction
-cols <- 15:21
+cols <- 22:28
 pred_test[ , cols] <- predict(we_model, we_test) %>% 
                      matrix(ncol=num_class, byrow=TRUE)
 results_test[ , "WE_Label"] <- max.col(pred_test[ , cols])
@@ -975,6 +975,7 @@ ggplot(results_test,
        subtitle="Predicted vs. Observed",
        y="Predicted",
        x="Observed") + 
+  Grph_theme() +
   theme(legend.position='none',
         axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
@@ -1008,27 +1009,29 @@ colnames(pred_train) <- c(paste0("Sent_Pred_", unique(results_test$Target)),
 
 # PCA
 pca <- irlba::prcomp_irlba(pred_train, n = 7, scale. = T)
-pred_train <- pca$x
-pred_test <- predict(pca, newdata = pred_test)
+# library(rsvd)
+# pca <- rpca(pred_train, k = 7, scale = T)
+pca_train <- pca$x
+pca_test <- predict(pca, pred_test)
+``` 
 
+
+## Top Layer
+```{r}
 # Top layer model
-top_train <- xgb.DMatrix(as.matrix(pred_train),
+top_train <- xgb.DMatrix(as.matrix(pca_train),
                          label=num_train,
                          missing=NaN)
-top_test  <- xgb.DMatrix(as.matrix(pred_test),
+top_test  <- xgb.DMatrix(as.matrix(pca_test),
                          label=num_test,
                          missing=NaN)
 
 # Results
 top_layer_train <- data.frame(matrix(nrow=nrow(train), ncol=7))
 top_layer_test <- data.frame(matrix(nrow=nrow(test), ncol=7))
-``` 
 
-
-## Top Layer
-```{r}
 # cross validation
-cv_best <- cv_tune(data = top_train, iteration = 100)
+cv_best <- cv_tune(data = top_train)
 pasteNQ("Best NRound:")
 cv_best[[1]] %>% as.numeric()
 pasteNQ("Best Params:")
@@ -1046,7 +1049,7 @@ top_layer_test[ , "Top_Label"] <- max.col(top_layer_test[ , 1:7])
 # error and accuracy measure
 results_test[ , "Top_Label"] <- factor(top_layer_test[ , "Top_Label"],
                                   labels = unique(results_test$Target))
-top_acc <- confusionMatrix(top_layer_test$Top_Label, 
+top_acc <- confusionMatrix(results_test$Top_Label, 
                            results_test$Target)
 top_acc
 
@@ -1058,6 +1061,7 @@ ggplot(results_test,
        subtitle="Predicted vs. Observed",
        y="Predicted",
        x="Observed") + 
+  Grph_theme() +
   theme(legend.position='none',
         axis.text.x = element_text(angle = 45, hjust = 1)) 
 
@@ -1065,10 +1069,81 @@ ggplot(results_test,
 ```
 
 
+
+## Top Layer Logistic Regression
 ```{r}
+library(nnet)
+glm_df <- pca_train %>% data.frame()
+glm_df$target <- results_train$Target
+# cross validation
+model_top_glm <- train(
+  target ~ .,
+  data = glm_df,
+  method = "multinom",
+  trControl = trainControl(method = "cv", number = 4, workers = 4),
+  trace = F
+)
+
+# prediction
+top_glm_test <- data.frame(matrix(nrow=nrow(test), ncol=7))
+top_glm_test[ , "Top_GLM_Label"] <- predict(model_top_glm, pca_test) 
+
+# error and accuracy measure
+results_test[ , "Top_GLM_Label"] <- factor(top_glm_test[ , "Top_GLM_Label"],
+                                  labels = unique(results_test$Target))
+top_glm_acc <- confusionMatrix(results_test$Top_GLM_Label, 
+                           results_test$Target)
+top_glm_acc
+
+# Graph
+ggplot(results_test, 
+       aes(Target, Top_GLM_Label, color=Target)) + 
+  geom_jitter(size=1) + 
+  labs(title="Confusion Matrix",
+       subtitle="Predicted vs. Observed",
+       y="Predicted",
+       x="Observed") + 
+  Grph_theme() +
+  theme(legend.position='none',
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+# save.image("Harry_Potter_and_the_Classification_End.RData")
+```
+
+
+# Final Scores
+```{r}
+pasteNQ("Sentiment Model")
+sent_acc$overall["Accuracy"]
+cat("\n")
+
+pasteNQ("Bag of Words (TF) Model")
+bow_acc$overall["Accuracy"]
+cat("\n")
+
+pasteNQ("Bag of Words (TF-IDF) Model")
+bowtfidf_acc$overall["Accuracy"]
+cat("\n")
+
+pasteNQ("Word Embedding Model")
+we_acc$overall["Accuracy"]
+cat("\n")
+
+pasteNQ("Top Layer (GBM) Model")
+top_acc$overall["Accuracy"] 
+cat("\n")
+
+pasteNQ("Top Layer (Logistic) Model")
+top_glm_acc$overall["Accuracy"]
+```
+
+
+# Save
+```{}
 save(train, test,
      target_train, target_test, 
      pred_train, pred_test,
+     pca_train, pca_test,
      sent_train, sent_test, 
      bow_train, bow_test,
      bowtfidf_train, bowtfidf_test,
@@ -1078,8 +1153,9 @@ save(train, test,
      bow_model, bow_train,
      bowtfidf_model, bowtfidf_train,
      we_model, we_train,
-     sent_acc, bow_acc, bowtfidf_acc, we_acc, top_acc, 
      model_top_layer, top_layer_test,
+     model_top_glm, top_glm_test,
+     sent_acc, bow_acc, bowtfidf_acc, we_acc, top_acc, top_glm_acc,
      file = "Harry_Potter_and_the_Classification_Models.RData")
 ```
 
