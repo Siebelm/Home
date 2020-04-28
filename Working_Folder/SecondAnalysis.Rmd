@@ -27,36 +27,15 @@ output:
 # Bottom Line Up Front
 
 # Setup
-```{r, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
+```{r setup, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
 rm(list=ls())
 gc()
 
 
-# install.packages("pacman")
-# install.packages("remotes")
-# library(remotes)
-# install.packages("devtools")
-# library(devtools)
-# remotes::install_github("nrguimaraes/sentimentSetsR")
-# library(magrittr)
-# devtools::install_github("wch/webshot")
-# webshot::install_phantomjs()
-# library(BiocManager)
-# BiocManager::install("https://bioconductor.org/biocLite.R")
-# source("https://bioconductor.org/biocLite.R")
-# biocLite("EBImage")
 library(pacman)
-pacman::p_load(devtools, knitr, magrittr, dplyr, ggplot2, rvest, sentimentSetsR, caret, textTinyR, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, wordcloud, prettydoc, cowplot, kable, utf8, corpus, glue, topicmodels, stm, wordcloud2, htmlwidgets, viridis)
+pacman::p_load(knitr, magrittr, dplyr, ggplot2, rvest, xgboost, sentimentSetsR, caret, textTinyR, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, kableExtra, corpus, glue, RColorBrewer, tidyr)
   
 knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=120)
-
-# Parameters
-## N-gram
-ngrams <- "single words"
-ngram <- c(1, 1)
-
-## Number of Topics
-K <- 4
 
 # Custom functions
 ## Remove quotation marks
@@ -126,34 +105,37 @@ Grph_theme_facet <- function() {
 }
 
 ## Clean Corpus
-basicclean <- function(rawtext) {
+basicclean <- function(rawtext, contractions = TRUE) {
+  
   # Set to lowercase
   rawtext <- tolower(rawtext)
-  print(pasteNQ("Set to lowercase"))
+
+  # Fix apostorphe
+  rawtext <- gsub("’", "'", rawtext)
 
   # Remove contractions
-  fix_contractions <- function(doc) {
-    doc <- gsub("will not", "won't", doc)
-    doc <- gsub("can't", "can not", doc)
-    doc <- gsub("can not", "cannot", doc)
-    doc <- gsub("shant", "shall not", doc)
-    doc <- gsub("n't", " not", doc)
-    doc <- gsub("'ll", " will", doc)
-    doc <- gsub("'re", " are", doc)
-    doc <- gsub("'ve", " have", doc)
-    doc <- gsub("'m", " am", doc)
-    doc <- gsub("'d", " would", doc)
-    doc <- gsub("'ld", " would", doc)
-    doc <- gsub("'ld", " would", doc)
-    doc <- gsub("'s", "", doc)
-    return(doc)
+  fix_contractions <- function(rawtext) {
+    rawtext <- gsub("will not", "won't", rawtext)
+    rawtext <- gsub("can't", "cannot", rawtext)
+    rawtext <- gsub("can not", "cannot", rawtext)
+    rawtext <- gsub("shall not", "shant", rawtext)
+    rawtext <- gsub("n't", " not", rawtext)
+    rawtext <- gsub("'ll", " will", rawtext)
+    rawtext <- gsub("'re", " are", rawtext)
+    rawtext <- gsub("'ve", " have", rawtext)
+    rawtext <- gsub("'m", " am", rawtext)
+    rawtext <- gsub("'d", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'s", "", rawtext)
+    return(rawtext)
   }
-  rawtext <- fix_contractions(rawtext)
-  print(pasteNQ("Fixed contractions"))
+  if (contractions==TRUE) {
+    rawtext <- fix_contractions(rawtext)
+  }
   
   # Strip whitespace
   rawtext <- stripWhitespace(rawtext)
-  print(pasteNQ("Stripped whitespace"))
 
   return(rawtext)
 }
@@ -167,8 +149,7 @@ removestopwords <- function(rawtext, remove=NULL, retain=NULL) {
   stopwords_retain <- retain
   stopwords_custom <- stopwords_custom[!stopwords_custom %in% stopwords_retain]
   rawtext <- removeWords(rawtext, stopwords_custom)
-  print(pasteNQ("Removed", length(stopwords_custom), "stop words"))
-  
+
   return(rawtext)
 }
 
@@ -176,8 +157,7 @@ removestopwords <- function(rawtext, remove=NULL, retain=NULL) {
 wordstem <- function(rawtext) {
   # Stemming words
   rawtext <- stemDocument(rawtext)
-  print(pasteNQ("Stemmed words"))
-  
+
   return(rawtext)
 }
 
@@ -188,31 +168,11 @@ removenonalpha <- function(rawtext) {
   rawtext <- removeNumbers(rawtext)
   rawtext <- gsub("[^[:alnum:]///' ]", "", rawtext)
   rawtext <- gsub("[']", "", rawtext)
-  print(pasteNQ("Removed punctuation, numbers, and other none characters"))
-  
+
   return(rawtext)
-}
-
-# Remove JavaScript from WordClouds
-library("EBImage")
-embed_htmlwidget <- function(widget, rasterise = T) {
-  outputFormat = knitr::opts_knit$get("rmarkdown.pandoc.to")
-  if(rasterise || outputFormat == 'latex') {
-    html.file = tempfile("tp",fileext=".html")
-    png.file = tempfile("tp",fileext=".png")
-
-    htmlwidgets::saveWidget(widget, html.file, selfcontained = FALSE)
-    webshot::webshot(html.file, file = png.file,vwidth = 700, vheight = 500, delay =10)
-    img = EBImage::readImage(png.file)
-    EBImage::display(img)
-  } else {
-    widget
-  }
 }
 ```
 
-
-# Load Data
 
 ```{r}
 setwd("C:/Users/siebe/Documents/07_Books/Harry Potter/")
@@ -228,212 +188,401 @@ html <- c("Harry_Potter_and_the_Philosophers_Stone.html",
           "Harry_Potter_and_the_Half-Blood_Prince.html",
           "Harry_Potter_and_the_Deathly_Hallows.html")
 
-corpus <- data.frame(Text="", Book="")
-para1 <- data.frame(Text="", Book="")
+books <- tibble(Text=as.character(), Book=as.character())
+para3 <- tibble(Text=as.character(), Book=as.character())
+para1 <- tibble(Text=as.character(), Book=as.character())
+
 for (i in 1:7) {  
   rawtext <- read_html(html[i])%>%
       html_nodes(xpath = '/html/body/p') %>%
           html_text(trim = TRUE)
   
   wordcount <- sapply(strsplit(rawtext, " "), length)
-  paragraph <- rawtext[wordcount > 1]
-  
-  para1 <- rbind(para1, 
-                 data.frame(Text = paragraph,
-                            Book = titles[i])
+  paragraph <- rawtext #[wordcount >= 3]
+
+  # Book Level Documents
+  books <- rbind(books,
+                 tibble(Text = str_c(paragraph, 
+                                         collapse = " "),
+                            Book = titles[i]
+                            )
            )
-  para3t <- do.call(rbind, 
-                   lapply(seq(1, length(paragraph), by = 3),
+
+  # Parapraph
+  para1 <- rbind(para1,
+                 tibble(Text = paragraph, Book = titles[i]))
+
+  # Paragraph Level Documents
+  triplet <- do.call(rbind, 
+                     lapply(seq(1, length(paragraph), by = 3),
                           function(x) 
-                                  data.frame(Text = paste(paragraph[x:(x+2)], 
+                                  tibble(Text = str_c(paragraph[x:(x+2)], 
                                                           collapse = " "),
                                              Book = titles[i]
                                              )
                           )
                    )
-  para3 <- rbind(para3, para3t)
+  para3 <- rbind(para3, triplet)
 }
-para1 <- para1[2:nrow(para1),] # delete first empty row
-para3 <- para3[2:nrow(para3),] # delete first empty row
-para1$Book  <- factor(para1$Book, levels=titles)
+
+# Page Level Documents
+pages <- books %>%
+  unnest_tokens(Text, Text, 
+                token = "regex", pattern = "[[:space:]]",
+                to_lower = F) %>%
+  group_by(Book, Page = dplyr::row_number() %/% 250) %>%
+  dplyr::summarize(Text = stringr::str_c(Text, collapse = " ")) %>%
+  mutate(Page = dplyr::row_number()) %>%
+  ungroup()
+## Wordcount
+pages$Wordcount <- sapply(strsplit(pages$Text %>% as.character(), " "), length)
+## Word IDs
+s <- data.frame()
+for(j in titles) {
+  t <- pages[pages$Book==j, ]
+  t$Word_Start <- NA
+  t$Word_Start[1] <- 1
+  t$Word_End <- NA
+  t$Word_End[1] <- t$Wordcount[1]
+  for(i in 2:nrow(t)) {
+    t$Word_Start[i] <- t$Word_End[i-1] + 1
+    t$Word_End[i] <- t$Word_Start[i] + t$Wordcount[i]
+  }
+  s <- rbind(s, t)
+}
+pages <- dplyr::left_join(pages, s)
+
+# Paragraph Level Documents
+# Add Page Numbers
+page_nums <- function(df) {
+  ## Drop missing
+  df <- df[!is.na(df$Text), ]
+  ## Paragraph ID
+  df$Para_ID <- row.names(df) %>% as.numeric()
+  ## Wordcount
+  df$Wordcount <- sapply(strsplit(df$Text %>% as.character(), " "), length)
+  ## Word IDs
+  s <- data.frame()
+  for(j in titles) {
+    t <- df[df$Book==j, ]
+    t$Word_Start <- NA
+    t$Word_Start[1] <- 1
+    t$Word_End <- NA
+    t$Word_End[1] <- t$Wordcount[1]
+    for(i in 2:nrow(t)) {
+      t$Word_Start[i] <- t$Word_End[i-1] + 1
+      t$Word_End[i] <- t$Word_Start[i] + t$Wordcount[i]
+    }
+    s <- rbind(s, t)
+  }
+  df <- dplyr::left_join(df, s)
+  
+  # Page ID
+  match_page <- function(j) {
+    t1 <- df[df$Book==j, c("Para_ID", "Word_Start", "Word_End")]
+    t2 <- pages[pages$Book==j, c("Page", "Word_Start", "Word_End")]
+    
+    t1$Page <- NA
+    for(i1 in 1:nrow(t1)) {
+        for(i2 in nrow(t2):1) {
+        t1$Page[i1] <- ifelse((t1$Word_Start[i1] >= t2$Word_Start[i2]) & 
+                              (t1$Word_Start[i1] <  t2$Word_End[i2]) & 
+                              (t1$Word_End[i1] <= t2$Word_End[i2]+20),
+                               t2$Page[i2],
+                               t1$Page[i1])
+      }
+    }
+    return(t1)
+  }
+  
+  # Parallel
+  pacman::p_load(future.apply)
+  plan(multiprocess)
+  s <- future_lapply(titles, match_page)
+  s <- do.call("rbind", s)
+  df <- dplyr::left_join(df, s)
+  
+  return(df)
+}
+para3 <- page_nums(para3)
+para1 <- page_nums(para1)
+
+# Remove Word IDs
+pages <- pages[ , c("Text", "Book", "Wordcount", "Page")]
+para3 <- para3[ , c("Text", "Book", "Wordcount", "Page")]
+para1 <- para1[ , c("Text", "Book", "Wordcount", "Page")]
+
+# Place books in chronolgical order
+books$Book <- factor(books$Book, levels=titles)
 para3$Book <- factor(para3$Book, levels=titles)
+para1$Book <- factor(para1$Book, levels=titles)
+pages$Book <- factor(pages$Book, levels=titles)
 ```
 
+# Text at the Paragraph Level
 
-# Create Additional Modeling Variables
+For this sentiment analysis, I want to grab the text around certain characters. Chapters and pages are too much text as they can contain multiple story points, and sentences are too little text as they likely contain little contextual information.  
 
-## Meta data
-```{r, include=F}
-# wordcount
-para3$Wordcount <- sapply(strsplit(para3$Text %>% as.character(), " "), length)
-para1$Wordcount <- sapply(strsplit(para1$Text %>% as.character(), " "), length)
+Instead, I plan to take paragraphs as the documents for my corpus.  However, paragraphs can be single sentences as in the case of two characters switch dialogue.  Therefore, I take paragraph triplets: three paragraphs containing three or more words.
 
-# count exclamation marks
-e_mark <- function(df, text) {
-  for(i in 1:nrow(df)) {
-    exclamation_mark[i] <- sum(gregexpr("[!]", text)[[i]]>0)
-  }
-  exclamation_mark <- ifelse(is.na(exclamation_mark),0,exclamation_mark)
-  return(exclamation_mark)
-}
-para3$exclamation_mark <- e_mark(para3, para3$text)
-para1$exclamation_mark <- e_mark(para1, para1$text)
+## Word Distributions
 
-# count question marks
-q_mark <- function(df, text) {
-  for(i in 1:nrow(df)) {
-    question_mark[i] <- sum(gregexpr("[?]", text)[[i]]>0)
-  }
-  question_mark <- ifelse(is.na(question_mark),0,question_mark)
-}
-para3$question_mark <- q_mark(para3, para3$text)
-para1$question_mark <- q_mark(para1, para1$text)
+I start checking for normal (or "normal-ish") distributions of words per paragraph triplet to make sure there is some consistency in document length.  The word distributions appear to approximate a normal distribution, although with a non-trivial right tail.  In addition, the word distributions are similar across books, making it a comparable level of analysis.
 
-# count caps-lock words
-c_lock <- function(df, text) {
-  for(i in 1:nrow(df)) {
-    caps_lock[i] <- str_count(text[[i]], "\\b[A-Z]{2,}$\\b")
-  }
-  caps_lock <- ifelse(is.na(caps_lock),0,caps_lock)
-}
-para3$caps_lock <- c_lock(para3, para3$text)
-para1$caps_lock <- c_lock(para1, para1$text)
+```{r}
+# Remove Text
+CleanText_p3 <- basicclean(para3$Text)
+CleanText_p1 <- basicclean(para1$Text)
+CleanText_w250 <- basicclean(pages$Text)
 
-# animated counts
-para3$animated <- para3$exclamation_mark + para3$question_mark + para3$caps_lock
-para1$animated <- para1$exclamation_mark + para1$question_mark + para1$caps_lock
+# Summary Statistics
+pasteNQ0("Average Amount of Words per Paragraph Triplet")
+summary(para3$Wordcount)
+
+# Graph distribution of words all
+ggplot(para3, aes(Wordcount, fill=I("#7F0909"))) + 
+  geom_histogram() + 
+  stat_bin(bins = 100) +
+  Grph_theme() +
+  ylab('Frequency') + xlab('Count of Words') + 
+  ggtitle('Words per Paragraph Triplet')
+
+# Graph with book fill
+ggplot(para3, aes(Wordcount, fill=Book)) + 
+  geom_area(stat = "bin") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme() +
+  ylab('Frequency') + xlab('Count of Words') + 
+  ggtitle('Words per Paragraph Triplet') + 
+  theme(legend.text = element_text(size=8,color='black')) +
+  theme(legend.position="bottom")
 ```
+
+## Page level variation
+
+Paragraph level analysis has the advantage of grouping text by logical beginnings and endings.  Alternatively, page level analysis often groups text by the beginning and ending in half-sentence, mid-paragraph.
+
+However, page level analysis has the advantage of not containing any variation in document length; all documents are a standard 250 words.
+
+Given these advantages and disadvantages, I prioritized paragraph level analysis by using all paragraph triplets in the Series.  I then appended (code later) random samples of page level documents inversely proportionaly to the amount of paragraph triplets in each book.  In other words, I balanced the classes, ensuring each book contained the same number of documents, by adding many page level documents to the shorter books and fewer page level documents to the longer books.
+
+# Sentiment Model
+
+## Progress
+```{r}
+# Page Level
+pages$Progress <- row.names(pages) %>% as.numeric() / nrow(pages) * 100
+
+# Paragraph Level
+para3$Progress <- row.names(para3) %>% as.numeric() / nrow(para3) * 100
+para1$Progress <- row.names(para1) %>% as.numeric() / nrow(para1) * 100
+```
+
 
 ## Sentiment Scores
 ```{r}
 # Sentiment Scores
 average <- function(x) {
-  y <- mean(x, na.rm = TRUE)
-  y <- ifelse(is.nan(y),0,y)
+  pos <- sum(x[x>0], na.rm = T)
+  neg <- sum(x[x<0], na.rm = T) %>% abs()
+  neu <- length(x[x==0])
+  bal <- ( (pos-neg)/(pos+neg) )*100
+  y <- ifelse(is.nan(bal),0,bal %>% as.numeric())
   return(y)
 }
-CleanText3 <- basicclean(para3$Text)
-para3$sent_score <- sapply(CleanText3, 
-                            function(x) getSentiment(x, dictionary = "afinn", 
-                                                     scale = TRUE, score.type = average)) 
-                            # function(x) getVaderRuleBasedSentiment(x)) 
-CleanText1 <- basicclean(para1$Text)
-para1$sent_score <- sapply(CleanText1, 
-                            function(x) getSentiment(x, dictionary = "afinn", 
-                                                     scale = TRUE, score.type = average)) 
-                            # function(x) getVaderRuleBasedSentiment(x)) 
 
-# write.csv2(corpus, file = "harrypotter_sent.csv")
+pages$Sentiment <- sapply(CleanText_w250, 
+                          function(x) getSentiment(x, dictionary = "vader", 
+                                                    score.type = average))
+para3$Sentiment <- sapply(CleanText_p3, 
+                          function(x) getSentiment(x, dictionary = "vader", 
+                                               score.type = average)) 
+para1$Sentiment <- sapply(CleanText_p1, 
+                          function(x) getSentiment(x, dictionary = "vader", 
+                                               score.type = average)) 
 ```
 
-## Document Term Matrix
+
+## Animated writing
+```{r, include=F}
+# count exclamation marks
+pages$E_Mark <- str_count(pages$Text, "[!]") %>%
+                ifelse(is.na(.),0,.)
+para3$E_Mark <- str_count(para3$Text, "[!]") %>%
+                ifelse(is.na(.),0,.)
+para1$E_Mark <- str_count(para1$Text, "[!]") %>%
+                ifelse(is.na(.),0,.)
+
+# count question marks
+pages$Q_Mark <- str_count(pages$Text, "[?]") %>%
+                ifelse(is.na(.),0,.)
+para3$Q_Mark <- str_count(para3$Text, "[?]") %>%
+                ifelse(is.na(.),0,.)
+para1$Q_Mark <- str_count(para1$Text, "[?]") %>%
+                ifelse(is.na(.),0,.)
+
+# count caps-lock words
+# pages$Caps_Lock <- str_count(pages$Text, "\\b[A-Z]{2,}$\\b") %>%
+#                    ifelse(is.na(.),0,.)
+# para3$Caps_Lock <- str_count(para3$Text, "\\b[A-Z]{2,}$\\b") %>%
+#                    ifelse(is.na(.),0,.)
+# para1$Caps_Lock <- str_count(para1$Text, "\\b[A-Z]{2,}$\\b") %>%
+#                    ifelse(is.na(.),0,.)
+```
+
+
+## Lead characters
 ```{r}
-set.seed(0)
+heroes <- c("lily","james","hagrid","dumbledore","sirius","lupin","moody","slughorn","dobby","cedric","luna","tonks","mcgonagall","ginny","order of the phoenix","neville")
+villians <- c("voldemort","nagini","snape","draco","lucius","umbridge","pettigrew","dementor","dementors","greyback","bellatrix","quirrell","riddle","death eaters","aragog","basilisk","dudley","vernon","petunia")
 
-CompleteCleanText <- CleanText3 %>%
-                     removestopwords() %>%
-                     wordstem() %>%
-                     removenonalpha()
-ids <- row.names(para3)
+Sentiment <- c(heroes, villians)
 
-# tokenize
-it <- itoken(CompleteCleanText, 
-				ids = ids, 
-				progressbar = FALSE) 
-
-# ngrams
-vocab <- create_vocabulary(it, c(1,1)) 
-vocab <- prune_vocabulary(vocab, term_count_min = 5L)
-
-vectorizer <- vocab_vectorizer(vocab)
-
-# create dtm
-dtm <- create_dtm(it, vectorizer, type="dgCMatrix")
-
-# number of term input
-pasteNQ("")
-pasteNQ("document term matrix specifications:")
-pasteNQ("cleaned", sum(corpus$Wordcount), "words into", ncol(dtm))
-pasteNQ("number of documents:", nrow(dtm))
-```
-
-
-## Word Cloud by Topic
-```{r, fig.show = "hold", out.height = "100%", out.width = "50%"}
-# Convert DTM to list
-documents <- apply(as.matrix(dtm), 1, function(y) {
-      rbind(which(y > 0), as.integer(y[y > 0])) 
-})
-processed <- list(documents=documents, vocab=vocab$term)
-
-# Prep documents for stm package
-out <- prepDocuments(processed$documents, processed$vocab, lower.thresh = 3, verbose=F)
-
-stmmodel <- stm(documents = out$documents, vocab = out$vocab,
-                K = K,
-                prevalence = ~ animated + s(sent_score) + propensed + s(Age_Final) +
-                Northeast + Midwest + South + West,
-                max.em.its = 500, 
-                # data = out$meta,
-                init.type = "Spectral", 
-                verbose=F)
-
-# List defining words for each topic
-topics <- labelTopics(stmmodel, 1:K, n=20)
-for (i in 1:K) {
-  frex <- data.frame(words=topics$frex[i,], n=21-seq(topics$frex[i,]), stringsAsFactors=F)
-  frex$words <- str_replace_all(frex$words, "_", " ")
-  clouds <- data.frame(words = c(frex$words, 
-                                 paste("Topic",i)), 
-                       weight = c(frex$n, 25))
-  assign(paste0("wc_", i), (wordcloud2(clouds, size=0.5,
-        color = "random-light", backgroundColor = "black")))
+# Page Level
+for(string in Sentiment) {
+  findstr <- paste0("\\b",string,"\\b")
+  assign( string, ifelse(grepl(findstr,CleanText_w250),1,0) )
 }
-embed_htmlwidget(wc_1)
-embed_htmlwidget(wc_2)
-embed_htmlwidget(wc_3)
-embed_htmlwidget(wc_4)
+pages <- cbind(pages, sapply( Sentiment, get ) )
+
+# Paragraph Level
+for(string in Sentiment) {
+  findstr <- paste0("\\b",string,"\\b")
+  assign( string, ifelse(grepl(findstr,CleanText_p3),1,0) )
+}
+para3 <- cbind(para3, sapply( Sentiment, get ) )
+
+for(string in Sentiment) {
+  findstr <- paste0("\\b",string,"\\b")
+  assign( string, ifelse(grepl(findstr,CleanText_p1),1,0) )
+}
+para1 <- cbind(para1, sapply( Sentiment, get ) )
+
 ```
 
 
-## Word Embeddings
+
+# Bag of Words
+
+## Document Term Matrices
 ```{r}
-set.seed(0)
+# Function
+dtm_bow <- function(train_text, test_text, df) {
+  set.seed(20)
+  
+  train_text_cleaned <- train_text %>%
+                        basicclean() %>%
+                        removestopwords() %>%
+                        wordstem() %>%
+                        removenonalpha()
+  test_text_cleaned <- test_text %>%
+                       basicclean() %>%
+                       removestopwords() %>%
+                       wordstem() %>%
+                       removenonalpha()
+  
+  #Train
+  ## IDs
+  ids <- 1:length(train_text)
+  
+  ## tokenize
+  it_train <- itoken(train_text_cleaned, 
+  				           ids = ids, 
+  				           progressbar = FALSE) 
+  
+  ## ngrams
+  vocab <- create_vocabulary(it_train, c(1,1)) 
+  vocab <- prune_vocabulary(vocab, doc_proportion_min = 0.01)
+  
+  vectorizer <- vocab_vectorizer(vocab)
+  
+  ## create dtm
+  dtm_train <- create_dtm(it_train, vectorizer, type="dgCMatrix")
+  
+  ## number of term input
+  pasteNQ("Training document term matrix specifications:")
+  pasteNQ("Cleaned", sum(df$Wordcount), "words into", ncol(dtm_train), "columns")
+  pasteNQ("Number of documents:", nrow(dtm_train))
+  cat("\n")
 
-# Save IDs
-df$id <- row.names(df)
+  # Test
+  ## IDs
+  ids <- 1:length(train_text)
 
-# Minimum cleaning
-# corpus$TextWE <- stripWhitespace(corpus$Text %>% as.character())
-
-# Tokenize
-CleanText <- basicclean(df$Text)
-df_token <- word_tokenizer(CleanText)
-
-
-# tokenize
-it <- itoken(CleanText, 
-				ids = df$id, 
-				progressbar = FALSE) 
-
-# ngrams
-vocab <- create_vocabulary(it, c(1,1)) 
-vocab <- prune_vocabulary(vocab, term_count_min = 1L)
-
-# create dtm
-dtm <- textTinyR::Doc2Vec$new(token_list = df_token, 
-							                word_vector_FILE = "glove.42B.300d.vec",
-							                copy_data = FALSE) 
-
-dtm <- dtm$doc2vec_methods(method = "sum_sqrt", threads = 3)
-
-pasteNQ("Applied Doc2Vec Word Embeddings")
-pasteNQ("External Word Embeddings: FastText English word vectors released by Facebook")
-pasteNQ("Pretraining on: 2 million word vectors trained on Common Crawl (840B tokens)")
-pasteNQ("Dimensionality Reduction to:", 300)	
-pasteNQ("Final Dimensions")
-dim(data.frame(as.matrix(dtm)))
+  ## tokenize
+  it_test <- itoken(test_text_cleaned, 
+  				          ids = ids, 
+  				          progressbar = FALSE) 
+  
+  # create dtm
+  dtm_test <- create_dtm(it_test, vectorizer, type="dgCMatrix")
+  
+  # number of term input
+  pasteNQ("Test document term matrix specifications:")
+  pasteNQ("Cleaned", sum(df$Wordcount), "words into", ncol(dtm_test), "columns")
+  pasteNQ("Number of documents:", nrow(dtm_test))
+  cat("\n")  
+  
+  return(list(dtm_train, dtm_test))
+}
 ```
+
+
+# Word Embeddings
+```{r}
+# Function
+dtm_we <- function(train_text, test_text) {
+  set.seed(20)
+  
+  # Simple clean
+  train_text_cleaned <- train_text %>%
+                        basicclean(contractions = F) 
+  test_text_cleaned <- test_text %>%
+                       basicclean(contractions = F)
+  
+  # Tokenize
+  tokens <- word_tokenizer(train_text)
+  
+  # create dtm
+  dtm_train <- textTinyR::Doc2Vec$new(token_list = tokens, 
+  							                      word_vector_FILE = "glove.42B.300d.vec",
+  							                      copy_data = FALSE) 
+  
+  dtm_train <- dtm_train$doc2vec_methods(method = "min_max_norm", threads = 4)
+  
+  pasteNQ("Train: Doc2Vec Word Embeddings")
+  pasteNQ("External Word Embeddings: FastText English word vectors released by Facebook")
+  pasteNQ("Pretraining on: 2 million word vectors trained on Common Crawl (840B tokens)")
+  pasteNQ("Dimensionality Reduction to:", 300)	
+  pasteNQ("Final Dimensions")
+  dim(data.frame(as.matrix(dtm_train)))
+  cat("\n")
+  
+  
+  # Tokenize
+  tokens <- word_tokenizer(test_text)
+  
+  # create dtm
+  dtm_test <- textTinyR::Doc2Vec$new(token_list = tokens, 
+  							                      word_vector_FILE = "glove.42B.300d.vec",
+  							                      copy_data = FALSE) 
+  
+  dtm_test <- dtm_test$doc2vec_methods(method = "min_max_norm", threads = 4)
+  
+  pasteNQ("Train: Doc2Vec Word Embeddings")
+  pasteNQ("External Word Embeddings: FastText English word vectors released by Facebook")
+  pasteNQ("Pretraining on: 2 million word vectors trained on Common Crawl (840B tokens)")
+  pasteNQ("Dimensionality Reduction to:", 300)	
+  pasteNQ("Final Dimensions")
+  dim(data.frame(as.matrix(dtm_test)))
+  cat("\n") 
+  
+  return(list(dtm_train, dtm_test))
+}
+```
+
+
 
 
 
@@ -455,114 +604,483 @@ docs upsample_n
 doubling docs then upsampling
 never repeating same doc twice
 
-# Defining upsample
+# Data Imbalances in Training Data
 ```{r}
-para3 <- corpus
+set.seed(20)
+train_index <- sample(nrow(pages),nrow(pages)*0.70)
+
+train <- pages[train_index, ]
+test  <- pages[-train_index, ]
+
+# Currently balance
+pasteNQ("Current Balance")
+table(train$Book)
+
 # sort Book freqs by chronological order
-docs <- table(para3$Book) %>%
+docs <- table(train$Book) %>%
         as.data.frame()
 
 # Define upsample scalars
 upsample_n <- max(docs$Freq) - docs$Freq
-upsample_n <- upsample_n + 594
-# upsample_n <- upsample_n * 2
-# upsample_n <- upsample_n + docs$Freq
+upsample_n <- floor((upsample_n * 2 + docs$Freq) / 3)
+upsample_para1 <- upsample_n * 2
+upsample_para3 <- upsample_n
 
 # Should all be the same number
-upsample_n + docs$Freq
+cat("\n")
+pasteNQ("Target Balance:")
+upsample_para1 + upsample_para3 + docs$Freq
 ```
 
-# Upsample
+## Upsampleing
 ```{r}
-# Separate singe paragraph corpus into separate objects by Book title
-for(i in 1:7) {
-    assign(paste0("para_", i),
-           para1[para1$Book==titles[i],] %>%
-           tidyr::drop_na()
+upsample <- function(df, upsample_n) {
+  # Remove short docs
+  df <- df[df$Wordcount > 20, ]
+  
+  # Separate pages corpus into separate objects by Book title
+  for(i in 1:7) {
+      assign(paste0("page_", i),
+             train[train$Book==titles[i],] %>%
+             tidyr::drop_na())
+    
+      assign(paste0("para_", i),
+             df[df$Book==titles[i],] %>%
+             tidyr::drop_na())
+  }
+  
+  # Upsample from single paragraphs by taking random sample w/o replacement of   upsample scalars
+  upsamples <- data.frame()
+  for (i in 1:7) {
+    r <- get(paste0("page_", i))
+    t <- get(paste0("para_", i))
+    upsamples <- rbind(upsamples, (
+                       t[sample(nrow(t[t$Page %in% r$Page, ]), 
+                                size = upsample_n[i]), ]
+                       )
     )
-             
+    t <- NULL
+  }
+  
+  df <- upsamples
+  
+  return(df)
+}
+para3_df <- upsample(para3, upsample_para3)
+para1_df <- upsample(para1, upsample_para1)
+train <- rbind(train, para3_df)
+train <- rbind(train, para1_df)
+
+cat("\n")
+pasteNQ("Final Balance of Training Data")
+table(train$Book)
+cat("\n")
+pasteNQ("Balance of Testing Data")
+table(test$Book)
+```
+
+
+## Create Three Datasets
+```{r}
+set.seed(20)
+
+# Target Variables
+target_train <- train[ , "Book"] %>% 
+                make.names() 
+target_test  <- test[ , "Book"] %>% 
+                make.names() 
+
+# Sentiment Model
+sent_train <- select(train, -c("Text", "Book", "Page", "Progress"))
+sent_test  <- select(test, -c("Text", "Book", "Page", "Progress"))
+
+# Bag of Words Model
+bow_dtm <- dtm_bow(train$Text, test$Text, pages)
+bow_train <- bow_dtm[[1]]
+bow_test  <- bow_dtm[[2]]
+
+# Word Embeddings Model
+we_dtm <- dtm_we(train$Text, test$Text)
+we_train <- we_dtm[[1]]
+we_test  <- we_dtm[[2]]
+
+# Dataframe for results
+results_train <- data.frame(Target = target_train)
+results_test  <- data.frame(Target = target_test)
+
+save(train, test,
+     target_train, target_test, 
+     sent_train, sent_test, 
+     bow_train, bow_test,
+     we_train, we_test,
+     results_train, results_test,
+     file = "Harry_Potter_and_the_Classification.RData")
+```
+
+
+# Model data
+```{r}
+load("Harry_Potter_and_the_Classification.RData")
+
+num_train <- as.factor(target_train) %>% as.numeric() - 1
+num_test  <- as.factor(target_test) %>% as.numeric - 1
+
+# Sentiment model 
+sent_train <- xgb.DMatrix(as.matrix(sent_train),
+                          label=num_train,
+                          missing=NaN)
+sent_test  <- xgb.DMatrix(as.matrix(sent_test),
+                          label=num_test,
+                          missing=NaN)
+
+# Bag of words TF-IDF model
+tfidf <- TfIdf$new()
+bowtfidf_train <- fit_transform(bow_train, tfidf)
+bowtfidf_test <- fit_transform(bow_test, tfidf)
+bowtfidf_train <- xgb.DMatrix(bowtfidf_train,
+                              label=num_train,
+                              missing=NaN)
+bowtfidf_test  <- xgb.DMatrix(bowtfidf_test,
+                              label=num_test,
+                              missing=NaN)
+
+# Bag of words TF model
+bow_train <- xgb.DMatrix(bow_train,
+                         label=num_train,
+                         missing=NaN)
+bow_test  <- xgb.DMatrix(bow_test,
+                         label=num_test,
+                         missing=NaN)
+
+# Word embeddings model
+we_train <- xgb.DMatrix(we_train,
+                        label=num_train,
+                        missing=NaN)
+we_test  <- xgb.DMatrix(we_test,
+                        label=num_test,
+                        missing=NaN)
+
+# Global parameters
+num_class <- 7
+
+# cross validation
+cv_tune <- function(data, iteration = 25, num_class = 7, 
+                    nrounds = 1, nfold = 5, 
+                    eval_metric = "mlogloss", 
+                    objective = "multi:softprob") {
+  best_param = list()
+  best_seednumber = 1234
+  best_logloss = Inf
+  best_logloss_index = 0
+  
+  for (i in 1:iteration) {
+      param <- list(
+            objective = objective,
+            num_class = num_class,
+            eval_metric = eval_metric,
+            eta = runif(1, .01, .1),
+            max_depth = sample(4:8, 1),
+            subsample = 0.9 #runif(1, .6, .9),
+            # gamma = runif(1, 0.0, 0.2), 
+            # min_child_weight = sample(1:40, 1),
+            # max_delta_step = sample(1:10, 1)
+            )
+      seed.number <- sample.int(10000, 1)[[1]]
+      set.seed(seed.number)          
+      cross_val <- xgb.cv(data = data, param = param, 
+                          verbose = F, nthread = 8, 
+                          early_stopping_rounds = 5, maximize = FALSE,
+                          nrounds = nrounds, nfold = nfold)
+      
+      eval_metrics <- cross_val$evaluation_log[, "test_mlogloss_mean"] %>%
+                      as.data.frame()
+      min_logloss <- min(eval_metrics)
+      min_logloss_index <- which.min(unlist(eval_metrics))
+      
+      if (min_logloss < best_logloss) {
+          best_eval <- eval_metrics
+          best_logloss <- min_logloss
+          best_nround <- min_logloss_index
+          best_seednumber <- seed.number
+          best_param <- param
+      }
+  }
+  
+  return(list(best_nround, best_param, best_eval))
 }
 
-# Upsample from single paragraphs by taking random sample w/o replacement of upsample scalars
-upsamples <- data.frame()
-for (i in 1:7) {
-  t <- get(paste0("para_", i))
-  print(upsample_n[i])
-  upsamples <- rbind(upsamples, (
-                     t[sample(nrow(t), size = upsample_n[i]), ]
-                     )
-  )
-  t <- NULL
-}
-
-df <- rbind(para3, upsamples)
-
-table(df$Book)
+# Results
+pred_test <- data.frame(matrix(nrow=nrow(test), ncol=7*4))
+pred_train <- data.frame(matrix(nrow=nrow(train), ncol=7*4))
 ```
 
 
-
-
-
-
-## Split data
+## Sentiment Model
 ```{r}
-set.seed(0)
+# cross validation
+cv_best <- cv_tune(data = sent_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
 
-df$id <- row.names(df)
+# best_eval <- cv_best[[3]]
+# ggplot(best_eval) + 
+#     geom_line(aes(y = test_mlogloss_mean, 
+#                   x=row.names(best_eval) %>% as.numeric())) +
+#     ggtitle("Test Data Logloss Means") +
+#     labs(y = "Logloss", x = "Iteration") +
+#     Grph_theme() 
 
-train_index <- sample(nrow(dtm), nrow(dtm)*0.80)
+# best model
+sent_model <- xgboost(data=sent_train, verbose=F,
+                      nrounds=cv_best[[1]], param=cv_best[[2]])
 
-model_df <- data.frame(as.matrix(dtm))
-# model_df$Sentiment <- corpus$sent_score
-# model_df$Wordcount <- corpus$Wordcount
+# prediction
+cols <- 1:7
+pred_test[ , cols] <- predict(sent_model, sent_test) %>% 
+                              matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "Sent_Label"] <- max.col(pred_test[ , cols])
 
-train <- model_df[train_index, ]
-test  <- model_df[-train_index, ]
+# error and accuracy measure
+results_test[ , "Sent_Label"] <- factor(results_test[ , "Sent_Label"],
+                                  labels = unique(results_test$Target))
+sent_acc <- confusionMatrix(results_test$Sent_Label, 
+                            results_test$Target)
+sent_acc
 
-train_dv <- df$Book[train_index]
-test_dv  <- df$Book[-train_index]
-
-# save(model_df, train, test, train_dv, test_dv, file = "harrypotter_BOW.RData")
-save(model_df, train, test, train_dv, test_dv, file = "harrypotter_WEsum3.RData")
+# Graph
+ggplot(results_test, 
+       aes(Target, Sent_Label, color=Target)) + 
+  geom_jitter(size=1) + 
+  labs(title="Confusion Matrix",
+       subtitle="Predicted vs. Observed",
+       y="Predicted",
+       x="Observed") + 
+  theme(legend.position='none',
+        axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 
-## Neural Network
+## Bag of Words TF Model
 ```{r}
-load("harrypotter_WEsum3.RData")
-set.seed(0)
+# cross validation
+cv_best <- cv_tune(data = bow_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
 
-fitControl <- trainControl(method = "repeatedcv",
-                           number = 3,
-                           repeats = 3,
-                           search = "grid")
+# best model
+bow_model <- xgboost(data=bow_train, verbose=F,
+                      nrounds=cv_best[[1]], param=cv_best[[2]])
 
-garbage <- capture.output(
-  nnet_mod <- caret::train(x = train,
-                      y = as.factor(train_dv),
-                      method = "nnet",
-                      trControl = fitControl,
-                      tuneGrid = data.frame(size = 20,
-                                            decay = 1e-4),
-                                 maxit = 1000,
-                                 MaxNWts = 100000)
-)
+# prediction
+cols <- 8:14
+pred_test[ , cols] <- predict(bow_model, bow_test) %>% 
+                              matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "BoW_Label"] <- max.col(pred_test[ , cols])
 
-nnet_pred <- predict(nnet_mod,
-                     newdata = test)
+# error and accuracy measure
+results_test[ , "BoW_Label"] <- factor(results_test[ , "BoW_Label"],
+                                  labels = unique(results_test$Target))
+bow_acc <- confusionMatrix(results_test$BoW_Label, 
+                           results_test$Target)
+bow_acc
+
+# Graph
+ggplot(results_test, 
+       aes(Target, BoW_Label, color=Target)) + 
+  geom_jitter(size=1) + 
+  labs(title="Confusion Matrix",
+       subtitle="Predicted vs. Observed",
+       y="Predicted",
+       x="Observed") + 
+  theme(legend.position='none',
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
 
 
-nnet_cm <- confusionMatrix(nnet_pred, test_dv)
-nnet_cm
+## Bag of Words TF-IDF Model
+```{r}
+# cross validation
+cv_best <- cv_tune(data = bowtfidf_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
 
-# save(nnet_mod, nnet_pred, nnet_cm, file = "nnet_BOW.RData")
-save(nnet_mod, nnet_pred, nnet_cm, file = "nnet_WEsum4.RData")
+# best model
+bowtfidf_model <- xgboost(data=bowtfidf_train, verbose=F,
+                      nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+cols <- 8:14
+pred_test[ , cols] <- predict(bowtfidf_model, bowtfidf_test) %>% 
+                              matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "BoWtfidf_Label"] <- max.col(pred_test[ , cols])
+
+# error and accuracy measure
+results_test[ , "BoWtfidf_Label"] <- factor(results_test[ , "BoWtfidf_Label"],
+                                  labels = unique(results_test$Target))
+bowtfidf_acc <- confusionMatrix(results_test$BoWtfidf_Label, 
+                           results_test$Target)
+bowtfidf_acc
+
+# Graph
+ggplot(results_test, 
+       aes(Target, BoWtfidf_Label, color=Target)) + 
+  geom_jitter(size=1) + 
+  labs(title="Confusion Matrix",
+       subtitle="Predicted vs. Observed",
+       y="Predicted",
+       x="Observed") + 
+  theme(legend.position='none',
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
 
 
+## Word Embeddings Model
+```{r}
+# cross validation
+cv_best <- cv_tune(data = we_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
+
+# best model
+we_model <- xgboost(data=we_train, verbose=F,
+                    nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+cols <- 15:21
+pred_test[ , cols] <- predict(we_model, we_test) %>% 
+                     matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "WE_Label"] <- max.col(pred_test[ , cols])
+
+# error and accuracy measure
+results_test[ , "WE_Label"] <- factor(results_test[ , "WE_Label"],
+                                  labels = unique(results_test$Target))
+we_acc <- confusionMatrix(results_test$WE_Label, 
+                          results_test$Target)
+we_acc
+
+# Graph
+ggplot(results_test, 
+       aes(Target, WE_Label, color=Target)) + 
+  geom_jitter(size=1) + 
+  labs(title="Confusion Matrix",
+       subtitle="Predicted vs. Observed",
+       y="Predicted",
+       x="Observed") + 
+  theme(legend.position='none',
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+# Ensembling
+```{r}
+#Predicting the training probabilities
+pred_train[ , 1:7]   <- predict(sent_model, sent_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+pred_train[ , 8:14]  <- predict(bow_model, bow_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+pred_train[ , 15:21] <- predict(bowtfidf_model, bowtfidf_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+pred_train[ , 22:28] <- predict(we_model, we_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+# Name columns
+colnames(pred_test) <- c(paste0("Sent_Pred_", unique(results_test$Target)),
+                         paste0("BoW_Pred_", unique(results_test$Target)),
+                         paste0("BoWtfidf_Pred_", 
+                                unique(results_test$Target)),
+                         paste0("WE_Pred_", unique(results_test$Target)))
+colnames(pred_train) <- c(paste0("Sent_Pred_", unique(results_test$Target)),
+                          paste0("BoW_Pred_", unique(results_test$Target)),
+                          paste0("BoWtfidf_Pred_", 
+                                 unique(results_test$Target)),
+                          paste0("WE_Pred_", unique(results_test$Target)))
+
+# PCA
+pca <- irlba::prcomp_irlba(pred_train, n = 7, scale. = T)
+pred_train <- pca$x
+pred_test <- predict(pca, newdata = pred_test)
+
+# Top layer model
+top_train <- xgb.DMatrix(as.matrix(pred_train),
+                         label=num_train,
+                         missing=NaN)
+top_test  <- xgb.DMatrix(as.matrix(pred_test),
+                         label=num_test,
+                         missing=NaN)
+
+# Results
+top_layer_train <- data.frame(matrix(nrow=nrow(train), ncol=7))
+top_layer_test <- data.frame(matrix(nrow=nrow(test), ncol=7))
+``` 
 
 
+## Top Layer
+```{r}
+# cross validation
+cv_best <- cv_tune(data = top_train, iteration = 100)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
+
+# best model
+model_top_layer <- xgboost(data=top_train, verbose=F,
+                           nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+top_layer_test[ , 1:7] <- predict(model_top_layer, top_test) %>% 
+                                  matrix(ncol=num_class, byrow=TRUE)
+top_layer_test[ , "Top_Label"] <- max.col(top_layer_test[ , 1:7])
+
+# error and accuracy measure
+results_test[ , "Top_Label"] <- factor(top_layer_test[ , "Top_Label"],
+                                  labels = unique(results_test$Target))
+top_acc <- confusionMatrix(top_layer_test$Top_Label, 
+                           results_test$Target)
+top_acc
+
+# Graph
+ggplot(results_test, 
+       aes(Target, Top_Label, color=Target)) + 
+  geom_jitter(size=1) + 
+  labs(title="Confusion Matrix",
+       subtitle="Predicted vs. Observed",
+       y="Predicted",
+       x="Observed") + 
+  theme(legend.position='none',
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+# save.image("Harry_Potter_and_the_Classification_End.RData")
+```
+
+
+```{r}
+save(train, test,
+     target_train, target_test, 
+     pred_train, pred_test,
+     sent_train, sent_test, 
+     bow_train, bow_test,
+     bowtfidf_train, bowtfidf_test,
+     we_train, we_test,
+     results_train, results_test,
+     sent_model, sent_train,
+     bow_model, bow_train,
+     bowtfidf_model, bowtfidf_train,
+     we_model, we_train,
+     sent_acc, bow_acc, bowtfidf_acc, we_acc, top_acc, 
+     model_top_layer, top_layer_test,
+     file = "Harry_Potter_and_the_Classification_Models.RData")
+```
 
 
