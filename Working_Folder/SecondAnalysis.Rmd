@@ -177,9 +177,9 @@ removenonalpha <- function(rawtext) {
 ```{r}
 setwd("C:/Users/siebe/Documents/07_Books/Harry Potter/")
 
-titles <- c("Philosopher's Stone", "Chamber of Secrets", "Prisoner of Azkaban",
-            "Goblet of Fire", "Order of the Phoenix", "Half-Blood Prince",
-            "Deathly Hallows")
+titles <- c("1 Philosopher's Stone", "2 Chamber of Secrets", "3 Prisoner of Azkaban",
+            "4 Goblet of Fire", "5 Order of the Phoenix", "6 Half-Blood Prince",
+            "7 Deathly Hallows")
 html <- c("Harry_Potter_and_the_Philosophers_Stone.html",
           "Harry_Potter_and_the_Chamber_of_Secrets.html",
           "Harry_Potter_and_the_Prisoner_of_Azkaban.html",
@@ -1106,8 +1106,6 @@ ggplot(results_test,
   Grph_theme() +
   theme(legend.position='none',
         axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-# save.image("Harry_Potter_and_the_Classification_End.RData")
 ```
 
 
@@ -1135,6 +1133,37 @@ cat("\n")
 
 pasteNQ("Top Layer (Logistic) Model")
 top_glm_acc$overall["Accuracy"]
+
+
+# Graph
+bal_acc <- cbind(titles, "Sentiment", sent_acc$byClass[ , "Balanced Accuracy"]) %>%
+     rbind(cbind(titles, "Bag of Words (TF)", bow_acc$byClass[ , "Balanced Accuracy"])) %>%
+     rbind(cbind(titles, "Bag of Words (TF-IDF)", bowtfidf_acc$byClass[ , "Balanced Accuracy"])) %>%
+     rbind(cbind(titles, "Word Embedding", we_acc$byClass[ , "Balanced Accuracy"])) %>% 
+  as.data.frame()
+colnames(bal_acc) <- c("Book", "Model", "Balanced Accuracy")
+
+bal_acc %>% 
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric(), 
+             y = Book,
+             fill = Model)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Model) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  Grph_theme_facet() 
+
+top_glm_acc$byClass %>% 
+  as.data.frame() %>%
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
+             y = titles)) +
+  geom_bar(stat = "identity") +
+  xlim(0, 100) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  Grph_theme_facet() 
 ```
 
 
