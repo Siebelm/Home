@@ -1,0 +1,1408 @@
+---
+title: "Harry Potter NLP"
+author: "Michael Siebel"
+date: "`r date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: "../Rstyles.css" 
+    code_folding: hide
+    highlight: tango
+    includes:
+      in_header: "menu.html"
+---
+
+<br>
+
+>  Natural Language Processing (NLP) for: <br>
+>  Harry Potter and the Philosopher's Stone (1997) <br>
+>  Harry Potter and the Chamber of Secrets (1998) <br>
+>  Harry Potter and the Prisoner of Azkaban (1999) <br>
+>  Harry Potter and the Goblet of Fire (2000) <br>
+>  Harry Potter and the Order of the Phoenix (2003) <br>
+>  Harry Potter and the Half-Blood Prince (2005) <br>
+>  Harry Potter and the Deathly Hallows (2007)
+
+# Bottom Line Up Front
+
+# Setup
+```{r setup, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
+rm(list=ls())
+gc()
+
+
+library(pacman)
+pacman::p_load(knitr, magrittr, dplyr, ggplot2, rvest, xgboost, sentimentSetsR, caret, textTinyR, text2vec, tm, tidytext, stringr, stringi, SnowballC, stopwords, kableExtra, corpus, glue, RColorBrewer, tidyr)
+  
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=FALSE, dpi=120)
+
+# Custom functions
+## Remove quotation marks
+pasteNQ <- function(...) {
+  output <- paste(...)
+  noquote(output)
+}
+pasteNQ0 <- function(...) {
+  output <- paste0(...)
+  noquote(output)
+}
+
+## Chart Template
+Grph_theme <- function() {
+  palette <- brewer.pal("Greys", n=9)
+  color.background = palette[2]
+  color.grid.major = palette[3]
+  color.axis.text = palette[6]
+  color.axis.title = palette[7]
+  color.title = palette[9]    
+  theme_bw(base_size=9) + 
+  theme(panel.background=element_rect(fill=color.background, color=color.background)) +
+  theme(plot.background=element_rect(fill=color.background, color=color.background)) +
+  theme(panel.border=element_rect(color=color.background)) +
+  theme(panel.grid.major=element_line(color=color.grid.major,size=.25)) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(axis.ticks=element_blank()) +
+  theme(legend.position="none") +
+  theme(legend.title=element_text(size=16,color='black')) +
+  theme(legend.background = element_rect(fill=color.background)) +
+  theme(legend.text = element_text(size=14,color='black')) +
+  theme(strip.text.x = element_text(size=14,color='black',vjust=1)) +
+  theme(plot.title=element_text(color=color.title, size=20, vjust=1.25)) +
+  theme(axis.text.x=element_text(size=14,color='black')) +
+  theme(axis.text.y=element_text(size=14,color='black')) +
+  theme(axis.title.x=element_text(size=16,color='black', vjust=0)) +
+  theme(axis.title.y=element_text(size=16,color='black', vjust=1.25)) +
+  theme(plot.margin = unit(c(0.35, 0.2, 0.3, 0.35), "cm"))
+}
+
+## Chart Template Facet Wrap
+Grph_theme_facet <- function() {
+  palette <- brewer.pal("Greys", n=9)
+  color.background = palette[2]
+  color.grid.major = palette[3]
+  color.axis.text = palette[6]
+  color.axis.title = palette[7]
+  color.title = palette[9]    
+  theme_bw(base_size=9) + 
+  theme(panel.background=element_rect(fill=color.background, color=color.background)) +
+  theme(plot.background=element_rect(fill=color.background, color=color.background)) +
+  theme(panel.border=element_rect(color=color.background)) +
+  theme(panel.grid.major=element_line(color=color.grid.major,size=.25)) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(axis.ticks=element_blank()) +
+  theme(legend.position="none") +
+  theme(legend.title=element_text(size=11,color='black')) +
+  theme(legend.background = element_rect(fill=color.background)) +
+  theme(legend.text = element_text(size=9,color='black')) +
+  theme(strip.text.x = element_text(size=9,color='black',vjust=1)) +
+  theme(plot.title=element_text(color=color.title, size=20, vjust=1.25)) +
+  theme(axis.text.x=element_text(size=9,color='black')) +
+  theme(axis.text.y=element_text(size=9,color='black')) +
+  theme(axis.title.x=element_text(size=10,color='black', vjust=0)) +
+  theme(axis.title.y=element_text(size=10,color='black', vjust=1.25)) +
+  theme(plot.margin = unit(c(0.35, 0.2, 0.3, 0.35), "cm"))
+}
+
+## Clean Corpus
+basicclean <- function(rawtext, contractions = TRUE) {
+  
+  # Set to lowercase
+  rawtext <- tolower(rawtext)
+
+  # Fix apostorphe
+  rawtext <- gsub("’", "'", rawtext)
+
+  # Remove contractions
+  fix_contractions <- function(rawtext) {
+    rawtext <- gsub("will not", "won't", rawtext)
+    rawtext <- gsub("can't", "cannot", rawtext)
+    rawtext <- gsub("can not", "cannot", rawtext)
+    rawtext <- gsub("shall not", "shant", rawtext)
+    rawtext <- gsub("n't", " not", rawtext)
+    rawtext <- gsub("'ll", " will", rawtext)
+    rawtext <- gsub("'re", " are", rawtext)
+    rawtext <- gsub("'ve", " have", rawtext)
+    rawtext <- gsub("'m", " am", rawtext)
+    rawtext <- gsub("'d", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'s", "", rawtext)
+    return(rawtext)
+  }
+  if (contractions==TRUE) {
+    rawtext <- fix_contractions(rawtext)
+  }
+  
+  # Strip whitespace
+  rawtext <- stripWhitespace(rawtext)
+
+  return(rawtext)
+}
+
+# Remove stop words
+removestopwords <- function(rawtext, remove=NULL, retain=NULL) {
+
+  # Remove stop words
+  stopwords_custom <- stopwords::stopwords("en", source = "snowball")
+  stopwords_custom <- c(stopwords_custom, remove)
+  stopwords_retain <- retain
+  stopwords_custom <- stopwords_custom[!stopwords_custom %in% stopwords_retain]
+  rawtext <- removeWords(rawtext, stopwords_custom)
+
+  return(rawtext)
+}
+
+## Word Stemming
+wordstem <- function(rawtext) {
+  # Stemming words
+  rawtext <- stemDocument(rawtext)
+
+  return(rawtext)
+}
+
+## Remove Non-Alpha
+removenonalpha <- function(rawtext) {
+  # Remove puncutation, numbers, and other none characters
+  rawtext <- removePunctuation(rawtext)
+  rawtext <- removeNumbers(rawtext)
+  rawtext <- gsub("[^[:alnum:]///' ]", "", rawtext)
+  rawtext <- gsub("[']", "", rawtext)
+
+  return(rawtext)
+}
+```
+
+
+```{r}
+setwd("C:/Users/siebe/Documents/07_Books/Harry Potter/")
+
+titles <- c("1 Philosopher's Stone", "2 Chamber of Secrets", "3 Prisoner of Azkaban",
+            "4 Goblet of Fire", "5 Order of the Phoenix", "6 Half-Blood Prince",
+            "7 Deathly Hallows")
+html <- c("Harry_Potter_and_the_Philosophers_Stone.html",
+          "Harry_Potter_and_the_Chamber_of_Secrets.html",
+          "Harry_Potter_and_the_Prisoner_of_Azkaban.html",
+          "Harry_Potter_and_the_Goblet_of_Fire.html",
+          "Harry_Potter_and_the_Order_of_the_Phoenix.html",
+          "Harry_Potter_and_the_Half-Blood_Prince.html",
+          "Harry_Potter_and_the_Deathly_Hallows.html")
+
+books <- tibble(Text=as.character(), Book=as.character())
+para3 <- tibble(Text=as.character(), Book=as.character())
+para1 <- tibble(Text=as.character(), Book=as.character())
+
+for (i in 1:7) {  
+  rawtext <- read_html(html[i])%>%
+      html_nodes(xpath = '/html/body/p') %>%
+          html_text(trim = TRUE)
+  
+  wordcount <- sapply(strsplit(rawtext, " "), length)
+  paragraph <- rawtext #[wordcount >= 3]
+
+  # Book Level Documents
+  books <- rbind(books,
+                 tibble(Text = str_c(paragraph, 
+                                         collapse = " "),
+                            Book = titles[i]
+                            )
+           )
+
+  # Parapraph
+  para1 <- rbind(para1,
+                 tibble(Text = paragraph, Book = titles[i]))
+
+  # Paragraph Level Documents
+  triplet <- do.call(rbind, 
+                     lapply(seq(1, length(paragraph), by = 3),
+                          function(x) 
+                                  tibble(Text = str_c(paragraph[x:(x+2)], 
+                                                          collapse = " "),
+                                             Book = titles[i]
+                                             )
+                          )
+                   )
+  para3 <- rbind(para3, triplet)
+}
+
+# Page Level Documents
+pages <- books %>%
+  unnest_tokens(Text, Text, 
+                token = "regex", pattern = "[[:space:]]",
+                to_lower = F) %>%
+  group_by(Book, Page = dplyr::row_number() %/% 250) %>%
+  dplyr::summarize(Text = stringr::str_c(Text, collapse = " ")) %>%
+  mutate(Page = dplyr::row_number()) %>%
+  ungroup()
+## Wordcount
+pages$Wordcount <- sapply(strsplit(pages$Text %>% as.character(), " "), length)
+## Word IDs
+s <- data.frame()
+for(j in titles) {
+  t <- pages[pages$Book==j, ]
+  t$Word_Start <- NA
+  t$Word_Start[1] <- 1
+  t$Word_End <- NA
+  t$Word_End[1] <- t$Wordcount[1]
+  for(i in 2:nrow(t)) {
+    t$Word_Start[i] <- t$Word_End[i-1] + 1
+    t$Word_End[i] <- t$Word_Start[i] + t$Wordcount[i]
+  }
+  s <- rbind(s, t)
+}
+pages <- dplyr::left_join(pages, s)
+
+# Paragraph Level Documents
+# Add Page Numbers
+page_nums <- function(df) {
+  ## Drop missing
+  df <- df[!is.na(df$Text), ]
+  ## Paragraph ID
+  df$Para_ID <- row.names(df) %>% as.numeric()
+  ## Wordcount
+  df$Wordcount <- sapply(strsplit(df$Text %>% as.character(), " "), length)
+  ## Word IDs
+  s <- data.frame()
+  for(j in titles) {
+    t <- df[df$Book==j, ]
+    t$Word_Start <- NA
+    t$Word_Start[1] <- 1
+    t$Word_End <- NA
+    t$Word_End[1] <- t$Wordcount[1]
+    for(i in 2:nrow(t)) {
+      t$Word_Start[i] <- t$Word_End[i-1] + 1
+      t$Word_End[i] <- t$Word_Start[i] + t$Wordcount[i]
+    }
+    s <- rbind(s, t)
+  }
+  df <- dplyr::left_join(df, s)
+  
+  # Page ID
+  match_page <- function(j) {
+    t1 <- df[df$Book==j, c("Para_ID", "Word_Start", "Word_End")]
+    t2 <- pages[pages$Book==j, c("Page", "Word_Start", "Word_End")]
+    
+    t1$Page <- NA
+    for(i1 in 1:nrow(t1)) {
+        for(i2 in nrow(t2):1) {
+        t1$Page[i1] <- ifelse((t1$Word_Start[i1] >= t2$Word_Start[i2]) & 
+                              (t1$Word_Start[i1] <  t2$Word_End[i2]) & 
+                              (t1$Word_End[i1] <= t2$Word_End[i2]+20),
+                               t2$Page[i2],
+                               t1$Page[i1])
+      }
+    }
+    return(t1)
+  }
+  
+  # Parallel
+  pacman::p_load(future.apply)
+  plan(multiprocess)
+  s <- future_lapply(titles, match_page)
+  s <- do.call("rbind", s)
+  df <- dplyr::left_join(df, s)
+  
+  return(df)
+}
+para3 <- page_nums(para3)
+para1 <- page_nums(para1)
+
+# Remove Word IDs
+pages <- pages[ , c("Text", "Book", "Wordcount", "Page")]
+para3 <- para3[ , c("Text", "Book", "Wordcount", "Page")]
+para1 <- para1[ , c("Text", "Book", "Wordcount", "Page")]
+
+# Place books in chronolgical order
+books$Book <- factor(books$Book, levels=titles)
+para3$Book <- factor(para3$Book, levels=titles)
+para1$Book <- factor(para1$Book, levels=titles)
+pages$Book <- factor(pages$Book, levels=titles)
+```
+
+# Text at the Paragraph Level
+
+For this sentiment analysis, I want to grab the text around certain characters. Chapters and pages are too much text as they can contain multiple story points, and sentences are too little text as they likely contain little contextual information.  
+
+Instead, I plan to take paragraphs as the documents for my corpus.  However, paragraphs can be single sentences as in the case of two characters switch dialogue.  Therefore, I take paragraph triplets: three paragraphs containing three or more words.
+
+## Word Distributions
+
+I start checking for normal (or "normal-ish") distributions of words per paragraph triplet to make sure there is some consistency in document length.  The word distributions appear to approximate a normal distribution, although with a non-trivial right tail.  In addition, the word distributions are similar across books, making it a comparable level of analysis.
+
+```{r}
+# Remove Text
+CleanText_p3 <- basicclean(para3$Text)
+CleanText_p1 <- basicclean(para1$Text)
+CleanText_w250 <- basicclean(pages$Text)
+
+# Summary Statistics
+pasteNQ0("Average Amount of Words per Paragraph Triplet")
+summary(para3$Wordcount)
+
+# Graph distribution of words all
+ggplot(para3, aes(Wordcount, fill=I("#7F0909"))) + 
+  geom_histogram() + 
+  stat_bin(bins = 100) +
+  Grph_theme_facet() +
+  ylab('Frequency') + xlab('Count of Words') + 
+  ggtitle('Words per Paragraph Triplet')
+
+# Graph with book fill
+ggplot(para3, aes(Wordcount, fill=Book)) + 
+  geom_area(stat = "bin") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet() +
+  ylab('Frequency') + xlab('Count of Words') + 
+  ggtitle('Words per Paragraph Triplet') + 
+  theme(legend.text = element_text(size=8,color='black')) +
+  theme(legend.position="bottom")
+```
+
+## Page Level Variation
+
+Paragraph level analysis has the advantage of grouping text by logical beginnings and endings.  Alternatively, page level analysis often groups text by the beginning and ending in half-sentence, mid-paragraph.
+
+However, page level analysis has the advantage of not containing any variation in document length; all documents are a standard 250 words.
+
+Given these advantages and disadvantages, I prioritized paragraph level analysis by using all paragraph triplets in the Series.  I then appended (code later) random samples of page level documents inversely proportionaly to the amount of paragraph triplets in each book.  In other words, I balanced the classes, ensuring each book contained the same number of documents, by adding many page level documents to the shorter books and fewer page level documents to the longer books.
+
+# Sentiment Model
+
+## Progress
+```{r}
+# Page Level
+pages$Progress <- row.names(pages) %>% as.numeric() / nrow(pages) * 100
+
+# Paragraph Level
+para3$Progress <- row.names(para3) %>% as.numeric() / nrow(para3) * 100
+para1$Progress <- row.names(para1) %>% as.numeric() / nrow(para1) * 100
+```
+
+
+## Sentiment Scores
+```{r}
+# Sentiment Scores
+average <- function(x) {
+  pos <- sum(x[x>0], na.rm = T)
+  neg <- sum(x[x<0], na.rm = T) %>% abs()
+  neu <- length(x[x==0])
+  bal <- ( (pos-neg)/(pos+neg) )*100
+  y <- ifelse(is.nan(bal),0,bal %>% as.numeric())
+  return(y)
+}
+
+pages$Sentiment <- sapply(CleanText_w250, 
+                          function(x) getSentiment(x, dictionary = "vader", 
+                                                   score.type = average))
+para3$Sentiment <- sapply(CleanText_p3, 
+                          function(x) getSentiment(x, dictionary = "vader", 
+                                                   score.type = average)) 
+para1$Sentiment <- sapply(CleanText_p1, 
+                          function(x) getSentiment(x, dictionary = "vader", 
+                                                   score.type = average)) 
+```
+
+
+## Animated Writing
+```{r, include=F}
+# count exclamation marks
+pages$E_Mark <- str_count(pages$Text, "[!]") %>%
+                ifelse(is.na(.),0,.)
+para3$E_Mark <- str_count(para3$Text, "[!]") %>%
+                ifelse(is.na(.),0,.)
+para1$E_Mark <- str_count(para1$Text, "[!]") %>%
+                ifelse(is.na(.),0,.)
+
+# count question marks
+pages$Q_Mark <- str_count(pages$Text, "[?]") %>%
+                ifelse(is.na(.),0,.)
+para3$Q_Mark <- str_count(para3$Text, "[?]") %>%
+                ifelse(is.na(.),0,.)
+para1$Q_Mark <- str_count(para1$Text, "[?]") %>%
+                ifelse(is.na(.),0,.)
+
+# count elipse
+pages$Elipse <- str_count(pages$Text, "[...]") %>%
+                ifelse(is.na(.),0,.)
+para3$Elipse <- str_count(para3$Text, "[...]") %>%
+                ifelse(is.na(.),0,.)
+para1$Elipse <- str_count(para1$Text, "[...]") %>%
+                ifelse(is.na(.),0,.)
+
+# count caps-lock words
+# pages$Caps_Lock <- str_count(pages$Text, "\\b[A-Z]{2,}$\\b") %>%
+#                    ifelse(is.na(.),0,.)
+# para3$Caps_Lock <- str_count(para3$Text, "\\b[A-Z]{2,}$\\b") %>%
+#                    ifelse(is.na(.),0,.)
+# para1$Caps_Lock <- str_count(para1$Text, "\\b[A-Z]{2,}$\\b") %>%
+#                    ifelse(is.na(.),0,.)
+```
+
+
+## Lead Characters
+```{r}
+heroes <- c("lily","james","hagrid","dumbledore","sirius","lupin","moody","slughorn","dobby","cedric","luna","tonks","mcgonagall","ginny","order of the phoenix","neville")
+villians <- c("voldemort","nagini","snape","draco","lucius","umbridge","pettigrew","dementor","dementors","greyback","bellatrix","quirrell","riddle","death eaters","aragog","basilisk","dudley","vernon","petunia")
+
+Sentiment <- c(heroes, villians)
+
+# Page Level
+for(string in Sentiment) {
+  findstr <- paste0("\\b",string,"\\b")
+  assign( string, ifelse(grepl(findstr,CleanText_w250),1,0) )
+}
+pages <- cbind(pages, sapply( Sentiment, get ) )
+
+# Paragraph Level
+for(string in Sentiment) {
+  findstr <- paste0("\\b",string,"\\b")
+  assign( string, ifelse(grepl(findstr,CleanText_p3),1,0) )
+}
+para3 <- cbind(para3, sapply( Sentiment, get ) )
+
+for(string in Sentiment) {
+  findstr <- paste0("\\b",string,"\\b")
+  assign( string, ifelse(grepl(findstr,CleanText_p1),1,0) )
+}
+para1 <- cbind(para1, sapply( Sentiment, get ) )
+```
+
+
+
+# Bag of Words
+```{r}
+# Function
+dtm_bow <- function(train_text, test_text, val_text) {
+  set.seed(2020)
+  
+  train_text_cleaned <- train_text %>%
+                        basicclean() %>%
+                        removestopwords() %>%
+                        wordstem() %>%
+                        removenonalpha()
+  test_text_cleaned <- test_text %>%
+                       basicclean() %>%
+                       removestopwords() %>%
+                       wordstem() %>%
+                       removenonalpha()
+  
+  #Train
+  ## IDs
+  ids <- 1:length(train_text_cleaned)
+  
+  ## tokenize
+  it_train <- itoken(train_text_cleaned, 
+  				     ids = ids, 
+  				     progressbar = FALSE) 
+  
+  ## ngrams
+  vocab <- create_vocabulary(it_train, c(1,1)) 
+  vocab <- prune_vocabulary(vocab, doc_proportion_min = 0.01)
+  
+  vectorizer <- vocab_vectorizer(vocab)
+  
+  ## create dtm
+  dtm_train <- create_dtm(it_train, vectorizer, type="dgCMatrix")
+
+  # Test
+  ## IDs
+  ids <- 1:length(test_text_cleaned)
+
+  ## tokenize
+  it_test <- itoken(test_text_cleaned, 
+  				    ids = ids, 
+  				    progressbar = FALSE) 
+  
+  # create dtm
+  dtm_test <- create_dtm(it_test, vectorizer, type="dgCMatrix")
+  
+  if (val_text != "") {
+    # Validate
+    val_text_cleaned <- val_text %>%
+                       basicclean() %>%
+                       removestopwords() %>%
+                       wordstem() %>%
+                       removenonalpha()
+      
+    ## IDs
+    ids <- 1:length(val_text_cleaned)
+  
+    ## tokenize
+    it_val <- itoken(val_text_cleaned, 
+    				    ids = ids, 
+    				    progressbar = FALSE) 
+    
+    # create dtm
+    dtm_val <- create_dtm(it_val, vectorizer, type="dgCMatrix")
+  }
+  
+  return(list(dtm_train, dtm_test, dtm_val))
+}
+```
+
+
+# Word Embeddings
+```{r}
+# Function
+dtm_we <- function(train_text, test_text, top_text, doc2vec = "sum_sqrt") {
+  set.seed(20)
+  
+  # Simple clean
+  train_text_cleaned <- train_text %>%
+                        basicclean(contractions = F) 
+  test_text_cleaned <- test_text %>%
+                       basicclean(contractions = F)
+  
+  # Tokenize
+  tokens <- word_tokenizer(train_text)
+
+  # create dtm
+  dtm_train <- textTinyR::Doc2Vec$new(token_list = tokens, 
+  							          word_vector_FILE = "glove.42B.300d.vec",
+  							          copy_data = FALSE) 
+  
+	if (doc2vec == "sum_sqrt") {							
+		dtm_train <- dtm_train$doc2vec_methods(method = "sum_sqrt", 
+		                                       threads = 8)
+	} else if (doc2vec == "min_max_norm") {
+		dtm_train <- dtm_train$doc2vec_methods(method = "min_max_norm", 
+		                                       threads = 8)
+	} else if (doc2vec == "idf") {
+	  ## IDs
+    ids <- 1:length(train_text)
+    ## tokenize
+    it_train <- itoken(train_text_cleaned, 
+    				   ids = ids, 
+    				   progressbar = FALSE) 
+    ## ngrams
+    vocab <- create_vocabulary(it_train, c(1,1)) 
+    ## IDF
+		utl <- textTinyR::sparse_term_matrix$new(vector_data = unlist(vocab), 
+		                                         file_data = NULL,
+												 document_term_matrix = TRUE)
+		tm <- utl$Term_Matrix(verbose=F)
+		gl_term_w <- utl$global_term_weights()
+		dtm_train <- dtm_train$doc2vec_methods(method = "idf", 
+		                                       global_term_weights = gl_term_w, threads = 8)	
+	}  
+  
+  
+  # Test
+  ## Tokenize
+  tokens <- word_tokenizer(test_text)
+  
+  ## create dtm
+  dtm_test <- textTinyR::Doc2Vec$new(token_list = tokens, 
+  							         word_vector_FILE = "glove.42B.300d.vec",
+  							         copy_data = FALSE) 
+  
+	if (doc2vec == "sum_sqrt") {							
+		dtm_test <- dtm_test$doc2vec_methods(method = "sum_sqrt", 
+		                                     threads = 8)
+	} else if (doc2vec == "min_max_norm") {
+		dtm_test <- dtm_test$doc2vec_methods(method = "min_max_norm", 
+		                                     threads = 8)
+	} else if (doc2vec == "idf") {
+	  ### IDs
+    ids <- 1:length(test_text)
+    ### tokenize
+    it_test <- itoken(test_text_cleaned, 
+    				  ids = ids, 
+    				  progressbar = FALSE) 
+    ### ngrams
+    vocab <- create_vocabulary(it_test, c(1,1))
+    ### IDF
+		utl <- textTinyR::sparse_term_matrix$new(vector_data = unlist(vocab), 
+		                                         file_data = NULL,
+												 document_term_matrix = TRUE)
+		tm <- utl$Term_Matrix(verbose=F)
+		gl_term_w <- utl$global_term_weights()
+		dtm_test <- dtm_test$doc2vec_methods(method = "idf", 
+                                             global_term_weights = gl_term_w, 
+                                             threads = 8)
+	}
+  
+  # Top layer
+  if (top_text != "") {
+    top_text_cleaned <- top_text %>%
+                       basicclean(contractions = F)
+    
+    ## Tokenize
+    tokens <- word_tokenizer(top_text)
+    
+    ## create dtm
+    dtm_top <- textTinyR::Doc2Vec$new(token_list = tokens, 
+    							         word_vector_FILE = "glove.42B.300d.vec",
+    							         copy_data = FALSE) 
+    
+	  if (doc2vec == "sum_sqrt") {							
+	  	dtm_top <- dtm_top$doc2vec_methods(method = "sum_sqrt", 
+	  	                                     threads = 8)
+	  } else if (doc2vec == "min_max_norm") {
+	  	dtm_top <- dtm_top$doc2vec_methods(method = "min_max_norm", 
+	  	                                     threads = 8)
+	  } else if (doc2vec == "idf") {
+	    ### IDs
+      ids <- 1:length(top_text)
+      ### tokenize
+      it_top <- itoken(top_text_cleaned, 
+      				  ids = ids, 
+      				  progressbar = FALSE) 
+      ### ngrams
+      vocab <- create_vocabulary(it_top, c(1,1))
+      ### IDF
+	  	utl <- textTinyR::sparse_term_matrix$new(vector_data = unlist(vocab), 
+	  	                                         file_data = NULL,
+	  											 document_term_matrix = TRUE)
+	  	tm <- utl$Term_Matrix(verbose=F)
+	  	gl_term_w <- utl$global_term_weights()
+	  	dtm_top <- dtm_top$doc2vec_methods(method = "idf", 
+                                         global_term_weights = gl_term_w,   
+                                         threads = 8)
+	  }  
+  }
+  
+  return(list(dtm_train, dtm_test, dtm_top))
+}
+```
+
+
+
+
+
+*Definition*
+1) largest doc count - number of docs #balances
+2) times by 2 #increase upsample for a doubled para3
+3) add orignal para3 to double total doc size
+
+*Result*
+12 docs for all
+doubling docs then upsampling
+never repeating same doc twice
+
+# Data Imbalances in Training Data
+```{r}
+set.seed(2020)
+train_index <- sample(nrow(pages),nrow(pages)*0.70)
+
+train <- pages[train_index, ]
+test  <- pages[-train_index, ]
+
+# Currently balance
+pasteNQ("Current Balance")
+table(train$Book)
+
+# sort Book freqs by chronological order
+docs <- table(train$Book) %>%
+        as.data.frame()
+
+# Define upsample scalars
+upsample_n <- max(docs$Freq) - docs$Freq
+upsample_n <- floor((upsample_n * 2 + docs$Freq) / 3)
+upsample_para1 <- upsample_n * 2
+upsample_para3 <- upsample_n
+
+# Should all be the same number
+cat("\n")
+pasteNQ("Target Balance:")
+upsample_para1 + upsample_para3 + docs$Freq
+train_nrow <- sum(upsample_n * 3 + docs$Freq)
+```
+
+## Upsampling
+```{r}
+upsample <- function(df, upsample_n) {
+  # Remove short docs
+  df <- df[df$Wordcount > 20, ]
+  
+  # Separate pages corpus into separate objects by Book title
+  for(i in 1:7) {
+      assign(paste0("page_", i),
+             train[train$Book==titles[i],] %>%
+             tidyr::drop_na())
+    
+      assign(paste0("para_", i),
+             df[df$Book==titles[i],] %>%
+             tidyr::drop_na())
+  }
+  
+  # Upsample from single paragraphs by taking random sample 
+  # w/o replacement of upsample scalars
+  upsamples <- data.frame()
+  for (i in 1:7) {
+    r <- get(paste0("page_", i))
+    t <- get(paste0("para_", i))
+    upsamples <- rbind(upsamples, (
+                       t[sample(nrow(t[t$Page %in% r$Page, ]), 
+                                size = upsample_n[i]), ]
+                       )
+    )
+    t <- NULL
+  }
+  
+  df <- upsamples
+  
+  return(df)
+}
+
+upsample_train <- function() {
+  para3_df <- upsample(para3, upsample_para3)
+  para1_df <- upsample(para1, upsample_para1)
+  train <- rbind(train, para3_df)
+  train <- rbind(train, para1_df)
+  
+  return(train)
+}
+# cat("\n")
+# pasteNQ("Final Balance of Training Data")
+# table(train$Book)
+# cat("\n")
+# pasteNQ("Balance of Testing Data")
+# table(test$Book)
+```
+
+
+## Create Three Datasets
+```{r}
+# Target Variables
+target_test  <- test[ , "Book"] %>% 
+                make.names() 
+
+# Dataframe for results
+results_test  <- data.frame(Target = target_test)
+num_test  <- as.factor(target_test) %>% as.numeric - 1
+
+# Top layer train
+set.seed(2020)
+up_top_train <- upsample_train()
+top_train_target <- up_top_train$Book
+top_num_train <- as.factor(top_train_target) %>% as.numeric() - 1
+
+# Sentiment Model
+## Bottom Layer
+set.seed(20)
+up_train <- upsample_train()
+sent_train_target <- up_train$Book
+sent_train <- select(up_train, 
+                     -c("Text", "Book", "Page", "Progress"))
+sent_test  <- select(test, 
+                     -c("Text", "Book", "Page", "Progress"))
+## Top Layer
+sent_top_train <- select(up_top_train, 
+                         -c("Text", "Book", "Page", "Progress"))
+
+# Bag of Words (TF) Model
+## Bottom Layer
+set.seed(21)
+up_train <- upsample_train()
+bow_train_target <- up_train$Book
+bow_dtm <- dtm_bow(up_train$Text, test$Text, up_top_train$Text)
+bow_train <- bow_dtm[[1]]
+bow_test  <- bow_dtm[[2]]
+## Top Layer
+bow_top_train <- bow_dtm[[3]]
+
+# Bag of Words (TF-IDF) Model
+## Bottom Layer
+set.seed(22)
+up_train <- upsample_train()
+bowtfidf_train_target <- up_train$Book
+bowtfidf_dtm <- dtm_bow(up_train$Text, test$Text, up_top_train$Text)
+bowtfidf_train <- bowtfidf_dtm[[1]]
+bowtfidf_test  <- bowtfidf_dtm[[2]]
+tfidf <- TfIdf$new()
+bowtfidf_train <- fit_transform(bowtfidf_train, tfidf)
+bowtfidf_test  <- transform(bowtfidf_test, tfidf)
+## Top Layer
+bowtfidf_top_train <- bowtfidf_dtm[[3]]
+bowtfidf_top_train <- transform(bowtfidf_top_train, tfidf)
+
+# Word Embeddings (Sum-SQRT) Model
+## Bottom Layer
+set.seed(23)
+up_train <- upsample_train()
+we_ss_train_target <- up_train$Book
+we_ss_dtm <- dtm_we(up_train$Text, test$Text, 
+                    up_top_train$Text, doc2vec = "sum_sqrt")
+we_ss_train <- we_ss_dtm[[1]]
+we_ss_test  <- we_ss_dtm[[2]]
+## Top Layer
+we_ss_top_train <- we_ss_dtm[[3]]
+
+# Word Embeddings (IDF) Model
+## Bottom Layer
+set.seed(24)
+up_train <- upsample_train()
+we_idf_train_target <- up_train$Book
+we_idf_dtm <- dtm_we(up_train$Text, test$Text, 
+                     up_top_train$Text, doc2vec = "idf")
+we_idf_train <- we_idf_dtm[[1]]
+we_idf_test  <- we_idf_dtm[[2]]
+## Top Layer
+we_idf_top_train <- we_idf_dtm[[3]]
+
+save(target_test, train, test, train_nrow,
+     sent_train_target, sent_train, sent_test, 
+     bow_train_target, bow_train, bow_test,
+     bowtfidf_train_target, bowtfidf_train, bowtfidf_test, tfidf,
+     we_ss_train_target, we_ss_train, we_ss_test,
+     we_idf_train_target, we_idf_train, we_idf_test,
+     top_train_target, top_num_train,
+     results_test, num_test, 
+     file = "Harry_Potter_and_the_Classification.RData")
+```
+
+
+# Model data
+```{r}
+load("Harry_Potter_and_the_Classification.RData")
+
+# Sentiment model 
+num_train <- as.factor(sent_train_target) %>% as.numeric() - 1
+sent_train <- xgb.DMatrix(as.matrix(sent_train),
+                          label=num_train)
+sent_test  <- xgb.DMatrix(as.matrix(sent_test),
+                          label=num_test)
+
+# Bag of words TF model
+num_train <- as.factor(bow_train_target) %>% as.numeric() - 1
+bow_train <- xgb.DMatrix(bow_train,
+                         label=num_train,
+                         missing=NaN)
+bow_test  <- xgb.DMatrix(bow_test,
+                         label=num_test)
+
+# Bag of words TF-IDF model
+num_train <- as.factor(bowtfidf_train_target) %>% as.numeric() - 1
+bowtfidf_train <- xgb.DMatrix(bowtfidf_train,
+                              label=num_train)
+bowtfidf_test  <- xgb.DMatrix(bowtfidf_test,
+                              label=num_test)
+
+# Word Embeddings (Sum-SQRT) model
+num_train <- as.factor(we_ss_train_target) %>% as.numeric() - 1
+we_ss_train <- xgb.DMatrix(we_ss_train,
+                           label=num_train)
+we_ss_test  <- xgb.DMatrix(we_ss_test,
+                           label=num_test)
+
+# Word Embeddings (IDF) model
+num_train <- as.factor(we_idf_train_target) %>% as.numeric() - 1
+we_idf_train <- xgb.DMatrix(we_idf_train,
+                            label=num_train)
+we_idf_test  <- xgb.DMatrix(we_idf_test,
+                            label=num_test)
+
+# Global parameters
+num_class <- 7
+
+# cross validation
+cv_tune <- function(data, iterations = 25, num_class = 7, 
+                    nrounds = 10, nfold = 4, 
+                    eval_metric = "mlogloss", 
+                    objective = "multi:softprob") {
+  best_param = list()
+  best_seednumber = 2020
+  best_logloss = Inf
+  best_logloss_index = 0
+  
+  for (i in 1:iterations) {
+      param <- list(
+            objective = objective,
+            num_class = num_class,
+            eval_metric = eval_metric,
+            eta = runif(1, .0005, .5),
+            max_depth = sample(4:8, 1),
+            subsample = 1
+            )
+      seed.number <- sample.int(10000, 1)[[1]]
+      set.seed(seed.number)          
+      cross_val <- xgb.cv(data = data, param = param, 
+                          verbose = F, nthread = 8, 
+                          early_stopping_rounds = 5, maximize = FALSE,
+                          nrounds = nrounds, nfold = nfold)
+      
+      eval_metrics <- cross_val$evaluation_log[, "test_mlogloss_mean"] %>%
+                      as.data.frame()
+      min_logloss <- min(eval_metrics)
+      min_logloss_index <- which.min(unlist(eval_metrics))
+      
+      if (min_logloss < best_logloss) {
+          best_eval <- eval_metrics
+          best_logloss <- min_logloss
+          best_nround <- min_logloss_index
+          best_seednumber <- seed.number
+          best_param <- param
+      }
+  }
+  
+  return(list(best_nround, best_param, best_eval))
+}
+
+# Results
+pred_test <- data.frame(matrix(nrow=length(num_test), ncol=7*5))
+pred_train <- data.frame(matrix(nrow=length(num_train), ncol=7*5))
+```
+
+
+## Sentiment Model
+```{r}
+# cross validation
+cv_best <- cv_tune(data = sent_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
+
+# best_eval <- cv_best[[3]]
+# ggplot(best_eval) + 
+#     geom_line(aes(y = test_mlogloss_mean, 
+#                   x=row.names(best_eval) %>% as.numeric())) +
+#     ggtitle("Test Data Logloss Means") +
+#     labs(y = "Logloss", x = "Iteration") +
+#     Grph_theme_facet() 
+
+# best model
+sent_model <- xgboost(data=sent_train, verbose=F,
+                      nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+cols <- 1:7
+pred_test[ , cols] <- predict(sent_model, sent_test) %>% 
+                              matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "Sent_Label"] <- max.col(pred_test[ , cols])
+
+# error and accuracy measure
+results_test[ , "Sent_Label"] <- factor(results_test[ , "Sent_Label"],
+                                  labels = unique(results_test$Target))
+sent_acc <- confusionMatrix(results_test$Sent_Label, 
+                            results_test$Target)
+round( sent_acc$overall["Accuracy"], 2 )
+
+# Graph
+sent_acc$byClass %>% 
+  as.data.frame() %>%
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
+             y = titles, fill = titles)) +
+  geom_bar(stat = "identity") +
+  xlim(0, 100) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet() 
+```
+
+
+## Bag of Words TF Model
+```{r}
+# cross validation
+cv_best <- cv_tune(data = bow_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
+
+# best model
+bow_model <- xgboost(data=bow_train, verbose=F,
+                      nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+cols <- 8:14
+pred_test[ , cols] <- predict(bow_model, bow_test) %>% 
+                              matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "BoW_Label"] <- max.col(pred_test[ , cols])
+
+# error and accuracy measure
+results_test[ , "BoW_Label"] <- factor(results_test[ , "BoW_Label"],
+                                  labels = unique(results_test$Target))
+bow_acc <- confusionMatrix(results_test$BoW_Label, 
+                           results_test$Target)
+round( bow_acc$overall["Accuracy"], 2 )
+
+# Graph
+bow_acc$byClass %>% 
+  as.data.frame() %>%
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
+             y = titles, fill = titles)) +
+  geom_bar(stat = "identity") +
+  xlim(0, 100) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet() 
+```
+
+
+## Bag of Words TF-IDF Model
+```{r}
+# cross validation
+cv_best <- cv_tune(data = bowtfidf_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
+
+# best model
+bowtfidf_model <- xgboost(data=bowtfidf_train, verbose=F,
+                      nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+cols <- 15:21
+pred_test[ , cols] <- predict(bowtfidf_model, bowtfidf_test) %>% 
+                              matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "BoWtfidf_Label"] <- max.col(pred_test[ , cols])
+
+# error and accuracy measure
+results_test[ , "BoWtfidf_Label"] <- factor(results_test[ , "BoWtfidf_Label"],
+                                  labels = unique(results_test$Target))
+bowtfidf_acc <- confusionMatrix(results_test$BoWtfidf_Label, 
+                           results_test$Target)
+round( bowtfidf_acc$overall["Accuracy"], 2 )
+
+# Graph
+bowtfidf_acc$byClass %>% 
+  as.data.frame() %>%
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
+             y = titles, fill = titles)) +
+  geom_bar(stat = "identity") +
+  xlim(0, 100) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet() 
+```
+
+
+
+## Word Embeddings (Sum-SQRT) Model
+```{r}
+# cross validation
+cv_best <- cv_tune(data = we_ss_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
+
+# best model
+we_ss_model <- xgboost(data=we_ss_train, verbose=F,
+                    nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+cols <- 22:28
+pred_test[ , cols] <- predict(we_ss_model, we_ss_test) %>% 
+                     matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "WE_SS_Label"] <- max.col(pred_test[ , cols])
+
+# error and accuracy measure
+results_test[ , "WE_SS_Label"] <- factor(results_test[ , "WE_SS_Label"],
+                                  labels = unique(results_test$Target))
+we_ss_acc <- confusionMatrix(results_test$WE_SS_Label, 
+                          results_test$Target)
+round( we_ss_acc$overall["Accuracy"], 2 )
+
+# Graph
+we_ss_acc$byClass %>% 
+  as.data.frame() %>%
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
+             y = titles, fill = titles)) +
+  geom_bar(stat = "identity") +
+  xlim(0, 100) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet()
+```
+
+
+## Word Embeddings (IDF) Model
+```{r}
+# cross validation
+cv_best <- cv_tune(data = we_idf_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
+
+# best model
+we_idf_model <- xgboost(data=we_idf_train, verbose=F,
+                    nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+cols <- 29:35
+pred_test[ , cols] <- predict(we_idf_model, we_idf_test) %>% 
+                     matrix(ncol=num_class, byrow=TRUE)
+results_test[ , "WE_IDF_Label"] <- max.col(pred_test[ , cols])
+
+# error and accuracy measure
+results_test[ , "WE_IDF_Label"] <- factor(results_test[ , "WE_IDF_Label"],
+                                  labels = unique(results_test$Target))
+we_idf_acc <- confusionMatrix(results_test$WE_IDF_Label, 
+                          results_test$Target)
+round( we_idf_acc$overall["Accuracy"], 2 )
+
+# Graph
+we_idf_acc$byClass %>% 
+  as.data.frame() %>%
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
+             y = titles, fill = titles)) +
+  geom_bar(stat = "identity") +
+  xlim(0, 100) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet()
+```
+
+# Ensembling
+
+Resample train data to ensure all rows contain same documents across bottom-layer models.
+```{r}
+# Sentiment model 
+sent_top_train <- xgb.DMatrix(as.matrix(sent_top_train),
+                              label=num_train)
+
+# Bag of words TF model
+bow_top_train <- xgb.DMatrix(bow_top_train,
+                             label=num_train)
+
+# Bag of words TF-IDF model
+bowtfidf_top_train <- xgb.DMatrix(bowtfidf_top_train,
+                                  label=num_train)
+
+# Word Embeddings (Sum-SQRT) model
+we_ss_top_train <- xgb.DMatrix(we_ss_top_train,
+                               label=num_train)
+
+# Word Embeddings (IDF) model
+we_idf_top_train <- xgb.DMatrix(we_idf_top_train,
+                                label=num_train)
+
+#Predicting the training probabilities
+pred_train[ , 1:7]   <- predict(sent_model, sent_top_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+pred_train[ , 8:14]  <- predict(bow_model, bow_top_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+pred_train[ , 15:21] <- predict(bowtfidf_model, bowtfidf_top_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+pred_train[ , 22:28] <- predict(we_ss_model, we_ss_top_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+pred_train[ , 29:35] <- predict(we_idf_model, we_idf_top_train) %>% 
+                                matrix(ncol=num_class, byrow=TRUE) 
+
+# Name columns
+colnames(pred_train) <- c(paste0("Sent_Pred_", unique(results_test$Target)),
+                          paste0("BoW_Pred_", unique(results_test$Target)),
+                          paste0("BoWtfidf_Pred_", 
+                                 unique(results_test$Target)),
+                          paste0("WE_SS_Pred_", unique(results_test$Target)),
+                          paste0("WE_IDF_Pred_", unique(results_test$Target)))
+colnames(pred_test) <- c(paste0("Sent_Pred_", unique(results_test$Target)),
+                         paste0("BoW_Pred_", unique(results_test$Target)),
+                         paste0("BoWtfidf_Pred_", 
+                                unique(results_test$Target)),
+                         paste0("WE_SS_Pred_", unique(results_test$Target)),
+                         paste0("WE_IDF_Pred_", unique(results_test$Target)))
+
+# PCA
+pca <- irlba::prcomp_irlba(pred_train, n = 7, scale. = T)
+pca_train <- pca$x
+pca_test <- predict(pca, pred_test)
+``` 
+
+
+## Top Layer (GBDT)
+```{}
+# Top layer model
+top_gbdt_train <- xgb.DMatrix(as.matrix(pca_train),
+                              label=num_train,
+                              missing=NaN)
+top_gbdt_test  <- xgb.DMatrix(as.matrix(pca_test),
+                              label=num_test,
+                              missing=NaN)
+
+# Results
+results_top_gbdt_test <- data.frame(matrix(nrow=nrow(test), ncol=7))
+
+# cross validation
+cv_best <- cv_tune(data = top_gbdt_train)
+pasteNQ("Best NRound:")
+cv_best[[1]] %>% as.numeric()
+pasteNQ("Best Params:")
+cv_best[[2]]
+
+# best model
+model_top_gbdt <- xgboost(data=top_gbdt_train, verbose=F,
+                          nrounds=cv_best[[1]], param=cv_best[[2]])
+
+# prediction
+results_top_gbdt_test[ , 1:7] <- predict(model_top_gbdt, top_gbdt_test) %>% 
+                                         matrix(ncol=num_class, byrow=TRUE)
+results_top_gbdt_test[ , "Top_Label"] <- max.col(results_top_gbdt_test[ , 1:7])
+
+# error and accuracy measure
+results_test[ , "Top_Label"] <- factor(results_top_gbdt_test[ , "Top_Label"],
+                                       labels = unique(results_test$Target))
+top_gbdt_acc <- confusionMatrix(results_test$Top_Label, 
+                                results_test$Target)
+top_gbdt_acc
+
+# Graph
+top_gbdt_acc$byClass %>% 
+  as.data.frame() %>%
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
+             y = titles, fill = titles)) +
+  geom_bar(stat = "identity") +
+  xlim(0, 100) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet()
+```
+
+
+
+## Top Layer (Logistic)
+```{r}
+library(nnet)
+top_glm_train <- pca_train %>% data.frame()
+top_glm_train$target <- top_train_target
+# cross validation
+model_top_glm <- train(
+  target ~ .,
+  data = top_glm_train,
+  method = "multinom",
+  trControl = trainControl(method = "cv", number = 4),
+  trace = F
+)
+
+# prediction
+results_top_glm_test <- data.frame(matrix(nrow=nrow(test), ncol=7))
+results_top_glm_test[ , "Top_GLM_Label"] <- predict(model_top_glm, pca_test) 
+
+# error and accuracy measure
+results_test[ , "Top_GLM_Label"] <- factor(results_top_glm_test[ , "Top_GLM_Label"],
+                                  labels = unique(results_test$Target))
+top_glm_acc <- confusionMatrix(results_test$Top_GLM_Label, 
+                           results_test$Target)
+top_glm_acc
+
+# Graph
+top_glm_acc$byClass %>% 
+  as.data.frame() %>%
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
+             y = titles, fill = titles)) +
+  geom_bar(stat = "identity") +
+  xlim(0, 100) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet()
+```
+
+
+# Final Scores
+```{r}
+pasteNQ("Sentiment Model")
+sent_acc$overall["Accuracy"]
+cat("\n")
+
+pasteNQ("Bag of Words (TF) Model")
+bow_acc$overall["Accuracy"]
+cat("\n")
+
+pasteNQ("Bag of Words (TF-IDF) Model")
+bowtfidf_acc$overall["Accuracy"]
+cat("\n")
+
+pasteNQ("Word Embedding (Sum-SQRT) Model")
+we_ss_acc$overall["Accuracy"]
+cat("\n")
+
+pasteNQ("Word Embedding (IDF) Model")
+we_idf_acc$overall["Accuracy"]
+cat("\n")
+
+# pasteNQ("Top Layer (GBDT) Model")
+# top_gbdt_acc$overall["Accuracy"] 
+# cat("\n")
+
+pasteNQ("Top Layer (Logistic) Model")
+top_glm_acc$overall["Accuracy"]
+
+
+# Graph
+bal_acc <- cbind(titles, "Sentiment", sent_acc$byClass[ , "Balanced Accuracy"]) %>%
+     rbind(cbind(titles, "Bag of Words (TF)", bow_acc$byClass[ , "Balanced Accuracy"])) %>%
+     rbind(cbind(titles, "Bag of Words (TF-IDF)", bowtfidf_acc$byClass[ , "Balanced Accuracy"])) %>%
+     rbind(cbind(titles, "Word Embedding (Sum-SQRT)", we_ss_acc$byClass[ , "Balanced Accuracy"])) %>% 
+     rbind(cbind(titles, "Word Embedding (IDF)", we_idf_acc$byClass[ , "Balanced Accuracy"])) %>% 
+  as.data.frame()
+colnames(bal_acc) <- c("Book", "Model", "Balanced Accuracy")
+
+bal_acc %>% 
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric(), 
+             y = Book,
+             fill = Model)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Model) +
+  labs(title="Balanced Accuracy",
+       y="Book",
+       x="Balanced Accuracy (%)") + 
+  scale_fill_manual(values = c("#0D6217", "#7F0909", "#000A90", "#FFC500", 
+                               "black")) +
+  Grph_theme_facet() 
+
+# Graph
+ggplot(results_test, 
+       aes(Target, Top_GLM_Label, color=Target)) + 
+  geom_jitter(size=1) + 
+  labs(title="Confusion Matrix",
+       subtitle="Predicted vs. Observed",
+       y="Predicted",
+       x="Observed") + 
+  scale_color_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme_facet() +
+  theme(legend.position='none',
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+
+# Save
+```{}
+save(train, test, target_test, 
+     pred_train, pred_test, 
+     pca_train, pca_test,
+     sent_train, sent_test, sent_top_train, sent_model,
+     bow_train, bow_test, bow_top_train, bow_model,
+     bowtfidf_train, bowtfidf_test, bowtfidf_top_train, bowtfidf_model, tfidf,
+     we_ss_train, we_ss_test, we_ss_top_train, we_ss_model,
+     we_idf_train, we_idf_test, we_idf_top_train, we_idf_model,
+     results_test, results_top_gbdt_test, results_top_glm_test,
+     model_top_gbdt, top_gbdt_test,
+     model_top_glm, 
+     sent_acc, bow_acc, bowtfidf_acc, we_ss_acc, we_idf_acc,
+     top_gbdt_acc, top_glm_acc,
+     file = "Harry_Potter_and_the_Classification_Models.RData")
+```
+
+
