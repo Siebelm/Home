@@ -15,7 +15,7 @@ output:
 
 <br>
 
->  Natural Language Processing (NLP) for: <br>
+>  Model Ensembling and Classification for: <br>
 >  Harry Potter and the Philosopher's Stone (1997) <br>
 >  Harry Potter and the Chamber of Secrets (1998) <br>
 >  Harry Potter and the Prisoner of Azkaban (1999) <br>
@@ -25,6 +25,43 @@ output:
 >  Harry Potter and the Deathly Hallows (2007)
 
 # Bottom Line Up Front
+
+I intend to answer the question:
+<h6>"Which Harry Potter film is closest to its corresponding book?"</h6>
+
+In this document, I built a model classifying portions of each books' text into the book that it belongs.  In the next, I will run film scripts through that model to determine how will it aligns with its corresponding book.
+
+Classifying these books took 6 steps:
+
+I) Define documents
+
+   * Description: Create documents at the page-level
+   * Purpose: Define portions of text that are small enough to provide many examples for the model but large enough to capture meaningful differences in text per book
+   
+II) Structure text for 4 models
+
+   * Description: Build 4 document term matricies (DTM) using different NLP techniques
+   * Purpose: Use multiple NLP techniques in order to take advantage of each of their strengths
+   
+III) Oversample
+
+   * Description: Balance classes by oversampling from shorter pieces of text from training pages
+   * Purpose: Enrich training data to improve predictions of shorter books
+   
+IV) Run 4 models
+
+   * Description: Run 4 models independently with hyper-parameter tuning
+   * Purpose: Optimize 4 models   
+
+V) Perform stacked ensemble modeling
+
+   * Description: Ensemble 4 bottom layer models with top layer model
+   * Purpose: Take strengths of each model and minimize each model's weaknesses 
+
+VI) Determine final model performance
+
+   * Description: Test results of stacked model ensemble on testing data
+   * Purpose: Ensure model process and outcome is generalizable
 
 # Setup
 ```{r setup, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
@@ -84,7 +121,7 @@ Grph_theme_facet <- function() {
   color.axis.text = palette[6]
   color.axis.title = palette[7]
   color.title = palette[9]    
-  theme_bw(base_size=9) + 
+  theme_bw(base_size=8) + 
   theme(panel.background=element_rect(fill=color.background, color=color.background)) +
   theme(plot.background=element_rect(fill=color.background, color=color.background)) +
   theme(panel.border=element_rect(color=color.background)) +
@@ -173,6 +210,13 @@ removenonalpha <- function(rawtext) {
 }
 ```
 
+# I) Define Documents
+**Description:** Create documents at the page-level
+**Purpose:** Define portions of text that are small enough to provide many examples for the model but large enough to capture meaningful differences in text per book
+   
+* Page is defined as 250 words
+* Series has 4,347 pages
+* Create paragraph-level documents and link to page ID for later oversampling
 
 ```{r}
 setwd("C:/Users/siebe/Documents/07_Books/Harry Potter/")
@@ -319,13 +363,19 @@ para1$Book <- factor(para1$Book, levels=titles)
 pages$Book <- factor(pages$Book, levels=titles)
 ```
 
-# Text at the Paragraph Level
+For this sentiment analysis, I want to grab the text around certain characters. Chapters are too much text as they can contain multiple story points, and sentences are too little text as they likely contain little contextual information.  
 
-For this sentiment analysis, I want to grab the text around certain characters. Chapters and pages are too much text as they can contain multiple story points, and sentences are too little text as they likely contain little contextual information.  
+## Page Level Variation
 
-Instead, I plan to take paragraphs as the documents for my corpus.  However, paragraphs can be single sentences as in the case of two characters switch dialogue.  Therefore, I take paragraph triplets: three paragraphs containing three or more words.
+Paragraph level analysis has the advantage of grouping text by logical beginnings and endings.  Alternatively, page level analysis often groups text by the beginning and ending in half-sentence, mid-paragraph.
 
-## Word Distributions
+However, page level analysis has the advantage of not containing any variation in document length; all documents are a standard 250 words.
+
+Given these advantages and disadvantages, I prioritized paragraph level analysis by using all paragraph triplets in the Series.  I then appended (code later) random samples of page level documents inversely proportionaly to the amount of paragraph triplets in each book.  In other words, I balanced the classes, ensuring each book contained the same number of documents, by adding many page level documents to the shorter books and fewer page level documents to the longer books.
+
+## Paragraph Level Variation
+
+In addition, I take paragraphs for oversampling purposes.  However, paragraphs can be single sentences as in the case of two characters switch dialogue.  Therefore, I take paragraph triplets: three paragraphs containing three or more words.
 
 I start checking for normal (or "normal-ish") distributions of words per paragraph triplet to make sure there is some consistency in document length.  The word distributions appear to approximate a normal distribution, although with a non-trivial right tail.  In addition, the word distributions are similar across books, making it a comparable level of analysis.
 
@@ -359,28 +409,14 @@ ggplot(para3, aes(Wordcount, fill=Book)) +
   theme(legend.position="bottom")
 ```
 
-## Page Level Variation
 
-Paragraph level analysis has the advantage of grouping text by logical beginnings and endings.  Alternatively, page level analysis often groups text by the beginning and ending in half-sentence, mid-paragraph.
+# II) Structure Text for Four Models
+**Description:** Build 4 document term matricies (DTM) using different NLP techniques
+**Purpose:** Use multiple NLP techniques in order to take advantage of each of their strengths
+   
+## Sentiment Model
 
-However, page level analysis has the advantage of not containing any variation in document length; all documents are a standard 250 words.
-
-Given these advantages and disadvantages, I prioritized paragraph level analysis by using all paragraph triplets in the Series.  I then appended (code later) random samples of page level documents inversely proportionaly to the amount of paragraph triplets in each book.  In other words, I balanced the classes, ensuring each book contained the same number of documents, by adding many page level documents to the shorter books and fewer page level documents to the longer books.
-
-# Sentiment Model
-
-## Progress
-```{r}
-# Page Level
-pages$Progress <- row.names(pages) %>% as.numeric() / nrow(pages) * 100
-
-# Paragraph Level
-para3$Progress <- row.names(para3) %>% as.numeric() / nrow(para3) * 100
-para1$Progress <- row.names(para1) %>% as.numeric() / nrow(para1) * 100
-```
-
-
-## Sentiment Scores
+### Sentiment Scores
 ```{r}
 # Sentiment Scores
 average <- function(x) {
@@ -404,73 +440,65 @@ para1$Sentiment <- sapply(CleanText_p1,
 ```
 
 
-## Animated Writing
+### Animated Writing
 ```{r, include=F}
 # count exclamation marks
-pages$E_Mark <- str_count(pages$Text, "[!]") %>%
+pages$Exclamation_Mark <- str_count(pages$Text, "[!]") %>%
                 ifelse(is.na(.),0,.)
-para3$E_Mark <- str_count(para3$Text, "[!]") %>%
+para3$Exclamation_Mark <- str_count(para3$Text, "[!]") %>%
                 ifelse(is.na(.),0,.)
-para1$E_Mark <- str_count(para1$Text, "[!]") %>%
+para1$Exclamation_Mark <- str_count(para1$Text, "[!]") %>%
                 ifelse(is.na(.),0,.)
 
 # count question marks
-pages$Q_Mark <- str_count(pages$Text, "[?]") %>%
+pages$Question_Mark <- str_count(pages$Text, "[?]") %>%
                 ifelse(is.na(.),0,.)
-para3$Q_Mark <- str_count(para3$Text, "[?]") %>%
+para3$Question_Mark <- str_count(para3$Text, "[?]") %>%
                 ifelse(is.na(.),0,.)
-para1$Q_Mark <- str_count(para1$Text, "[?]") %>%
+para1$Question_Mark <- str_count(para1$Text, "[?]") %>%
                 ifelse(is.na(.),0,.)
 
 # count elipse
-pages$Elipse <- str_count(pages$Text, "[...]") %>%
-                ifelse(is.na(.),0,.)
-para3$Elipse <- str_count(para3$Text, "[...]") %>%
-                ifelse(is.na(.),0,.)
-para1$Elipse <- str_count(para1$Text, "[...]") %>%
-                ifelse(is.na(.),0,.)
-
-# count caps-lock words
-# pages$Caps_Lock <- str_count(pages$Text, "\\b[A-Z]{2,}$\\b") %>%
-#                    ifelse(is.na(.),0,.)
-# para3$Caps_Lock <- str_count(para3$Text, "\\b[A-Z]{2,}$\\b") %>%
-#                    ifelse(is.na(.),0,.)
-# para1$Caps_Lock <- str_count(para1$Text, "\\b[A-Z]{2,}$\\b") %>%
-#                    ifelse(is.na(.),0,.)
+# pages$Elipsis <- str_count(pages$Text, "[.]{3}") %>%
+#                 ifelse(is.na(.),0,.)
+# para3$Elipses <- str_count(para3$Text, "...") %>%
+#                 ifelse(is.na(.),0,.)
+# para1$Elipses <- str_count(para1$Text, "...") %>%
+#                 ifelse(is.na(.),0,.)
 ```
 
 
-## Lead Characters
+### Lead Characters
 ```{r}
+trio <- c("harry", "ron", "hermione")
 heroes <- c("lily","james","hagrid","dumbledore","sirius","lupin","moody","slughorn","dobby","cedric","luna","tonks","mcgonagall","ginny","order of the phoenix","neville")
 villians <- c("voldemort","nagini","snape","draco","lucius","umbridge","pettigrew","dementor","dementors","greyback","bellatrix","quirrell","riddle","death eaters","aragog","basilisk","dudley","vernon","petunia")
 
-Sentiment <- c(heroes, villians)
+Sentiment <- c(trio, heroes, villians)
 
 # Page Level
 for(string in Sentiment) {
   findstr <- paste0("\\b",string,"\\b")
   assign( string, ifelse(grepl(findstr,CleanText_w250),1,0) )
 }
-pages <- cbind(pages, sapply( Sentiment, get ) )
+pages <- cbind(pages, sapply( Sentiment, get ) * pages$Sentiment )
 
 # Paragraph Level
 for(string in Sentiment) {
   findstr <- paste0("\\b",string,"\\b")
   assign( string, ifelse(grepl(findstr,CleanText_p3),1,0) )
 }
-para3 <- cbind(para3, sapply( Sentiment, get ) )
+para3 <- cbind(para3, sapply( Sentiment, get ) * para3$Sentiment )
 
 for(string in Sentiment) {
   findstr <- paste0("\\b",string,"\\b")
   assign( string, ifelse(grepl(findstr,CleanText_p1),1,0) )
 }
-para1 <- cbind(para1, sapply( Sentiment, get ) )
+para1 <- cbind(para1, sapply( Sentiment, get ) * para1$Sentiment )
 ```
 
 
-
-# Bag of Words
+## Bag of Words
 ```{r}
 # Function
 dtm_bow <- function(train_text, test_text, val_text) {
@@ -542,7 +570,7 @@ dtm_bow <- function(train_text, test_text, val_text) {
 ```
 
 
-# Word Embeddings
+## Word Embeddings
 ```{r}
 # Function
 dtm_we <- function(train_text, test_text, top_text, doc2vec = "sum_sqrt") {
@@ -668,23 +696,19 @@ dtm_we <- function(train_text, test_text, top_text, doc2vec = "sum_sqrt") {
 ```
 
 
+# III) Oversample
+**Description:** Balance classes by oversampling from shorter pieces of text from training pages
+**Purpose:** Enrich training data to improve predictions of shorter books
+   
+* Double training size and balance classes in training data
+  - Doubled training size helps reduce overpredictions of shorter books caused by oversampling
+* Randomly sample single and triple paragraphs from training pages
+  - Use different samples per model by setting different seeds per sample
 
-
-
-*Definition*
-1) largest doc count - number of docs #balances
-2) times by 2 #increase upsample for a doubled para3
-3) add orignal para3 to double total doc size
-
-*Result*
-12 docs for all
-doubling docs then upsampling
-never repeating same doc twice
-
-# Data Imbalances in Training Data
+## Data Imbalances in Training Data
 ```{r}
 set.seed(2020)
-train_index <- sample(nrow(pages),nrow(pages)*0.70)
+train_index <- sample(nrow(pages),nrow(pages)*0.80)
 
 train <- pages[train_index, ]
 test  <- pages[-train_index, ]
@@ -710,7 +734,7 @@ upsample_para1 + upsample_para3 + docs$Freq
 train_nrow <- sum(upsample_n * 3 + docs$Freq)
 ```
 
-## Upsampling
+## Upsampling Functions
 ```{r}
 upsample <- function(df, upsample_n) {
   # Remove short docs
@@ -754,16 +778,10 @@ upsample_train <- function() {
   
   return(train)
 }
-# cat("\n")
-# pasteNQ("Final Balance of Training Data")
-# table(train$Book)
-# cat("\n")
-# pasteNQ("Balance of Testing Data")
-# table(test$Book)
 ```
 
 
-## Create Three Datasets
+## Create Four Datasets
 ```{r}
 # Target Variables
 target_test  <- test[ , "Book"] %>% 
@@ -785,12 +803,12 @@ set.seed(20)
 up_train <- upsample_train()
 sent_train_target <- up_train$Book
 sent_train <- select(up_train, 
-                     -c("Text", "Book", "Page", "Progress"))
+                     -c("Text", "Book", "Page", "Wordcount"))
 sent_test  <- select(test, 
-                     -c("Text", "Book", "Page", "Progress"))
+                     -c("Text", "Book", "Page", "Wordcount"))
 ## Top Layer
 sent_top_train <- select(up_top_train, 
-                         -c("Text", "Book", "Page", "Progress"))
+                         -c("Text", "Book", "Page", "Wordcount"))
 
 # Bag of Words (TF) Model
 ## Bottom Layer
@@ -830,31 +848,27 @@ we_ss_test  <- we_ss_dtm[[2]]
 ## Top Layer
 we_ss_top_train <- we_ss_dtm[[3]]
 
-# Word Embeddings (IDF) Model
-## Bottom Layer
-set.seed(24)
-up_train <- upsample_train()
-we_idf_train_target <- up_train$Book
-we_idf_dtm <- dtm_we(up_train$Text, test$Text, 
-                     up_top_train$Text, doc2vec = "idf")
-we_idf_train <- we_idf_dtm[[1]]
-we_idf_test  <- we_idf_dtm[[2]]
-## Top Layer
-we_idf_top_train <- we_idf_dtm[[3]]
 
-save(target_test, train, test, train_nrow,
-     sent_train_target, sent_train, sent_test, 
-     bow_train_target, bow_train, bow_test,
-     bowtfidf_train_target, bowtfidf_train, bowtfidf_test, tfidf,
-     we_ss_train_target, we_ss_train, we_ss_test,
-     we_idf_train_target, we_idf_train, we_idf_test,
-     top_train_target, top_num_train,
+save(pages, para1, para3, target_test, train, test, train_nrow,
+     sent_train_target, sent_train, sent_test, sent_top_train,
+     bow_train_target, bow_train, bow_test, bow_top_train,
+     bowtfidf_train_target, bowtfidf_train, bowtfidf_test, tfidf, bowtfidf_top_train,
+     we_ss_train_target, we_ss_train, we_ss_test, we_ss_top_train,
+     top_train_target, top_num_train, up_top_train,
      results_test, num_test, 
+     upsample, upsample_train,
      file = "Harry_Potter_and_the_Classification.RData")
 ```
 
 
-# Model data
+# IV) Run Four Models
+**Description:** Run 4 models independently with hyper-parameter tuning
+**Purpose:** Optimize 4 models
+
+* Test 25 different versions of hyper-parameters on 4-fold cross validation
+* Take best hyper-parameters and rerun on all training data 
+* Repeat for each model
+
 ```{r}
 load("Harry_Potter_and_the_Classification.RData")
 
@@ -868,8 +882,7 @@ sent_test  <- xgb.DMatrix(as.matrix(sent_test),
 # Bag of words TF model
 num_train <- as.factor(bow_train_target) %>% as.numeric() - 1
 bow_train <- xgb.DMatrix(bow_train,
-                         label=num_train,
-                         missing=NaN)
+                         label=num_train)
 bow_test  <- xgb.DMatrix(bow_test,
                          label=num_test)
 
@@ -887,19 +900,13 @@ we_ss_train <- xgb.DMatrix(we_ss_train,
 we_ss_test  <- xgb.DMatrix(we_ss_test,
                            label=num_test)
 
-# Word Embeddings (IDF) model
-num_train <- as.factor(we_idf_train_target) %>% as.numeric() - 1
-we_idf_train <- xgb.DMatrix(we_idf_train,
-                            label=num_train)
-we_idf_test  <- xgb.DMatrix(we_idf_test,
-                            label=num_test)
 
 # Global parameters
 num_class <- 7
 
 # cross validation
 cv_tune <- function(data, iterations = 25, num_class = 7, 
-                    nrounds = 10, nfold = 4, 
+                    nrounds = 25, nfold = 4, 
                     eval_metric = "mlogloss", 
                     objective = "multi:softprob") {
   best_param = list()
@@ -912,7 +919,7 @@ cv_tune <- function(data, iterations = 25, num_class = 7,
             objective = objective,
             num_class = num_class,
             eval_metric = eval_metric,
-            eta = runif(1, .0005, .5),
+            eta = runif(1, min = .001, max = .5),
             max_depth = sample(4:8, 1),
             subsample = 1
             )
@@ -941,8 +948,8 @@ cv_tune <- function(data, iterations = 25, num_class = 7,
 }
 
 # Results
-pred_test <- data.frame(matrix(nrow=length(num_test), ncol=7*5))
-pred_train <- data.frame(matrix(nrow=length(num_train), ncol=7*5))
+pred_test <- data.frame(matrix(nrow=length(num_test), ncol=7*4))
+pred_train <- data.frame(matrix(nrow=length(num_train), ncol=7*4))
 ```
 
 
@@ -954,14 +961,6 @@ pasteNQ("Best NRound:")
 cv_best[[1]] %>% as.numeric()
 pasteNQ("Best Params:")
 cv_best[[2]]
-
-# best_eval <- cv_best[[3]]
-# ggplot(best_eval) + 
-#     geom_line(aes(y = test_mlogloss_mean, 
-#                   x=row.names(best_eval) %>% as.numeric())) +
-#     ggtitle("Test Data Logloss Means") +
-#     labs(y = "Logloss", x = "Iteration") +
-#     Grph_theme_facet() 
 
 # best model
 sent_model <- xgboost(data=sent_train, verbose=F,
@@ -981,6 +980,7 @@ sent_acc <- confusionMatrix(results_test$Sent_Label,
 round( sent_acc$overall["Accuracy"], 2 )
 
 # Graph
+## Balanced Accuracy
 sent_acc$byClass %>% 
   as.data.frame() %>%
   ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
@@ -993,6 +993,20 @@ sent_acc$byClass %>%
   scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
                                "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
   Grph_theme_facet() 
+
+## Feature Importance
+importance_matrix <- xgb.importance(model = sent_model)
+features_gb <- importance_matrix[1:10,]
+ggplot(features_gb, mapping=aes(x=reorder(Feature, Gain), y=Gain,
+                                fill="hotpink")) + 
+  coord_flip() +
+  geom_bar(position="dodge",stat="identity") + 
+  labs(title = "Top Ten Features",
+       subtitle = "Sentiment Model",
+       y = "Fractional Contribution",
+       x = "Feature") + 
+  guides(fill=FALSE) +
+  Grph_theme_facet()
 ```
 
 
@@ -1023,6 +1037,7 @@ bow_acc <- confusionMatrix(results_test$BoW_Label,
 round( bow_acc$overall["Accuracy"], 2 )
 
 # Graph
+## Balanced Accuracy
 bow_acc$byClass %>% 
   as.data.frame() %>%
   ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
@@ -1034,11 +1049,25 @@ bow_acc$byClass %>%
        x="Balanced Accuracy (%)") + 
   scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
                                "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
-  Grph_theme_facet() 
+  Grph_theme_facet()
+
+## Feature Importance
+importance_matrix <- xgb.importance(model = bow_model)
+features_gb <- importance_matrix[1:10,]
+ggplot(features_gb, mapping=aes(x=reorder(Feature, Gain), y=Gain, 
+                                fill="green")) + 
+  coord_flip() +
+  geom_bar(position="dodge",stat="identity") + 
+  labs(title = "Top Ten Features",
+       subtitle = "Bag of Words (TF) Model",
+       y = "Fractional Contribution",
+       x = "Feature") + 
+  guides(fill=FALSE) +
+  Grph_theme_facet()
 ```
 
 
-## Bag of Words TF-IDF Model
+## Bag of Words (TF-IDF) Model
 ```{r}
 # cross validation
 cv_best <- cv_tune(data = bowtfidf_train)
@@ -1065,6 +1094,7 @@ bowtfidf_acc <- confusionMatrix(results_test$BoWtfidf_Label,
 round( bowtfidf_acc$overall["Accuracy"], 2 )
 
 # Graph
+## Balanced Accuracy
 bowtfidf_acc$byClass %>% 
   as.data.frame() %>%
   ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
@@ -1077,8 +1107,21 @@ bowtfidf_acc$byClass %>%
   scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
                                "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
   Grph_theme_facet() 
-```
 
+## Feature Importance
+importance_matrix <- xgb.importance(model = bowtfidf_model)
+features_gb <- importance_matrix[1:10,]
+ggplot(features_gb, mapping=aes(x=reorder(Feature, Gain), y=Gain, 
+                                fill="green")) + 
+  coord_flip() +
+  geom_bar(position="dodge",stat="identity") + 
+  labs(title = "Top Ten Features",
+       subtitle = "Bag of Words (TF-IDF) Model",
+       y = "Fractional Contribution",
+       x = "Feature") + 
+  guides(fill=FALSE) +
+  Grph_theme_facet()
+```
 
 
 ## Word Embeddings (Sum-SQRT) Model
@@ -1108,6 +1151,7 @@ we_ss_acc <- confusionMatrix(results_test$WE_SS_Label,
 round( we_ss_acc$overall["Accuracy"], 2 )
 
 # Graph
+## Balanced Accuracy
 we_ss_acc$byClass %>% 
   as.data.frame() %>%
   ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
@@ -1123,50 +1167,14 @@ we_ss_acc$byClass %>%
 ```
 
 
-## Word Embeddings (IDF) Model
-```{r}
-# cross validation
-cv_best <- cv_tune(data = we_idf_train)
-pasteNQ("Best NRound:")
-cv_best[[1]] %>% as.numeric()
-pasteNQ("Best Params:")
-cv_best[[2]]
+# V) Perform Stacked Ensemble Modeling
+**Description:** Ensemble 4 bottom layer models with top layer model
+**Purpose:** Take strengths of each model and minimize each model's weaknesses    
+     
+* Resample train data for each of the 4 models with the same seed to ensure all rows contain same documents across bottom-layer models
+* Use 4 training models to generate predicted probabilities and save as seven columns per model in a new data frame (28 columns in total)
+* Model bottom layer models with top layer K Nearest Neighbors (KNN) to priviledge model strengths
 
-# best model
-we_idf_model <- xgboost(data=we_idf_train, verbose=F,
-                    nrounds=cv_best[[1]], param=cv_best[[2]])
-
-# prediction
-cols <- 29:35
-pred_test[ , cols] <- predict(we_idf_model, we_idf_test) %>% 
-                     matrix(ncol=num_class, byrow=TRUE)
-results_test[ , "WE_IDF_Label"] <- max.col(pred_test[ , cols])
-
-# error and accuracy measure
-results_test[ , "WE_IDF_Label"] <- factor(results_test[ , "WE_IDF_Label"],
-                                  labels = unique(results_test$Target))
-we_idf_acc <- confusionMatrix(results_test$WE_IDF_Label, 
-                          results_test$Target)
-round( we_idf_acc$overall["Accuracy"], 2 )
-
-# Graph
-we_idf_acc$byClass %>% 
-  as.data.frame() %>%
-  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
-             y = titles, fill = titles)) +
-  geom_bar(stat = "identity") +
-  xlim(0, 100) +
-  labs(title="Balanced Accuracy",
-       y="Book",
-       x="Balanced Accuracy (%)") + 
-  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
-                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
-  Grph_theme_facet()
-```
-
-# Ensembling
-
-Resample train data to ensure all rows contain same documents across bottom-layer models.
 ```{r}
 # Sentiment model 
 sent_top_train <- xgb.DMatrix(as.matrix(sent_top_train),
@@ -1184,10 +1192,6 @@ bowtfidf_top_train <- xgb.DMatrix(bowtfidf_top_train,
 we_ss_top_train <- xgb.DMatrix(we_ss_top_train,
                                label=num_train)
 
-# Word Embeddings (IDF) model
-we_idf_top_train <- xgb.DMatrix(we_idf_top_train,
-                                label=num_train)
-
 #Predicting the training probabilities
 pred_train[ , 1:7]   <- predict(sent_model, sent_top_train) %>% 
                                 matrix(ncol=num_class, byrow=TRUE) 
@@ -1200,111 +1204,38 @@ pred_train[ , 15:21] <- predict(bowtfidf_model, bowtfidf_top_train) %>%
 
 pred_train[ , 22:28] <- predict(we_ss_model, we_ss_top_train) %>% 
                                 matrix(ncol=num_class, byrow=TRUE) 
-
-pred_train[ , 29:35] <- predict(we_idf_model, we_idf_top_train) %>% 
-                                matrix(ncol=num_class, byrow=TRUE) 
-
-# Name columns
-colnames(pred_train) <- c(paste0("Sent_Pred_", unique(results_test$Target)),
-                          paste0("BoW_Pred_", unique(results_test$Target)),
-                          paste0("BoWtfidf_Pred_", 
-                                 unique(results_test$Target)),
-                          paste0("WE_SS_Pred_", unique(results_test$Target)),
-                          paste0("WE_IDF_Pred_", unique(results_test$Target)))
-colnames(pred_test) <- c(paste0("Sent_Pred_", unique(results_test$Target)),
-                         paste0("BoW_Pred_", unique(results_test$Target)),
-                         paste0("BoWtfidf_Pred_", 
-                                unique(results_test$Target)),
-                         paste0("WE_SS_Pred_", unique(results_test$Target)),
-                         paste0("WE_IDF_Pred_", unique(results_test$Target)))
-
-# PCA
-pca <- irlba::prcomp_irlba(pred_train, n = 7, scale. = T)
-pca_train <- pca$x
-pca_test <- predict(pca, pred_test)
 ``` 
 
 
-## Top Layer (GBDT)
-```{}
-# Top layer model
-top_gbdt_train <- xgb.DMatrix(as.matrix(pca_train),
-                              label=num_train,
-                              missing=NaN)
-top_gbdt_test  <- xgb.DMatrix(as.matrix(pca_test),
-                              label=num_test,
-                              missing=NaN)
-
-# Results
-results_top_gbdt_test <- data.frame(matrix(nrow=nrow(test), ncol=7))
-
-# cross validation
-cv_best <- cv_tune(data = top_gbdt_train)
-pasteNQ("Best NRound:")
-cv_best[[1]] %>% as.numeric()
-pasteNQ("Best Params:")
-cv_best[[2]]
-
-# best model
-model_top_gbdt <- xgboost(data=top_gbdt_train, verbose=F,
-                          nrounds=cv_best[[1]], param=cv_best[[2]])
-
-# prediction
-results_top_gbdt_test[ , 1:7] <- predict(model_top_gbdt, top_gbdt_test) %>% 
-                                         matrix(ncol=num_class, byrow=TRUE)
-results_top_gbdt_test[ , "Top_Label"] <- max.col(results_top_gbdt_test[ , 1:7])
-
-# error and accuracy measure
-results_test[ , "Top_Label"] <- factor(results_top_gbdt_test[ , "Top_Label"],
-                                       labels = unique(results_test$Target))
-top_gbdt_acc <- confusionMatrix(results_test$Top_Label, 
-                                results_test$Target)
-top_gbdt_acc
-
-# Graph
-top_gbdt_acc$byClass %>% 
-  as.data.frame() %>%
-  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
-             y = titles, fill = titles)) +
-  geom_bar(stat = "identity") +
-  xlim(0, 100) +
-  labs(title="Balanced Accuracy",
-       y="Book",
-       x="Balanced Accuracy (%)") + 
-  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
-                               "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
-  Grph_theme_facet()
-```
-
-
-
-## Top Layer (Logistic)
+## Top Layer (KNN)
 ```{r}
-library(nnet)
-top_glm_train <- pca_train %>% data.frame()
-top_glm_train$target <- top_train_target
+top_knn_train <- pred_train %>% data.frame()
+top_knn_train$target <- top_train_target
+
 # cross validation
-model_top_glm <- train(
+trctrl <- trainControl(method = "repeatedcv", number = 4, repeats = 3)
+model_top_knn <- train(
   target ~ .,
-  data = top_glm_train,
-  method = "multinom",
-  trControl = trainControl(method = "cv", number = 4),
-  trace = F
+  data = top_knn_train,
+  method = "knn",
+  trControl = trctrl,
+  preProcess = c("center", "scale"),
+  tuneLength = 10
 )
 
 # prediction
-results_top_glm_test <- data.frame(matrix(nrow=nrow(test), ncol=7))
-results_top_glm_test[ , "Top_GLM_Label"] <- predict(model_top_glm, pca_test) 
+results_top_knn_test <- data.frame(matrix(nrow=nrow(test), ncol=7))
+results_top_knn_test[ , "Top_KNN_Label"] <- predict(model_top_knn, pred_test) 
 
 # error and accuracy measure
-results_test[ , "Top_GLM_Label"] <- factor(results_top_glm_test[ , "Top_GLM_Label"],
+results_test[ , "Top_KNN_Label"] <- factor(results_top_knn_test[ , "Top_KNN_Label"],
                                   labels = unique(results_test$Target))
-top_glm_acc <- confusionMatrix(results_test$Top_GLM_Label, 
+top_knn_acc <- confusionMatrix(results_test$Top_KNN_Label, 
                            results_test$Target)
-top_glm_acc
+top_knn_acc$overall[1]
 
 # Graph
-top_glm_acc$byClass %>% 
+top_knn_acc$byClass %>% 
   as.data.frame() %>%
   ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
              y = titles, fill = titles)) +
@@ -1319,7 +1250,11 @@ top_glm_acc$byClass %>%
 ```
 
 
-# Final Scores
+# VI) Determine Final Model Performance
+
+**Description:** Test results of stacked model ensemble on testing data
+**Purpose:** Ensure model process and outcome is generalizable
+
 ```{r}
 pasteNQ("Sentiment Model")
 sent_acc$overall["Accuracy"]
@@ -1333,33 +1268,25 @@ pasteNQ("Bag of Words (TF-IDF) Model")
 bowtfidf_acc$overall["Accuracy"]
 cat("\n")
 
-pasteNQ("Word Embedding (Sum-SQRT) Model")
+pasteNQ("Word Embedding Model")
 we_ss_acc$overall["Accuracy"]
 cat("\n")
 
-pasteNQ("Word Embedding (IDF) Model")
-we_idf_acc$overall["Accuracy"]
-cat("\n")
-
-# pasteNQ("Top Layer (GBDT) Model")
-# top_gbdt_acc$overall["Accuracy"] 
-# cat("\n")
-
-pasteNQ("Top Layer (Logistic) Model")
-top_glm_acc$overall["Accuracy"]
+pasteNQ("Top Layer (KNN) Model")
+top_knn_acc$overall["Accuracy"]
 
 
-# Graph
-bal_acc <- cbind(titles, "Sentiment", sent_acc$byClass[ , "Balanced Accuracy"]) %>%
-     rbind(cbind(titles, "Bag of Words (TF)", bow_acc$byClass[ , "Balanced Accuracy"])) %>%
-     rbind(cbind(titles, "Bag of Words (TF-IDF)", bowtfidf_acc$byClass[ , "Balanced Accuracy"])) %>%
-     rbind(cbind(titles, "Word Embedding (Sum-SQRT)", we_ss_acc$byClass[ , "Balanced Accuracy"])) %>% 
-     rbind(cbind(titles, "Word Embedding (IDF)", we_idf_acc$byClass[ , "Balanced Accuracy"])) %>% 
-  as.data.frame()
+# Graph Balanced Accuracy
+bal_acc <- cbind(titles, "1 Sentiment", sent_acc$byClass[ , "Balanced Accuracy"]) %>%
+     rbind(cbind(titles, "2 Bag of Words (TF)", bow_acc$byClass[ , "Balanced Accuracy"])) %>%
+     rbind(cbind(titles, "3 Bag of Words (TF-IDF)", bowtfidf_acc$byClass[ , "Balanced Accuracy"])) %>%
+     rbind(cbind(titles, "4 Word Embedding", we_ss_acc$byClass[ , "Balanced Accuracy"])) %>% 
+     rbind(cbind(titles, "5 Top Layer", top_knn_acc$byClass[ , "Balanced Accuracy"])) %>% 
+  as_tibble()
 colnames(bal_acc) <- c("Book", "Model", "Balanced Accuracy")
 
 bal_acc %>% 
-  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric(), 
+  ggplot(aes(x = `Balanced Accuracy` %>% as.numeric()*100, 
              y = Book,
              fill = Model)) +
   geom_bar(stat = "identity") +
@@ -1368,12 +1295,12 @@ bal_acc %>%
        y="Book",
        x="Balanced Accuracy (%)") + 
   scale_fill_manual(values = c("#0D6217", "#7F0909", "#000A90", "#FFC500", 
-                               "black")) +
+                               "#AAAAAA", "#000000")) +
   Grph_theme_facet() 
 
-# Graph
+# Graph COnfusion Matrix
 ggplot(results_test, 
-       aes(Target, Top_GLM_Label, color=Target)) + 
+       aes(Target, Top_KNN_Label, color=Target)) + 
   geom_jitter(size=1) + 
   labs(title="Confusion Matrix",
        subtitle="Predicted vs. Observed",
@@ -1382,26 +1309,21 @@ ggplot(results_test,
   scale_color_manual(values = c("#946B2D", "#0D6217", "#000A90", 
                                "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
   Grph_theme_facet() +
-  theme(legend.position='none',
-        axis.text.x = element_text(angle = 45, hjust = 1)) 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
 
 # Save
-```{}
+```{r}
 save(train, test, target_test, 
      pred_train, pred_test, 
-     pca_train, pca_test,
      sent_train, sent_test, sent_top_train, sent_model,
      bow_train, bow_test, bow_top_train, bow_model,
      bowtfidf_train, bowtfidf_test, bowtfidf_top_train, bowtfidf_model, tfidf,
      we_ss_train, we_ss_test, we_ss_top_train, we_ss_model,
-     we_idf_train, we_idf_test, we_idf_top_train, we_idf_model,
-     results_test, results_top_gbdt_test, results_top_glm_test,
-     model_top_gbdt, top_gbdt_test,
-     model_top_glm, 
-     sent_acc, bow_acc, bowtfidf_acc, we_ss_acc, we_idf_acc,
-     top_gbdt_acc, top_glm_acc,
+     results_test, results_top_knn_test,
+     model_top_knn, 
+     sent_acc, bow_acc, bowtfidf_acc, we_ss_acc, top_knn_acc,
      file = "Harry_Potter_and_the_Classification_Models.RData")
 ```
 
