@@ -1,0 +1,438 @@
+---
+title: "Harry Potter NLP"
+author: "Michael Siebel"
+date: "`r date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: "../Rstyles.css" 
+    code_folding: hide
+    highlight: tango
+    includes:
+      in_header: "menu.html"
+---
+
+<br>
+
+>  Model Ensembling and Classification for: <br>
+>  Harry Potter and the Philosopher's Stone (1997) <br>
+>  Harry Potter and the Chamber of Secrets (1998) <br>
+>  Harry Potter and the Prisoner of Azkaban (1999) <br>
+>  Harry Potter and the Goblet of Fire (2000) <br>
+>  Harry Potter and the Order of the Phoenix (2003) <br>
+>  Harry Potter and the Half-Blood Prince (2005) <br>
+>  Harry Potter and the Deathly Hallows (2007)
+
+# Bottom Line Up Front
+
+I intend to answer the question:
+<h6>"Which Harry Potter film is closest to its corresponding book?"</h6>
+
+In this document, I built a model classifying portions of each books' text into the book that it belongs.  In the next, I will run film scripts through that model to determine how will it aligns with its corresponding book.
+
+Classifying these books took 6 steps:
+
+I) Define documents
+
+   * Description: Create documents at the page-level
+   * Purpose: Define portions of text that are small enough to provide many examples for the model but large enough to capture meaningful differences in text per book
+   
+II) Oversample
+
+   * Description: Balance classes by oversampling from shorter pieces of text from training pages
+   * Purpose: Enrich training data to improve predictions of shorter books
+
+# Setup
+```{r setup, results=FALSE, echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE} 
+rm(list=ls())
+gc()
+
+
+library(pacman)
+pacman::p_load(tidyverse, tidytext, rvest, xgboost, sentimentSetsR, caret, textTinyR, text2vec, tm, stm, SnowballC, stopwords, corpus, glue, RColorBrewer)
+  
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, comment=NA, warning=FALSE, tidy=TRUE, results="hold", cache=TRUE, dpi=360)
+
+# Custom functions
+## Remove quotation marks
+pasteNQ <- function(...) {
+  output <- paste(...)
+  noquote(output)
+}
+pasteNQ0 <- function(...) {
+  output <- paste0(...)
+  noquote(output)
+}
+
+## Chart Template
+Grph_theme <- function() {
+  theme_minimal(base_size=8) + 
+  theme(legend.position="none")
+}
+
+## Clean Corpus
+basicclean <- function(rawtext, contractions = TRUE) {
+  
+  # Set to lowercase
+  rawtext <- tolower(rawtext)
+
+  # Fix apostorphe
+  rawtext <- gsub("’", "'", rawtext)
+
+  # Remove contractions
+  fix_contractions <- function(rawtext) {
+    rawtext <- gsub("will not", "won't", rawtext)
+    rawtext <- gsub("can't", "cannot", rawtext)
+    rawtext <- gsub("can not", "cannot", rawtext)
+    rawtext <- gsub("shall not", "shant", rawtext)
+    rawtext <- gsub("n't", " not", rawtext)
+    rawtext <- gsub("'ll", " will", rawtext)
+    rawtext <- gsub("'re", " are", rawtext)
+    rawtext <- gsub("'ve", " have", rawtext)
+    rawtext <- gsub("'m", " am", rawtext)
+    rawtext <- gsub("'d", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'ld", " would", rawtext)
+    rawtext <- gsub("'s", "", rawtext)
+    return(rawtext)
+  }
+  if (contractions==TRUE) {
+    rawtext <- fix_contractions(rawtext)
+  }
+  
+  # Strip whitespace
+  rawtext <- stripWhitespace(rawtext)
+
+  return(rawtext)
+}
+
+# Remove stop words
+removestopwords <- function(rawtext, remove=NULL, retain=NULL) {
+
+  # Remove stop words
+  stopwords_custom <- stopwords::stopwords("en", source = "snowball")
+  stopwords_custom <- c(stopwords_custom, remove)
+  stopwords_retain <- retain
+  stopwords_custom <- stopwords_custom[!stopwords_custom %in% stopwords_retain]
+  rawtext <- removeWords(rawtext, stopwords_custom)
+
+  return(rawtext)
+}
+
+## Word Stemming
+wordstem <- function(rawtext) {
+  # Stemming words
+  rawtext <- stemDocument(rawtext)
+
+  return(rawtext)
+}
+
+## Remove Non-Alpha
+removenonalpha <- function(rawtext) {
+  # Remove puncutation, numbers, and other none characters
+  rawtext <- removePunctuation(rawtext)
+  rawtext <- removeNumbers(rawtext)
+  rawtext <- gsub("[^[:alnum:]///' ]", "", rawtext)
+  rawtext <- gsub("[']", "", rawtext)
+
+  return(rawtext)
+}
+```
+
+# I) Define Documents
+**Description:** Create documents at the page-level
+**Purpose:** Define portions of text that are small enough to provide many examples for the model but large enough to capture meaningful differences in text per book
+   
+* Page is defined as 250 words
+* Series has 4,347 pages
+* Create paragraph-level documents and link to page ID for later oversampling
+
+```{r}
+setwd("C:/Users/siebe/Documents/07_Books/Harry Potter/")
+
+titles <- c("1 Philosopher's Stone", "2 Chamber of Secrets", "3 Prisoner of Azkaban",
+            "4 Goblet of Fire", "5 Order of the Phoenix", "6 Half-Blood Prince",
+            "7 Deathly Hallows")
+html <- c("Harry_Potter_and_the_Philosophers_Stone.html",
+          "Harry_Potter_and_the_Chamber_of_Secrets.html",
+          "Harry_Potter_and_the_Prisoner_of_Azkaban.html",
+          "Harry_Potter_and_the_Goblet_of_Fire.html",
+          "Harry_Potter_and_the_Order_of_the_Phoenix.html",
+          "Harry_Potter_and_the_Half-Blood_Prince.html",
+          "Harry_Potter_and_the_Deathly_Hallows.html")
+
+books <- tibble(Text=as.character(), Book=as.character())
+para3 <- tibble(Text=as.character(), Book=as.character())
+para1 <- tibble(Text=as.character(), Book=as.character())
+
+for (i in 1:7) {  
+  rawtext <- read_html(html[i])%>%
+      html_nodes(xpath = '/html/body/p') %>%
+          html_text(trim = TRUE)
+  
+  wordcount <- sapply(strsplit(rawtext, " "), length)
+  paragraph <- rawtext 
+
+  # Book Level Documents
+  books <- rbind(books,
+                 tibble(Text = str_c(paragraph, 
+                                         collapse = " "),
+                            Book = titles[i]
+                            )
+           )
+
+  # Paragraph
+  para1 <- rbind(para1,
+                 tibble(Text = paragraph, Book = titles[i]))
+
+  # Paragraph Level Documents
+  triplet <- do.call(rbind, 
+                     lapply(seq(1, length(paragraph), by = 3),
+                          function(x) 
+                                  tibble(Text = str_c(paragraph[x:(x+2)], 
+                                                          collapse = " "),
+                                             Book = titles[i]
+                                             )
+                          )
+                   )
+  para3 <- rbind(para3, triplet)
+}
+
+# Page Level Documents
+pages <- books %>%
+  unnest_tokens(Text, Text, 
+                token = "regex", pattern = "[[:space:]]",
+                to_lower = F) %>%
+  group_by(Book, Page = dplyr::row_number() %/% 250) %>%
+  dplyr::summarize(Text = stringr::str_c(Text, collapse = " ")) %>%
+  mutate(Page = dplyr::row_number()) %>%
+  ungroup()
+## Wordcount
+pages$Wordcount <- sapply(strsplit(pages$Text %>% as.character(), " "), length)
+## Word IDs
+s <- data.frame()
+for(j in titles) {
+  t <- pages[pages$Book==j, ]
+  t$Word_Start <- NA
+  t$Word_Start[1] <- 1
+  t$Word_End <- NA
+  t$Word_End[1] <- t$Wordcount[1]
+  for(i in 2:nrow(t)) {
+    t$Word_Start[i] <- t$Word_End[i-1] + 1
+    t$Word_End[i] <- t$Word_Start[i] + t$Wordcount[i]
+  }
+  s <- rbind(s, t)
+}
+pages <- dplyr::left_join(pages, s)
+
+# Paragraph Level Documents
+# Add Page Numbers
+page_nums <- function(df) {
+  ## Drop missing
+  df <- df[!is.na(df$Text), ]
+  ## Paragraph ID
+  df$Para_ID <- row.names(df) %>% as.numeric()
+  ## Wordcount
+  df$Wordcount <- sapply(strsplit(df$Text %>% as.character(), " "), length)
+  ## Word IDs
+  s <- data.frame()
+  for(j in titles) {
+    t <- df[df$Book==j, ]
+    t$Word_Start <- NA
+    t$Word_Start[1] <- 1
+    t$Word_End <- NA
+    t$Word_End[1] <- t$Wordcount[1]
+    for(i in 2:nrow(t)) {
+      t$Word_Start[i] <- t$Word_End[i-1] + 1
+      t$Word_End[i] <- t$Word_Start[i] + t$Wordcount[i]
+    }
+    s <- rbind(s, t)
+  }
+  df <- dplyr::left_join(df, s)
+  
+  # Page ID
+  match_page <- function(j) {
+    t1 <- df[df$Book==j, c("Para_ID", "Word_Start", "Word_End")]
+    t2 <- pages[pages$Book==j, c("Page", "Word_Start", "Word_End")]
+    
+    t1$Page <- NA
+    for(i1 in 1:nrow(t1)) {
+        for(i2 in nrow(t2):1) {
+        t1$Page[i1] <- ifelse((t1$Word_Start[i1] >= t2$Word_Start[i2]) & 
+                              (t1$Word_Start[i1] <  t2$Word_End[i2]) & 
+                              (t1$Word_End[i1] <= t2$Word_End[i2]+20),
+                               t2$Page[i2],
+                               t1$Page[i1])
+      }
+    }
+    return(t1)
+  }
+  
+  # Parallel
+  pacman::p_load(future.apply)
+  plan(multiprocess)
+  s <- future_lapply(titles, match_page)
+  s <- do.call("rbind", s)
+  df <- dplyr::left_join(df, s)
+  
+  return(df)
+}
+para3 <- page_nums(para3)
+para1 <- page_nums(para1)
+
+# Remove Word IDs
+pages <- pages[ , c("Text", "Book", "Wordcount", "Page")]
+para3 <- para3[ , c("Text", "Book", "Wordcount", "Page")]
+para1 <- para1[ , c("Text", "Book", "Wordcount", "Page")]
+
+# Place books in chronolgical order
+books$Book <- factor(books$Book, levels=titles)
+para3$Book <- factor(para3$Book, levels=titles)
+para1$Book <- factor(para1$Book, levels=titles)
+pages$Book <- factor(pages$Book, levels=titles)
+```
+
+For this sentiment analysis, I want to grab the text around certain characters. Chapters are too much text as they can contain multiple story points, and sentences are too little text as they likely contain little contextual information.  
+
+## Page Level Variation
+
+Paragraph level analysis has the advantage of grouping text by logical beginnings and endings.  Alternatively, page level analysis often groups text by the beginning and ending in half-sentence, mid-paragraph.
+
+However, page level analysis has the advantage of not containing any variation in document length; all documents are a standard 250 words.
+
+Given these advantages and disadvantages, I prioritized paragraph level analysis by using all paragraph triplets in the Series.  I then appended (code later) random samples of page level documents inversely proportionaly to the amount of paragraph triplets in each book.  In other words, I balanced the classes, ensuring each book contained the same number of documents, by adding many page level documents to the shorter books and fewer page level documents to the longer books.
+
+## Paragraph Level Variation
+
+In addition, I take paragraphs for oversampling purposes.  However, paragraphs can be single sentences as in the case of two characters switch dialogue.  Therefore, I take paragraph triplets: three paragraphs containing three or more words.
+
+I start checking for normal (or "normal-ish") distributions of words per paragraph triplet to make sure there is some consistency in document length.  The word distributions appear to approximate a normal distribution, although with a non-trivial right tail.  In addition, the word distributions are similar across books, making it a comparable level of analysis.
+
+```{r}
+# Remove Text
+CleanText_p3 <- basicclean(para3$Text)
+CleanText_p1 <- basicclean(para1$Text)
+CleanText_w250 <- basicclean(pages$Text)
+
+# Summary Statistics
+pasteNQ0("Average Amount of Words per Paragraph Triplet")
+summary(para3$Wordcount)
+
+# Graph distribution of words all
+ggplot(para3, aes(Wordcount, fill=I("#7F0909"))) + 
+  geom_histogram() + 
+  stat_bin(bins = 100) +
+  Grph_theme() +
+  ylab('Frequency') + xlab('Count of Words') + 
+  ggtitle('Words per Paragraph Triplet')
+
+# Graph with book fill
+ggplot(para3, aes(Wordcount, fill=Book)) + 
+  geom_area(stat = "bin") + 
+  scale_fill_manual(values = c("#946B2D", "#0D6217", "#000A90", 
+                                 "#AAAAAA", "#000000", "#7F0909", "#FFC500")) +
+  Grph_theme() +
+  ylab('Frequency') + xlab('Count of Words') + 
+  ggtitle('Words per Paragraph Triplet') + 
+  theme(legend.text = element_text(size=8,color='black')) +
+  theme(legend.position="bottom")
+```
+
+
+# II) Oversample
+**Description:** Balance classes by oversampling from shorter pieces of text from training pages
+**Purpose:** Enrich training data to improve predictions of shorter books
+   
+* Double training size and balance classes in training data
+  - Doubled training size helps reduce overpredictions of shorter books caused by oversampling
+* Randomly sample single and triple paragraphs from training pages
+  - Use different samples per model by setting different seeds per sample
+
+## Data Imbalances in Training Data
+```{r}
+set.seed(2020)
+train_index <- sample(nrow(pages), nrow(pages)*0.80)
+
+train <- pages[train_index, ]
+test  <- pages[-train_index, ]
+
+# Currently balance
+pasteNQ("Current Balance")
+table(train$Book)
+
+# sort Book freqs by chronological order
+docs <- table(train$Book) %>%
+        as.data.frame()
+
+# Define upsample scalars
+upsample_n <- max(docs$Freq) - docs$Freq
+upsample_n <- floor((upsample_n * 2 + docs$Freq) / 3)
+upsample_para1 <- upsample_n * 2
+upsample_para3 <- upsample_n
+
+# Should all be the same number
+cat("\n")
+pasteNQ("Target Balance:")
+upsample_para1 + upsample_para3 + docs$Freq
+train_nrow <- sum(upsample_n * 3 + docs$Freq)
+```
+
+
+## Upsampling Functions
+```{r}
+upsample <- function(df, upsample_n) {
+  # Remove short docs
+  df <- df[df$Wordcount > 20, ]
+  
+  # Separate pages corpus into separate objects by Book title
+  for(i in 1:7) {
+      assign(paste0("page_", i),
+             train[train$Book==titles[i],] %>%
+             tidyr::drop_na())
+    
+      assign(paste0("para_", i),
+             df[df$Book==titles[i],] %>%
+             tidyr::drop_na())
+  }
+  
+  # Upsample from single paragraphs by taking random sample 
+  # w/o replacement of upsample scalars
+  upsamples <- data.frame()
+  for (i in 1:7) {
+    r <- get(paste0("page_", i))
+    t <- get(paste0("para_", i))
+    upsamples <- rbind(upsamples, (
+                       t[sample(nrow(t[t$Page %in% r$Page, ]), 
+                                size = upsample_n[i]), ]
+                       )
+    )
+    t <- NULL
+  }
+  
+  df <- upsamples
+  
+  return(df)
+}
+
+upsample_train <- function(main_df = pages, sub1 = para3, sub2 = para1,
+                           upsamp1 = upsample_para3, upsamp2 = upsample_para1) {
+  sub1_df <- upsample(sub1, upsamp1)
+  sub2_df <- upsample(sub2, upsamp2)
+  df <- rbind(main_df, sub1_df)
+  df <- rbind(main_df, sub2_df)
+  
+  return(df)
+}
+```
+
+
+# Save
+```{r}
+save(titles, pages, para1, para3, train, test, train_nrow, train_index,
+     CleanText_w250, CleanText_p3, CleanText_p1,
+     upsample, upsample_train, upsample_para3, upsample_para1,
+     file = "Harry_Potter_and_the_Classification_-_Documents.RData")
+```
+
+
