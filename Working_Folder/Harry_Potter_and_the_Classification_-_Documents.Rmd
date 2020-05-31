@@ -281,10 +281,27 @@ page_nums <- function(df) {
 para3 <- page_nums(para3)
 para1 <- page_nums(para1)
 
+# Progress
+pages <- pages %>% group_by(Book) %>%
+         mutate(Progress = dplyr::row_number() / 
+                length(dplyr::row_number())) %>% 
+         ungroup()
+para3 <- para3 %>% group_by(Book) %>%
+         mutate(Progress = dplyr::row_number() / 
+                length(dplyr::row_number())) %>% 
+         ungroup()
+para1 <- para1 %>% group_by(Book) %>%
+         mutate(Progress = dplyr::row_number() / 
+                length(dplyr::row_number())) %>% 
+         ungroup()
+
 # Remove Word IDs
-pages <- pages[ , c("Text", "Book", "Wordcount", "Page")]
-para3 <- para3[ , c("Text", "Book", "Wordcount", "Page")]
-para1 <- para1[ , c("Text", "Book", "Wordcount", "Page")]
+pages <- pages[ , c("Text", "Book", "Wordcount", 
+                    "Page", "Progress")]
+para3 <- para3[ , c("Text", "Book", "Wordcount", 
+                    "Page", "Progress")]
+para1 <- para1[ , c("Text", "Book", "Wordcount", 
+                    "Page", "Progress")]
 
 # Place books in chronolgical order
 books$Book <- factor(books$Book, levels=titles)

@@ -267,19 +267,8 @@ stm_func <- function(train, test = NULL, top = NULL, script = NULL) {
   stm_train <- stm(documents = prep$documents, 
                    vocab = prep$vocab,
                    K = 100,
-                   prevalence = ~ lily + james + hagrid +
-                                  dumbledore + sirius + lupin +
-                                  moody + slughorn + dobby +
-                                  cedric + luna + tonks +
-                                  mcgonagall + ginny +
-                                  `order of the phoenix` + neville +
-                                  voldemort + nagini + snape +
-                                  draco + lucius + umbridge +
-                                  pettigrew + dementor + dementors +
-                                  greyback + bellatrix + quirrell +
-                                  riddle + `death eaters` + aragog +
-                                  basilisk + dudley + vernon + petunia,
-                   max.em.its = 5000, 
+                   prevalence = ~ Progress,
+                   max.em.its = 10000, 
                    seed = 2020,
                    data = train,
                    interactions = FALSE,
@@ -295,19 +284,7 @@ stm_func <- function(train, test = NULL, top = NULL, script = NULL) {
                                 documents=prep$documents, 
                                 newData=test,
                                 origData=train, 
-                                prevalence = ~ lily + james + hagrid +
-                                               dumbledore + sirius + lupin +
-                                               moody + slughorn + dobby +
-                                               cedric + luna + tonks +
-                                               mcgonagall + ginny +
-                                               `order of the phoenix` + neville +
-                                               voldemort + nagini + snape +
-                                               draco + lucius + umbridge +
-                                               pettigrew + dementor + dementors +
-                                               greyback + bellatrix + quirrell +
-                                               riddle + `death eaters` + aragog +
-                                               basilisk + dudley + vernon +
-                                               petunia,
+                                prevalence = ~ Progress,
                                 prevalencePrior="Covariate",
                                 verbose=F)
     
@@ -323,19 +300,7 @@ stm_func <- function(train, test = NULL, top = NULL, script = NULL) {
                                documents=prep$documents, 
                                newData=top,
                                origData=train, 
-                               prevalence = ~ lily + james + hagrid +
-                                              dumbledore + sirius + lupin +
-                                              moody + slughorn + dobby +
-                                              cedric + luna + tonks +
-                                              mcgonagall + ginny +
-                                              `order of the phoenix` + neville +
-                                              voldemort + nagini + snape +
-                                              draco + lucius + umbridge +
-                                              pettigrew + dementor + dementors +
-                                              greyback + bellatrix + quirrell +
-                                              riddle + `death eaters` + aragog +
-                                              basilisk + dudley + vernon +
-                                              petunia,
+                               prevalence = ~ Progress,
                                prevalencePrior="Covariate",
                                verbose=F)
     
@@ -351,19 +316,7 @@ stm_func <- function(train, test = NULL, top = NULL, script = NULL) {
                                documents=prep$documents, 
                                newData=script,
                                origData=train, 
-                               prevalence = ~ lily + james + hagrid +
-                                              dumbledore + sirius + lupin +
-                                              moody + slughorn + dobby +
-                                              cedric + luna + tonks +
-                                              mcgonagall + ginny +
-                                              `order of the phoenix` + neville +
-                                              voldemort + nagini + snape +
-                                              draco + lucius + umbridge +
-                                              pettigrew + dementor + dementors +
-                                              greyback + bellatrix + quirrell +
-                                              riddle + `death eaters` + aragog +
-                                              basilisk + dudley + vernon +
-                                              petunia,
+                               prevalence = ~ Progress,
                                prevalencePrior="Covariate",
                                verbose=F)
     
@@ -378,7 +331,9 @@ stm_func <- function(train, test = NULL, top = NULL, script = NULL) {
 ## Bag of Words
 ```{r}
 # Function
-bow_func <- function(train_text, test_text = NULL, top_text = NULL, script_text = NULL) {
+bow_func <- function(train_text, test_text = NULL, 
+                     top_text = NULL, script_text = NULL,
+                     doc_proportion_min = 0.01, ngram = c(1, 1)) {
   set.seed(2020)
   
   # Initiate results
@@ -402,8 +357,8 @@ bow_func <- function(train_text, test_text = NULL, top_text = NULL, script_text 
   				     progressbar = FALSE) 
   
   ## ngrams
-  vocab <- create_vocabulary(it_train, c(1,1)) 
-  vocab <- prune_vocabulary(vocab, doc_proportion_min = 0.01)
+  vocab <- create_vocabulary(it_train, ngram) 
+  vocab <- prune_vocabulary(vocab, doc_proportion_min = doc_proportion_min)
   
   vectorizer <- vocab_vectorizer(vocab)
   
@@ -693,15 +648,18 @@ stm_df <- stm_func(up_train, test, up_top_train)
 stm_train <- stm_df[[1]] %>% cbind(up_train[ , c("Exclamation_Mark", 
                                                  "Question_Mark",
                                                  "Declarative", 
+                                                 "Progress",
                                                  "Sentiment")])
 stm_test  <- stm_df[[2]] %>% cbind(test[ , c("Exclamation_Mark", 
                                              "Question_Mark",
                                              "Declarative", 
+                                             "Progress",
                                              "Sentiment")])
 ## Top Layer
 stm_top_train <- stm_df[[3]] %>% cbind(up_top_train[ , c("Exclamation_Mark", 
                                                          "Question_Mark",
                                                          "Declarative", 
+                                                         "Progress",
                                                          "Sentiment")])
 
 # Bag of Words (TF) Model
@@ -709,7 +667,8 @@ stm_top_train <- stm_df[[3]] %>% cbind(up_top_train[ , c("Exclamation_Mark",
 set.seed(21)
 up_train <- upsample_train(train, para3, para1)
 bow_train_target <- up_train$Book
-bow_dtm <- bow_func(up_train$Text, test$Text, up_top_train$Text)
+bow_dtm <- bow_func(up_train$Text, test$Text, up_top_train$Text,
+                    doc_proportion_min = 0.01, ngram = c(1, 3))
 bow_train <- bow_dtm[[1]] %>% text2vec::normalize("l1")
 bow_test  <- bow_dtm[[2]] %>% text2vec::normalize("l1")
 ## Top Layer
@@ -721,7 +680,8 @@ bow_top_train <- bow_dtm[[3]] %>% text2vec::normalize("l1")
 set.seed(22)
 up_train <- upsample_train(train, para3, para1)
 bowtfidf_train_target <- up_train$Book
-bowtfidf_dtm <- bow_func(up_train$Text, test$Text, up_top_train$Text)
+bowtfidf_dtm <- bow_func(up_train$Text, test$Text, up_top_train$Text,
+                         doc_proportion_min = 0.005, ngram = c(1, 1))
 bowtfidf_train <- bowtfidf_dtm[[1]]
 bowtfidf_test  <- bowtfidf_dtm[[2]]
 tfidf <- TfIdf$new()
@@ -820,9 +780,9 @@ cv_tune <- function(data, iterations = 25, num_class = 7,
             objective = objective,
             num_class = num_class,
             eval_metric = eval_metric,
-            eta = runif(1, min = .0005, max = .2),
+            eta = runif(1, min = .01, max = .3),
             max_depth = sample(3:7, 1),
-            subsample = 0.95
+            subsample = 1
             )
       seed.number <- sample.int(10000, 1)[[1]]
       set.seed(seed.number)          
@@ -831,7 +791,7 @@ cv_tune <- function(data, iterations = 25, num_class = 7,
                           early_stopping_rounds = 7, maximize = FALSE,
                           nrounds = nrounds, nfold = nfold)
       
-      eval_metrics <- cross_val$evaluation_log[, "test_mlogloss_mean"] %>%
+      eval_metrics <- cross_val$evaluation_log[ , 4] %>%
                       as.data.frame()
       min_logloss <- min(eval_metrics)
       min_logloss_index <- which.min(unlist(eval_metrics))
