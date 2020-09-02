@@ -268,34 +268,15 @@ li#menutab .rightbar {
     margin-right: auto;
 }
 
-#photowide {
-  border-radius: 10px; 
-  height: 7.7em; 
-  width: 12.7em; 
+#photo {
+  border-radius: 10px;
+  height: 8em; 
+  width: 11em; 
   position: relative; 
-  display: block; 
+  display: inline-block; 
   margin-bottom: 1.3em;
-    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
+  vertical-align: top;
 } 
-
-#photolong {
-  height: 7.5em; 
-  width: 15.6em; 
-  position: relative; 
-  display: block; 
-  margin-bottom: 1.3em;
-  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
-}
-
-#phototall {
-    border-radius: 10px; 
-    height: 8.1em; 
-    width: 6.3em; 
-    position: relative; 
-    display: block; 
-    margin-bottom: 1.3em;
-    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.8);
-}
 
 #square {
     border-radius: 20px; 
@@ -316,69 +297,42 @@ li#menutab .rightbar {
   font-family: 'Montserrat', sans-serif;  
 }
 
-#quote {
-  height: 1em; 
-  width: 1em; 
-  display: inline-block;
-}
-
 #objective {
-  color: var(--side-color); 
   text-align: left; 
   font-weight: 600;
-  font-style: italic;
-  font-size: 0.9em; 
+  font-size: 0.9em;
+  line-height: 1.2em;
   padding: 0.9em 1.8em; 
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
-#objective:hover {
-  color: #999999;
-  -webkit-transition: all 0.5s ease-out;
-  -moz-transition: all 0.5s ease-out;
-  transition: all 0.5s ease-out;
+#objective a {
+  color: #fff; 
 }
-
 
 .card {
     padding: 2em;
     box-shadow: 1px 2px 4px 1px rgba(0, 0, 0, 0.5);
+	overflow: hidden;
 }
 
-
-/*
-=====================
-SOCIAL LINKS
-=====================
-*/
-p.social {
-  bottom: 1em;
-  position: absolute;
-  width: 220px;
-  left: 30px; 
-  right: 30px;    
+.card img {
+	height: 11rem;
+	width: 11rem;
 }
 
-p.social a {
-  margin: 0 5px;
-  display: inline-block;
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  line-height: 40px;
-  font-size: 15px;
-  text-align: center;
-  vertical-align: bottom;
-  border: solid 1px var(--socl-color);
-  color: var(--socl-color);
-  -webkit-transition: all 0.8s ease-out;
-  -moz-transition: all 0.8s ease-out;
-  transition: all 0.8s ease-out;
+.card:hover {
+	border: 1px solid #999;
+	box-shadow: unset;
 }
 
-p.social a:hover {
-  color: #999999;
-  border-color: #999999;
+.text {
+	display: inline-block;
+	position: relative;
+	left: 2em;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 
@@ -386,15 +340,6 @@ p.social a:hover {
    *Tabs* 
 ********* */
 .container {
-  width: 92%;
-  max-width: 1200px;
-  margin: 0 auto;
-  margin-top: 48px;
-  height: 80px;
-  right: 130px;
-}
-
-.info {
   width: 92%;
   max-width: 1200px;
   margin: 0 auto;
@@ -495,7 +440,11 @@ a {
 }
 
 a:hover {
-  color: #999999;
+  color: #999999 !important;
+  text-decoration: none;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
 }
 
 .main-container code {
