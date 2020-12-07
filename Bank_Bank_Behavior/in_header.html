@@ -1,0 +1,306 @@
+
+<!-- saved from url=(0016)http://localhost --> 
+<!-- saved from url=(0014)about:internet -->
+
+<!--[if lt IE 9]>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+<![endif]-->
+
+<!-- tab icon -->	
+<link rel="shortcut icon" type="image/x-icon" href="../Photos/Crest.ico" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+
+<title>Bad Bank Behavior</title>
+	
+<!-- menubar -->
+<div id="menubar">
+	<ul id="menu"> 
+		<li id="menutab"><a href="index.html">Analysis</a></li>
+		<li id="menutab"><a href="https:\\siebelm.github.io">Blog</a></li>
+		<li id="menutab"><a href="biography.html">Biography</a></li>	
+		<li id="menutab" class="dropdown">
+		<a class="rightbar">Scripts</a>
+		<div class="rightbar-content"> <!-- rightbar -->
+			<a href="https://siebelm.github.io/Bad_Bank_Behavior/Functions.html" >
+				Functions
+			</a>
+			<a href="https://siebelm.github.io/Bad_Bank_Behavior/Data_Load.html" >
+				Data Load
+			</a>
+			<a href="https://siebelm.github.io/Bad_Bank_Behavior/Data_Wrangling.html" >
+				Data Wrangling
+			</a>    
+			<a href="https://siebelm.github.io/Bad_Bank_Behavior/Data_Mining.html" >
+				Data Mining
+			</a>  
+			<a href="https://siebelm.github.io/Bad_Bank_Behavior/Model_Runs.html" >
+				Model Runs
+			</a>  
+			<a href="https://siebelm.github.io/Bad_Bank_Behavior/Model_Predictions.html" >
+				Model Predictions
+			</a>              
+		</div> <!-- rightbar-content -->	
+		</li> <!-- rightbar -->
+	</ul> <!-- menu -->
+
+</div> <!-- menubar -->
+
+<!-- leftpanel -->
+<div class="leftpanel">
+    <div id="blog" onclick="location.href='https://siebelm.github.io/Bad_Bank_Behavior/index.html'" style="cursor:pointer">Research by<br>Michael Siebel</div>
+    <br>
+    <div id="tableofcontents" >
+    <h3>Table of Contents</h3>
+    <ul>
+        <li><strong><a href="#Foreclosures">Foreclosures</strong></a><br></li>
+        <li><strong><a href="#Banks">Banks</strong></a><br></li>
+        <li><strong><a href="#Methodology">Methodology</a></strong><br></li>
+        <li><strong><a href="#Analysis">Analysis</a></strong><br></li>
+        <ul>
+            <li><a href="#Credit-Score">Credit Score</a><br></li>
+            <li><a href="#Debt-to-Income">Debt to Income</a><br></li>
+            <li><a href="#Loan-to-Value">Loan to Value</a><br></li>
+            <li><a href="#Median-Household-Income">Median Household Income</a><br></li>
+            <li><a href="#Loan-Change">Loan Change</a><br></li>
+            <li><a href="#Loan-Liabilities">Loan Liabilities</a><br></li>
+        </ul>
+        <li><strong><a href="#Conclusion">Conclusion</a></strong><br></li>
+    </ul>
+    </div>
+
+    <p class="social">
+      <a href="mailto:michaeltsiebel@gmail.com">
+        <i class="fa fa-envelope"></i>
+      </a>
+      <a href="https://github.com/Siebelm" target="_blank">
+        <i class="fa fa-github"></i>
+      </a>      
+      <a href="https://www.linkedin.com/in/michael-siebel/" target="_blank">
+        <i class="fa fa-linkedin"></i>
+      </a>
+      <a href="https://twitter.com/siebelm12" target="_blank">
+        <i class="fa fa-twitter"></i>
+      </a>      
+    </p>
+</div>
+	
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-159375178-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-159375178-1');
+</script>
+
+<style>
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* *****************
+   Horizontal Menu
+****************** */
+#menubar {
+	padding: 0;
+	margin: 0;
+	position: absolute;
+	z-index: 1;
+	right: 5%;
+	width: 100%;
+    top: 0;
+    padding-bottom: 6px;
+    background-color: transparent !important;
+} 
+
+ul#menu {
+	float: right;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	top: 0;
+ }
+
+li#menutab {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 6px;
+}
+
+li#menutab a {
+    font-size: 1.1em;
+}
+
+li#menutab a, .rightbar {
+	display: inline-block;
+	color: #fff;
+	padding: 14px 16px 18px;
+	text-decoration: none;
+    -webkit-touch-callout: none; /* iOS Safari */
+       -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+          -moz-user-select: none; /* Old versions of Firefox */
+           -ms-user-select: none; /* Internet Explorer/Edge */
+               user-select: none; /* Non-prefixed version, currently
+                                     supported by Chrome, Opera and Firefox */
+}
+
+li#menutab.selected a {
+	color: #1a2028;
+    padding-bottom: 6px;    
+}
+
+li#menutab.selected {
+	margin: 0;
+	background: #fff;
+}
+
+li#menutab a:hover, .dropdown:hover .rightbar {
+	color: #457b9d;
+}
+
+/* **********
+   Menu button 
+ ********** */
+li#menutab.dropdown {
+	display: inline-block;
+}
+
+li#menutab .rightbar {
+	font-size: 1.1em;
+    text-decoration: none;
+	text-align: left;
+	color: #ca2c92;
+	cursor: pointer;	
+} 
+
+.rightbar-content {
+	display: none;
+	position: absolute;
+	background-color: #457b9d;
+	width: 8em;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 1;
+}
+
+.rightbar-content a {
+	padding: 12px 16px;
+	text-decoration: none;
+	min-width: 8em;
+	display: block;
+	text-align: left;
+    font-size: 1em !important;
+}
+
+.rightbar-content a:hover {
+	background-color: #ffffff;
+}
+
+.dropdown:hover .rightbar-content {
+	display: block;
+}
+
+/* ********
+   *DIVS* 
+**********/
+
+.leftpanel {
+    position: fixed;
+    width: 280px;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    overflow-y: auto;
+    background-color: #457b9d;
+}
+
+#blog {
+  color: #1a2028; 
+  margin-top: 14px; 
+  text-align: center; 
+  font-size: 1.8em; 
+  padding: 14px 16px 0 14px; 
+  font-weight: bold;
+  font-family: 'Montserrat', sans-serif;  
+}
+
+#blog:hover {
+  color: #999;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;  
+}
+
+#quote {
+  height: 17px; 
+  width: 17px; 
+  display: inline-block;
+}
+
+#tableofcontents {
+  color: #1a2028; 
+  text-align: left; 
+  font-weight: 550;
+  font-size: 0.9em; 
+  padding: 14px 28px; 
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#tableofcontents > ul {
+  padding-left: 1em;
+}
+
+/*
+=====================
+SOCIAL LINKS
+=====================
+*/
+p.social {
+  bottom: 20px;
+  position: absolute;
+  width: 220px;
+  left: 30px; 
+  right: 30px;    
+}
+
+p.social a {
+  margin: 0 5px;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  line-height: 40px;
+  font-size: 15px;
+  text-align: center;
+  horizontal-align: center;
+  vertical-align: bottom;
+  border: solid 1px #1a2028;
+  color: #1a2028;
+  -webkit-transition: all 0.8s ease-out;
+  -moz-transition: all 0.8s ease-out;
+  transition: all 0.8s ease-out;
+}
+p.social a:hover {
+  color: #999999;
+  border-color: #999999;
+}
+
+</style>
