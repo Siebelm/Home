@@ -50,5 +50,81 @@
 }
 
 
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.column1 {
+  padding: 0 0.8em;
+}
+
+.column1 img {
+  margin: 0 0.8em;
+}
+
+.column33 {
+  float: left;
+  width: 34%;
+  padding: 0.8em;
+}
+
+.column33 img {
+  margin: 0.8em;
+}
+
+.column4 {
+  float: left;
+  width: 40%;
+  padding: 0.8em;
+}
+
+.column4 img {
+  margin: 0.8em;
+}
+
+.column5 {
+  float: left;
+  width: 50%;
+  padding: 0.8em;
+}
+
+.column5 img {
+  margin: 0.8em;
+}
+
+.column6 {
+  float: left;
+  width: 60%;
+  padding: 0.8em;
+}
+
+.column66 img {
+  margin: 0.8em;
+}
+
+.column66 {
+  float: left;
+  width: 66%;
+  padding: 0.8em;
+}
+
+.column6 img {
+  margin: 0.8em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
