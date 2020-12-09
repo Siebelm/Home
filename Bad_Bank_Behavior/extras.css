@@ -1,3 +1,13 @@
+
+:root {
+    --img-bkgd:  unset;
+} 
+
+[data-theme="light"] {
+    --img-bkgd: #323A48;
+}
+
+
 #tableofcontents a {
   color: var(--bkgd-color) !important; 
 }
@@ -49,7 +59,13 @@
   object-fit: cover;
 }
 
-
+/*
+.row {
+    background-color: var(--row-bkgd);
+    padding: 0.1em 2em 1em;
+    box-shadow: 1px 2px 4px 1px rgba(0, 0, 0, 0.5);
+}
+*/
 /* Clear floats after the columns */
 .row:after {
   content: "";
@@ -63,6 +79,11 @@
 
 .column1 img {
   margin: 0 0.8em;
+}
+
+img {
+  background-color: var(--img-bkgd);
+  border-radius: 0.2em;
 }
 
 .column33 {
