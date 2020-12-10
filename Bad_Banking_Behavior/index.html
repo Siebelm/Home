@@ -179,12 +179,23 @@ if (currentTheme) {
         
             <h1 id="Data">Data</h1>
             <p>
-                Text...
+                Most of the data comes from Fannie Mae’s Loan Acquisition and Performance Data.  This contains the target variable:  mortgage loan foreclosures.  Each observation represents a loan originating or refinanced between 2006-2008.  The Financial Crisis is often noted as occurring between 2007-2009; most loans that lend to housing foreclosures originated or were refinanced only a year to three years before foreclosure, leading to a peak in loans destined for foreclosure occurring in 2007.  Refinanced loans are limited to loans originating in fiscal year 2000 or later.  The data is further limited only to loans made by the nine largest banks at the peak of risking lending (2007).  Features modeled to predict foreclosures are limited to information known at the time of loan origination except for the date of last reporting (i.e., the window in which a foreclosure could have occurred and be in the dataset).  
+                <br><br>
+                Other data was used to model loan foreclosures.  See below for a list of data sources and see <a href=”Data Wrangling.html”>Data Wrangling </a> for information on the ETL process used to gather this data:
+                <br>
+                <ul><blockquote>
+                1) Fannie Mae Loan Acquisition and Performance Data [Individual Mortgage Loans],<br>
+                2) Past Fannie Mae Loan Acquisition Data [Changes in Loan Amounts],<br>
+                3) U.S. Census Bureau, Small Area Estimates Branch [Median Household Income by County],<br>
+                4) Federal Reserve Economic Data (FRED) [Macroeconomic Data related to the Housing Market],<br>
+                5) Federal Deposit Insurance Corporation (FDIC) Data [Information on FDIC-backed Banks]<br>
+                </ul></blockquote>
             </p>
+            <br>
+            
             <h2 id="Foreclosures">Foreclosures</h2>
-		<br><br>
             <p>
-                Mortgages made between 2006 – 2008 foreclosed at a rate of 9.7% among the top 9 banks.  These foreclosures peaked in 2007 at 10.2%.  Note, the research paper and **Data Mining** scripts show that these 9 banks issued loans more likely to be foreclosed upon than smaller banks, increasing this rate from the total U.S. rate.
+                Mortgages made between 2006–2008 foreclosed at a rate of 9.7% among the top 9 banks.  These foreclosures peaked in 2007 at 10.2%.  Note, the research paper and <a href=”Data Mining.html”>Data Mining</a> scripts show that these 9 banks issued loans more likely to be foreclosed upon than smaller banks, increasing this rate from the total U.S. rate.
                 <br><br>
                 Of importance, the average mortgage amount not only grew dramatically since the year 2001, but mortgage amounts on loans that were eventually foreclosed upon increased at a higher rate, matching (and briefly exceeding) the mortgage amounts on loans not foreclosed upon.  This implies that large banks may have been willing to make riskier loans for inflated housing prices.
             </p>
@@ -216,7 +227,6 @@ if (currentTheme) {
 		<br><br>
         
             <h2 id="Banks">Banks</h2>
-		<br><br>
             <p>
                 This research investigates the differences between the 9 largest banks.  Bank of America is the largest as defined by the sheer quantity of loans it made, While PNC is the smallest of the nine (note, this is not factoring in the amount of those loans).
                 <br><br>
@@ -237,14 +247,13 @@ if (currentTheme) {
         
         
             <h1 id="Methodology">Methodology</h1>
-		<br><br>
             <p>
                 The main challenge of modelling mortgage foreclosures is that they represent a rare event – defined as a dichotomous variable in which an occurrence of the event is low relative to cases in which that event could occur.  Consequently, counts in the numerator of the rate are expected to be small by comparison to the denominator.  Such small numerators in a target variable are known to create higher bias in estimation and, when forming a proportion, higher variance (King & Zeng, 2001).  In laymen terms, classification models are likely to become better at predicting non-occurrences than occurrences simply because there are more examples of non-occurrences to learn from.  This results in models over-predicting non-occurrences.  In very imbalanced datasets, this can result in zero predictions of an occurrence.
                 <br><br>
                 Further, the features in the Fannie Mae do not correlate well with foreclosures.  To this end, I linked many features from other data.  Still, it remains is difficult to predict foreclosures without overfitting the training data.  
                 <br><br>
                 To solve these two problems, I use two primary ensembling techniques.  The first, algorithm-based ensembling, rebalances the data to augment foreclosure predictions.  The second uses vote ensembling to increase generalization of each model’s results.            </p>        
-		<br><br>
+		
             <h6>Balancing Predictions</h6>
             <p>
                 The chart below displays a hypothetical dataset in which the target variable occurs at a rate of 20%.  In order to ensure a predictive model remains balanced in its learning from occurrences and non-occurrences, an analyst can use an artificial intervention to balance the classes.  One approach is to draw small samples with balanced classes.  These samples produce relatively weak and simple models, which are then ensembled into stronger predictions.
@@ -269,7 +278,6 @@ if (currentTheme) {
                 <img  id="First_Model_Table" src="Photos/First_Model_Table.png" alt="First_Model_Table" style="width:100%" />        
             </div>
         </div>
-		<br><br>            
             
             <h6>Voting Architecture</h6>
             <p>
@@ -285,9 +293,8 @@ if (currentTheme) {
             <div class="column1">
                 <img  id="Model_Ensembling_Architecture" src="Photos/Model_Ensembling_Architecture.png" alt="Model_Ensembling_Architecture" style="width:100%" />        
             </div>
-        </div>
+        </div>        
         
-        <br><br>
             <h6>Modeling Performance</h6>
         <div class="row">
             <div class="column66">
@@ -308,15 +315,19 @@ if (currentTheme) {
 		<br><br>            
         
         
-            <h1 id="Analysis">Analysis</h1>
+        <h1 id="Analysis">Analysis</h1>
             <p>
-                Analysis was conducted on the full dataset, combining the training, validation, and testing data.  
+                Analysis was conducted on the full dataset, combining the training, validation, and testing data.  Below contains information on five features:  credit score, debt-to-income ratio, loan-to-value ratio, median household income at the 3-digit zip code-level, and the dollar amount change in mortgage loans made 1 year ago and 5 years ago.  The latter feature was created by taking total loan amount during a fiscal year quarter for each bank within a 3-digit zip code.
+                <br><br>
+                Using data mining techniques, each feature was examined at each bank.  Then, the feature was replaced by an improved and a weakened assumption based on the inter-quartile range (25-75 percentiles) of the feature across all banks and predicted probabilities were generated to see what the expected foreclosure rate would be if each banks’ behavior were different.  For example, a high credit score is associated with fewer foreclosures.  Among all banks, the average credit score was 719 (on a scale of 300 to 850).  I modified the credit score at each bank to the 75th percentile—an improved assumption of a 770 credit score—and to the 25th percentile—a weakened assumption of 675 credit score.  I left all other feature values unchanged.  I ran these values through the saved model detailed in the section above and analyzed the change in foreclosure rates.  One can interpret the findings as:  “If GMAC Mortgage only lent to those with a credit score of 770, with all other considerations staying the same, its foreclosure rate is predicted to fall from 9.7% to 1%.”
             </p>
-            <h2 id="Credit-Score">Credit Score</h2>
 		<br><br>
+            <h2 id="Credit-Score">Credit Score</h2>
             <h6>Data Mining</h6>
             <p>
-                Text...
+                Credit score is perhaps the feature most directly associated with the performance of a mortgage loan as it is a measure of one’s past ability to pay off debt.  It contained large difference between loans foreclosed (with an average credit score of 668) and loans not destined to be foreclosed upon (with an average credit score of 722).  However, there is little difference between banks, ranging from the best actor PNC Bank (728) to worst actor GMAC Mortgage (710).  Notably, Wells Fargo Bank, boasting the lowest foreclosure rate, only possesses the third highest credit score, and Flagstar Bank, holding the highest foreclosure rate, only possesses the third lowest credit score.  
+                <br><br>
+                This seems to indicate that a change in targeting individuals with certain credit scores should highly influence foreclosure rates, but that banks appeared unwilling to change their credit score standards if other banks did not follow suit.
             </p>
         <div class="row">
             <div class="column5">
@@ -327,10 +338,9 @@ if (currentTheme) {
                 <img  id="Credit_Score_Bar" src="Photos/Credit_Score_Bar.png" alt="Credit_Score_Bar" style="width:100%" />        
             </div>
         </div>
-		<br><br>
             <h6>Model Predictions</h6>
             <p>
-                Text...
+                Overall, foreclosure rates are predicted to improve from 9.7% to 1.6% if all mortgage holders had a credit score of 770 and weaken to 14.1% if all mortgage holder had a credit score of 675.  The bank with the highest credit score, GMAC Mortgage, is predicted to have improved from 9.7% to 1%—a larger change than the bank with the lowest credit score, PNC Bank who is predicted to have improved from 8.8% to 3.1%.  However, PNC Bank is expected to have a larger change if credit scores were weakened to 675, from 8.8% to 13.8%, compared to GMAC mortgage’s 9.7% to 12.2%.  The worst foreclosure prediction was Bank of America, weakening from 11.6% to 17.3%.
             </p>
         <div class="row">
             <div class="column33">
@@ -341,10 +351,13 @@ if (currentTheme) {
                 <img  id="Predicted_Credit_Score_Worst_Bar" src="Photos/Predicted_Credit_Score_Worst_Bar.png" alt="Predicted_Credit_Score_Worst_Bar" style="width:100%" />        
             </div>
         </div>
+		    <h6>Main Point</h6> 
+            <p>
+                Credit score displayed a substantial relationship with foreclosures, but average credit scores differ little between banks.  GMAC Mortgage displayed a major swing when credit score assumptions improved.  Finally, the highest predicted foreclosure rate among all features analyzed in this section was when Bank of America’s credit score assumptions weakened.
+            </p>
 		<br><br>
 
             <h2 id="Debt-to-Income">Debt-to-Income Ratio</h2>
-		<br><br>
             <h6>Data Mining</h6>
             <p>
                 Text...
@@ -358,8 +371,6 @@ if (currentTheme) {
                 <img  id="DTI_Bar" src="Photos/DTI_Bar.png" alt="DTI_Bar" style="width:100%" />        
             </div>
         </div>
-        
-		<br><br>
             <h6>Model Predictions</h6>
             <p>
                 Text...
@@ -373,10 +384,13 @@ if (currentTheme) {
                 <img  id="Predicted_DTI_Worst_Bar" src="Photos/Predicted_DTI_Worst_Bar.png" alt="Predicted_DTI_Worst_Bar" style="width:100%" />        
             </div>
         </div>
+		    <h6>Main Point</h6> 
+            <p>
+                Text...
+            </p>
 		<br><br>
-
+        
             <h2 id="Loan-to-Value">Loan-to-Value Ratio</h2>
-		<br><br>
             <h6>Data Mining</h6>
             <p>
                 Text...
@@ -390,7 +404,6 @@ if (currentTheme) {
                 <img  id="LTV_Bar" src="Photos/LTV_Bar.png" alt="LTV_Bar" style="width:100%" />        
             </div>
         </div>
-		<br><br>
             <h6>Model Predictions</h6>
             <p>
                 Text...
@@ -404,10 +417,13 @@ if (currentTheme) {
                 <img  id="Predicted_LTV_Worst_Bar" src="Photos/Predicted_LTV_Worst_Bar.png" alt="Predicted_LTV_Worst_Bar" style="width:100%" />        
             </div>
         </div>
+		    <h6>Main Point</h6> 
+            <p>
+                Text...
+            </p>
 		<br><br>
 
             <h2 id="Median-Household-Income">Median Household Income</h2>
-		<br><br>
             <h6>Data Mining</h6>
             <p>
                 Text...
@@ -421,7 +437,6 @@ if (currentTheme) {
                 <img  id="MHI_Bar" src="Photos/MHI_Bar.png" alt="MHI_Bar" style="width:100%" />        
             </div>
         </div>
-		<br><br>
             <h6>Model Predictions</h6>
             <p>
                 Text...
@@ -448,10 +463,13 @@ if (currentTheme) {
                 <img  id="Predicted_MHI_Worst_Bar_Weakest" src="Photos/Predicted_MHI_Worst_Bar_Weakest.png" alt="Predicted_MHI_Worst_Bar_Weakest" style="width:100%" />        
             </div>
         </div>
+		    <h6>Main Point</h6> 
+            <p>
+                Text...
+            </p>
 		<br><br>
 
             <h2 id="Loan-Change">Loan Change Ratio</h2>
-		<br><br>
             <h6>Data Mining</h6>
             <p>
                 Text...
@@ -474,7 +492,6 @@ if (currentTheme) {
                 <img  id="LC5_Bar" src="Photos/LC5_Bar.png" alt="LC5_Bar" style="width:100%" />        
             </div>
         </div>
-		<br><br>
             <h6>Model Predictions</h6>
             <p>
                 Text...
@@ -490,10 +507,14 @@ if (currentTheme) {
                 <img  id="Predicted_LC5_Worst_Bar" src="Photos/Predicted_LC5_Worst_Bar.png" alt="Predicted_LC5_Worst_Bar" style="width:100%" />        
             </div>
         </div>
+		    <h6>Main Point</h6> 
+            <p>
+                Text...
+            </p>
 		<br><br>
 
+
             <h1 id="Conclusion">Conclusion</h1>
-		<br><br>
             <p>
                 Text...
             </p>
