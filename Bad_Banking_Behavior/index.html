@@ -79,7 +79,6 @@
             <li><a href="#Loan-to-Value">Loan to Value</a><br></li>
             <li><a href="#Median-Household-Income">Median Household Income</a><br></li>
             <li><a href="#Loan-Change">Loan Change</a><br></li>
-            <li><a href="#Loan-Liabilities">Loan Liabilities</a><br></li>
         </ul>
         <li><strong><a href="#Conclusion">Conclusion</a></strong><br></li>
     </ul>
@@ -244,20 +243,19 @@ if (currentTheme) {
                 <br><br>
                 Further, the features in the Fannie Mae do not correlate well with foreclosures.  To this end, I linked many features from other data.  Still, it remains is difficult to predict foreclosures without overfitting the training data.  
                 <br><br>
-                To solve these two problems, I use two primary ensembling techniques.  The first rebalances the data to augment foreclosure predictions.  The second uses vote ensembling to increase generalization of each model’s results.
-            </p>        
+                To solve these two problems, I use two primary ensembling techniques.  The first, algorithm-based ensembling, rebalances the data to augment foreclosure predictions.  The second uses vote ensembling to increase generalization of each model’s results.            </p>        
 		<br><br>
             <h6>Balancing Predictions</h6>
             <p>
-                The chart below displays a hypothetical dataset in which the target variable occurs at a rate of 20%.  In order to ensure a predictive model remains balanced in its learning from occurrences and non-occurrences, an analyst can use an artificial intervention to balance the classes.  One approach is to draw small samples with balanced classes.  These samples produce relatively weak and simple models, which are then ensembled into stronger predictions.                
+                The chart below displays a hypothetical dataset in which the target variable occurs at a rate of 20%.  In order to ensure a predictive model remains balanced in its learning from occurrences and non-occurrences, an analyst can use an artificial intervention to balance the classes.  One approach is to draw small samples with balanced classes.  These samples produce relatively weak and simple models, which are then ensembled into stronger predictions.
                 <br><br>
-                Step 2 displays how this example data could be sampled using an ensembling technique.  The analyst converts the training data into four balanced datasets in which the target variable occurs at a rate of 50%.  These samples can encompass the full training data and yet each model learns from the same number of occurrences as it does non-occurrences.  Ensembling these simpler models involves averaging their predicted probabilities and then converting those predicted probabilities into a dichotomous result using a classification threshold (i.e., the hardlimit).  Finally, that prediction model is used to predict on the validation data for model evaluation.  The validation data remains in its raw form (i.e., without balanced classes) to evaluate these predictions as with natural data (i.e., no analyst interventions).	
+                Moving from Step 1 to Step 2 displays how this example data could be sampled using an ensembling technique.  The analyst converts the training data into four balanced datasets in which the target variable occurs at a rate of 50%.  These samples can encompass the full training data and yet each model learns from the same number of occurrences as it does non-occurrences.  Ensembling these simpler models involves averaging their predicted probabilities and then converting those predicted probabilities into a dichotomous result using a classification threshold (i.e., the hardlimit).  Finally, that prediction model is used to predict on the validation data for model evaluation.  The validation data remains in its raw form (i.e., without balanced classes) to evaluate these predictions as with natural data (i.e., no analyst interventions).	
                 <br><br>
                 While this approach overcomes the issue of over-predicting non-occurrence, it is prone to over-predicting occurrences.  By over-predicting the rare events, the ensembled model is shown to know what situations lead to preventing or causing a mortgage foreclosure, although it is biased towards predicting mortgage foreclosures at higher rates.  Fortunately, this bias can be minimized by optimizing the classification threshold.  
                 <br><br>
                 As shown in Step 3, the testing data remains imbalanced and the predicted probability predictions are equally likely to be above or below 0.5 – the standard classification threshold.  Because the analyst intervened and forced balanced classes in the training data, the analyst should compensate by increasing the threshold to an appropriate level.  In this example, the analyst could choose a 0.8 threshold, which would provide perfect predictions on the test set.  Note, this decision is made on validation data, separate from the testing data which will make the final model evaluations.
                 <br><br>
-                In modeling mortgage foreclosures, the classification threshold that maximizes F1 score is selected as this is the best at balancing recall and precision.  Many models were run on different cohorts and using different algorithms; more on this in the next section.  The results are quite poor: one of the 3 first models on all nine banks resulted in only 0.24 precision and, despite the stricter threshold, it predicted 19% foreclosures when the testing data contained only 10% foreclosures.  (Note, while the full data contained 9.7% foreclosures, the testing data contained 10%.)            </p>           
+                In modeling mortgage foreclosures, the classification threshold that maximizes F1 score is selected as this is the best at balancing recall and precision.  Many models were run on different cohorts and using different algorithms; more on this in the next section.  The results are quite poor: one of the 3 first models on all nine banks resulted in only 0.24 precision and, despite the stricter threshold, it predicted 19% foreclosures when the testing data contained only 10% foreclosures.  (Note, while the full data contained 9.7% foreclosures, the testing data contained 10%.)
         <div class="row">
             <div class="column1">
                 <img  id="Model_Ensembling_Balancing" src="Photos/Model_Ensembling_Balancing.png" alt="Model_Ensembling_Balancing" style="width:100%" />        
@@ -275,33 +273,44 @@ if (currentTheme) {
             
             <h6>Voting Architecture</h6>
             <p>
-                Text...
+                Three models on each of the 9 banks plus on an all banks dataset were run (for a total of 30 models).  As described above, the three models resampled the data to better balance foreclosures to non-foreclosures.  However, while one substitutes an even balance (1:1 between the two outcomes), one substitutes a 3:1 balance, and the other substitutes a 5:1 balance.  This is done to ensure greater diversity between models.  The two that favor non-foreclosures still oversample foreclosures as a true dataset (such as the validation and testing data) favor non-foreclosures at 10:1.
+                <br><br>
+                The 1:1 model is a random forest that uses principal component analysis (PCA) to reduce the features to 10.  The 3:1 model is an AdaBoost decision tree algorithm called SAMME.R, which uses all 42 variables.  The 5:1 model is another random forest that selects a different square root amount of the 42 variables per tree.  Each of the three models receives one vote per bank.  
+                <br><br>
+                The figure below illustrates the architecture in which these models were ensembled—simplified to only show three banks.  The bottom layer displays the models, and the arrows represent a vote of foreclosure or not being sent to another layer.  The all bank dataset is a special case, which receives a middle layer for the first round of voting.  The all banks dataset attempts to capture cases of foreclosure that are likely to occur regardless of bank-specifics.  As a result, I imposed a strict criterion of unanimous vote, meaning the three models must all agree that a prediction is a foreclosure for it to be marked as a foreclosure.  The top layer receives three votes from the three models per bank plus a vote from the model layer’s all bank dataset.  The top layer requires a majority vote—three out of the four votes must agree that a prediction is a foreclosure for it to be marked as a foreclosure.  
+                <br><br>
+                This voting architecture is designed to use the the algorithm-based ensembling to ensure model attention on what cases a foreclosure, and vote ensembling to keep foreclosures rare.  
             </p>   
         <div class="row">
             <div class="column1">
                 <img  id="Model_Ensembling_Architecture" src="Photos/Model_Ensembling_Architecture.png" alt="Model_Ensembling_Architecture" style="width:100%" />        
             </div>
         </div>
+        
+        <br><br>
+            <h6>Modeling Performance</h6>
         <div class="row">
             <div class="column66">
-
+            <p>
+                After all votes were cast, the final model, which stacks each of the final bank results from the top layer on one another, correctly predicted a foreclosure rate of 10%.  The overall accuracy rate appears high at 0.88, but it contains issues which can be understood by the low F1 score (0.38).  The F1 score is a better measure of accuracy as it accounts for the low prevalence of foreclosures.
+                <br><br>
+                Certainly, the voting architectures improved the results of the individual models.  It was low on bias, but high in variation; each prediction was prone to error (i.e., high variation), but the errors were about as likely to be a false positive (0.37 precision) as a false negative (0.39 recall).  
+                <br><br>
+                A similar pattern held across banks, with all but one bank containing predicted foreclosures only a percentage point off actual foreclosures.  SunTrust Mortgage performed the worst with two percentage points off actual foreclosures, predicting 8% foreclosures instead of 10.  It contained a 0.09 point gap between precision (0.41) and recall (0.32), causing more false negatives (i.e., bias towards non-foreclosures).  All other banks contained between 0 – 0.05 point gap between precision and recall.  F1 scores ranged from 0.31 (AmTrust Bank) to 0.43 (Bank of America).
+                <br><br>
+                Therefore, these predictions appear valuable in the aggregate (e.g., bank predictions), but not as individual predictions (e.g., mortgage recipient predictions).  In other words, this model seems reasonably equipped to predict foreclosure rates for bank lenders, but not equipped to predict whether a loanee will eventually have their home foreclosed upon.
+            </p>
             </div>
             <div class="column33">
                 <img  id="Final_Model_Table" src="Photos/Final_Model_Table.png" alt="Final_Model_Table" style="width:100%" />        
             </div>
         </div>        
 		<br><br>            
-
-            <h6>Model Results</h6>
-            <p>
-                Text...
-            </p>   
-		<br><br>
         
         
             <h1 id="Analysis">Analysis</h1>
             <p>
-                Text...
+                Analysis was conducted on the full dataset, combining the training, validation, and testing data.  
             </p>
             <h2 id="Credit-Score">Credit Score</h2>
 		<br><br>

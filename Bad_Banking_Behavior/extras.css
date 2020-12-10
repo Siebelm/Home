@@ -44,8 +44,8 @@
   text-decoration: none;
 }
 
-#tableofcontents ::marker {
-    color: var(--slct-color);
+li::marker {
+    color: var(--slct-color) !important;
 }
 
 #fannie_mae {
