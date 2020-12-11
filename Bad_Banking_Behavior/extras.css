@@ -63,6 +63,13 @@ mpop {
     color: var(--mpop-color)
 }
 
+.row {
+  display: -ms-flexbox; /* IE10 */
+  display: flex;
+  -ms-flex-wrap: wrap; /* IE10 */
+  flex-wrap: wrap;
+}
+
 /* Clear floats after the columns */
 .row:after {
   content: "";
@@ -78,6 +85,12 @@ mpop {
   margin: 0 0.8em;
 }
 
+#Foreclosure_Bar {
+  -ms-flex: 75%;
+  flex: 75%;
+  max-width: 75%;
+}
+
 img {
   background-color: var(--img-bkgd);
   border-radius: 0.2em;
@@ -85,55 +98,96 @@ img {
 
 .column33 {
   float: left;
-  width: 34%;
+  -ms-flex: 33%;
+  flex: 33%;
+  max-width: 33%;
   padding: 0.8em;
-}
-
-.column33 img {
-  margin: 0.8em;
 }
 
 .column4 {
   float: left;
-  width: 40%;
+  -ms-flex: 40%;
+  flex: 40%;
+  max-width: 40%;
   padding: 0.8em;
-}
-
-.column4 img {
-  margin: 0.8em;
 }
 
 .column5 {
   float: left;
-  width: 50%;
+  -ms-flex: 50%;
+  flex: 50%;
+  max-width: 50%;
   padding: 0.8em;
-}
-
-.column5 img {
-  margin: 0.8em;
 }
 
 .column6 {
   float: left;
-  width: 60%;
+  -ms-flex: 60%;
+  flex: 60%;
+  max-width: 60%;
   padding: 0.8em;
-}
-
-.column66 img {
-  margin: 0.8em;
 }
 
 .column66 {
   float: left;
-  width: 66%;
+  -ms-flex: 66%;
+  flex: 66%;
+  max-width: 66%;
   padding: 0.8em;
 }
 
+.column33 img,
+.column4 img,
+.column5 img,
+.column66 img,
 .column6 img {
+  vertical-align: middle;
   margin: 0.8em;
 }
 
 
+/* Responsive layout - makes a 2 column-layout instead of 3 columns */
+@media screen and (max-width: 600px) {
+  .column1 {
+    padding: 0;
+  }
+  .column1 img {
+    padding: 0.8em;
+    -ms-flex: 100%;
+    flex: 100%;
+    max-width: 100%;   
+  }    
+  .column33,
+  .column4  {
+    -ms-flex: 50%;
+    flex: 50%;
+    max-width: 50%;
+  }
+  .column66,
+  .column6,
+  .column5  {
+    -ms-flex: 100%;
+    flex: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 650px) {
+  .column4 {
+    -ms-flex: 100%;
+    flex: 100%;
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .column33 {
+    -ms-flex: 100%;
+    flex: 100%;
+    max-width: 100%;
+  }
+}
 
 
 
