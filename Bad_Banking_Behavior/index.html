@@ -340,8 +340,7 @@ if (currentTheme) {
         </div>
             <h6>Model Predictions</h6>
             <p>
-                Overall, foreclosure rates are predicted to improve from 9.7% to 1.6% if all mortgage holders had a credit score of 770 and weaken to 14.1% if all mortgage holder had a credit score of 675.  The bank with the highest credit score, GMAC Mortgage, is predicted to have improved from 9.7% to 1%—a larger change than the bank with the lowest credit score, PNC Bank who is predicted to have improved from 8.8% to 3.1%.  However, PNC Bank is expected to have a larger change if credit scores were weakened to 675, from 8.8% to 13.8%, compared to GMAC mortgage’s 9.7% to 12.2%.  The worst foreclosure prediction was Bank of America, weakening from 11.6% to 17.3%.
-            </p>
+                Overall, foreclosure rates were predicted to improve from 9.7% to 1.6% if all mortgage holders had a credit score of 770 and weaken to 14.1% if all mortgage holder had a credit score of 675.  Bank of America had the largest change, improving from 11.6% to 1.9%.  Meanwhile, the bank with the lowest credit score, PNC Bank, is predicted to have the least improvement from 8.8% to 3.1%.  However, Bank of America is expected to have the largest increase in foreclosures, if credit scores were weakened to 675, from 11.6% to 17.3%, compared to GMAC Mortgage’s 9.7% to 12.2%.              </p>
         <div class="row">
             <div class="column33">
                 <img  id="Predicted_Credit_Score_Table" src="Photos/Predicted_Credit_Score_Table.png" alt="Predicted_Credit_Score_Table" style="vertical-align: middle; width:100%" />
@@ -353,14 +352,14 @@ if (currentTheme) {
         </div>
 		    <h6>Main Point</h6> 
             <p>
-                Credit score displayed a substantial relationship with foreclosures, but average credit scores differ little between banks.  GMAC Mortgage displayed a major swing when credit score assumptions improved.  Finally, the highest predicted foreclosure rate among all features analyzed in this section was when Bank of America’s credit score assumptions weakened.
+                Credit score displayed a substantial relationship with foreclosures, but average credit scores differ little between banks.  Bank of America had the most impact by changes in credit score.  Most notably, the highest predicted foreclosure rate among all features analyzed in this section was when Bank of America’s credit score assumptions weakened.  
             </p>
 		<br><br>
 
             <h2 id="Debt-to-Income">Debt-to-Income Ratio</h2>
             <h6>Data Mining</h6>
             <p>
-                Text...
+                The average DTI ratio for loans destined for foreclosure is 41.4% and 37.8% for those not destined for foreclosure.  Similar to credit score, banks did not range greatly with Flagstar Bank the highest (40.9%) and CitiMortgage the lowest (35.3%).  The best actor, CitiMortgage, had roughly as similar proportions of loan recipients with DTI ratios at 60% as it did at 20%.  A general rule of thumb in personal finance is to keep a DTI ratio of 35% or less, implying that loan recipients between 2006-2008 were exceeding conventional standards for DTI.
             </p>
         <div class="row">
             <div class="column5">
@@ -373,7 +372,7 @@ if (currentTheme) {
         </div>
             <h6>Model Predictions</h6>
             <p>
-                Text...
+                Overall, foreclosure rates were predicted to improve from 9.7% to 6.5% if all mortgage holders had a DTI ratio of and weaken to 29% and weaken to 11.8% if all mortgage holders had a DTI ratio of 47%.  Most banks were predicted to reduce foreclosures to 5%-5.5%, with Wells Fargo improving to 3.5% and Bank of America improving to only 8.9% as outliers.  Under improved assumptions, Flagstar Banks was predicted to have the largest decrease in foreclosures from 11.7% to 5.3%.  Under weakened assumptions, PNC Bank was predicted to have the largest increase in foreclosures from 8.8% to 12.5%.  Again, Bank of America was predicted to have the highest foreclosure rate of 14.8% under a DTI ratio of 47%.  However, one bank, SunTrust Mortgage, decreased its foreclosure rate with weakened assumptions, showing that not all potential recipients with DTI’s were risky.
             </p>
         <div class="row">
             <div class="column33">
@@ -386,14 +385,14 @@ if (currentTheme) {
         </div>
 		    <h6>Main Point</h6> 
             <p>
-                Text...
+                All banks were approving loans to recipients with high DTI ratios.  In general, foreclosures decreased substantially with improved DTI assumptions, but did not increase as substantially when assumptions were weakened.
             </p>
 		<br><br>
         
             <h2 id="Loan-to-Value">Loan-to-Value Ratio</h2>
             <h6>Data Mining</h6>
             <p>
-                Text...
+                LTV data displays 3 spikes around 95%, 90%, and 80%.  There is a large tail in which presumably wealthy buyers were putting down 40% (an LTV of 60%) or more for their down payment.  Loans destined to foreclose averaged a down payment of 20.5% (an LTV of 79.5%), and loans not eventually foreclosed upon averaged a down payment of 28.7% (an LTV of 71.3%).  Loans with an LTV’s of 90% and 95% displayed particularly high levels of foreclosure.  Bank LTV’s ranged from only 69.8% (GMAC Mortgage) to 74.6% (AmTrust Bank).  AmTrust Bank contained few outliers: people who made large down payments. Interestingly, Wells Fargo, the bank with the lowest foreclosure rate, had the second highest LTV.
             </p>
         <div class="row">
             <div class="column5">
@@ -406,7 +405,7 @@ if (currentTheme) {
         </div>
             <h6>Model Predictions</h6>
             <p>
-                Text...
+                Overall, foreclosure rates were predicted to improve from 9.7% to 5.3% if all mortgage holders had a LTV of 63 and weaken to 13.2% if all mortgage holder had a LTV of 84.  Under improved assumptions, SunTrust Mortgage changed the most from 10.3% to 3.4%.  Under weakened assumptions, Bank of America changed the most from 11.6% to 16.4% - again, the worst foreclosure rate.  SunTrust Bank was the only one to improve (slightly) as LTV increased.
             </p>
         <div class="row">
             <div class="column33">
@@ -419,14 +418,14 @@ if (currentTheme) {
         </div>
 		    <h6>Main Point</h6> 
             <p>
-                Text...
+                LTV was the second most impactful feature analyzed in this document after credit score.  Bank of America increased in foreclosures more than any other bank to an extremely high rate under weakened assumptions.
             </p>
 		<br><br>
 
             <h2 id="Median-Household-Income">Median Household Income</h2>
             <h6>Data Mining</h6>
             <p>
-                Text...
+                Median household income at the 3-digit zip code does not necessarily reflect the income of the loan recipient but does indicate whether banks are focusing their loan efforts in poorer or wealthier areas.  The difference between the average income of loans destined for foreclosure ($48,204) was very close to those that did not foreclose ($48,797).  Between banks, income only ranged from $47,264 (SunTrust Mortgage) to $49,491 (CitiMortgage).
             </p>
         <div class="row">
             <div class="column5">
@@ -439,7 +438,7 @@ if (currentTheme) {
         </div>
             <h6>Model Predictions</h6>
             <p>
-                Text...
+                Due to low data variation, median household income was adjusted only slightly from an improved assumption of $53,615 to a weakened assumption of $43,298.  Perhaps, because a $10,000 income difference is too small, banks overall did not reduce predicted foreclosures under improved assumptions or increase foreclosure under weakened assumptions.
             </p>
         <div class="row">
             <div class="column33">
@@ -450,9 +449,13 @@ if (currentTheme) {
                 <img  id="Predicted_MHI_Worst_Bar" src="Photos/Predicted_MHI_Worst_Bar.png" alt="Predicted_MHI_Worst_Bar" style="width:100%" />        
             </div>
         </div>
+		    <h6>Main Point</h6> 
+            <p>
+                Foreclosure predictions seem random: only slightly change and often in the wrong direction.  This could be related to two issues:  1) there is little correlation between median household income at the 3-digit zip code, and/or 2) there is little data variation in this feature.  Given the latter potential explanation, I adjusted the assumptions to the maximum (an income of $101,651) and the minimum ($28,832).
+            </p>
             <h6>Best/Worst-Case Scenerios</h6>
             <p>
-                Text...
+                After adjusting assumptions to the richest region ($101,651) and the poorest region ($28,832), the predictions begin looking more like one would expect.  Emphasizing the highest region is predicted to decrease foreclosures from 9.7% to 4.9%, although emphasizing the poorest region is not predicted to change foreclosures greatly (from 9.7% to 9.9%).
             </p>
         <div class="row">
             <div class="column33">
@@ -463,16 +466,12 @@ if (currentTheme) {
                 <img  id="Predicted_MHI_Worst_Bar_Weakest" src="Photos/Predicted_MHI_Worst_Bar_Weakest.png" alt="Predicted_MHI_Worst_Bar_Weakest" style="width:100%" />        
             </div>
         </div>
-		    <h6>Main Point</h6> 
-            <p>
-                Text...
-            </p>
 		<br><br>
 
-            <h2 id="Loan-Change">Loan Change Ratio</h2>
+            <h2 id="Loan-Change">Loan Change</h2>
             <h6>Data Mining</h6>
             <p>
-                Text...
+                Banks increasing the total value of their loans over 1 year did not correspond with lower foreclosures.  However, there appears to be a minor effect among banks increasing their loans over 5 years; loans destined for foreclosure on average increased $63,530 over 5 years compared to a $61,1932 increase in non-foreclosed loans.  There are dramatic bank differences in loan changes with AmTrust increasing only $34,664 over 5 years and Well Fargo increasing $96,423.
             </p>
         <div class="row">
             <div class="column5">
@@ -494,7 +493,7 @@ if (currentTheme) {
         </div>
             <h6>Model Predictions</h6>
             <p>
-                Text...
+                Under improved assumptions, 1 year loan changes increased $2,292 and 5 year loan changes increased $37,980, while overall foreclosure rates were predicted to improve from 9.7% to 7.9%.  Under weakened assumptions, 1 year loan changes increased $27,661 and 5 year loan changes increased $86,358, while overall foreclosure rates were predicted to decline from 9.7% to 12.9%.  Wells Fargo decreased in foreclosures the most from 7.6% to 3.6%, while Bank of America increased in foreclosures the most from 11.6% to 17%.
             </p>
         <div class="row">
             <div class="column33">
@@ -509,7 +508,7 @@ if (currentTheme) {
         </div>
 		    <h6>Main Point</h6> 
             <p>
-                Text...
+                Changes in loans vary across banks more than any other feature examined in this document.  Likewise, predicted changes in foreclosure varied greatly between banks.  Wells Fargo Bank substantially decreased foreclosures under improved assumptions but also slightly decreased foreclosures under weakened assumptions.  Overall, changes in loans over time impacted foreclosures more than median household income at 3-digit zip codes but less than the other features examined in this document.
             </p>
 		<br><br>
 
