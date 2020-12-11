@@ -59,13 +59,10 @@ li::marker {
   object-fit: cover;
 }
 
-/*
-.row {
-    background-color: var(--row-bkgd);
-    padding: 0.1em 2em 1em;
-    box-shadow: 1px 2px 4px 1px rgba(0, 0, 0, 0.5);
+mpop {
+    color: var(--mpop-color)
 }
-*/
+
 /* Clear floats after the columns */
 .row:after {
   content: "";
