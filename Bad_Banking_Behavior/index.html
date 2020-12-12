@@ -288,7 +288,7 @@ if (currentTheme) {
                 <br><br>
                 The figure below illustrates the architecture in which these models were ensembled—simplified to only show three banks.  The bottom layer displays the models, and the arrows represent a vote of foreclosure or not being sent to another layer.  The all bank dataset is a special case, which receives a middle layer for the first round of voting.  The all banks dataset attempts to capture cases of foreclosure that are likely to occur regardless of bank-specifics.  As a result, I imposed a strict criterion of unanimous vote, meaning the three models must all agree that a prediction is a foreclosure for it to be marked as a foreclosure.  The top layer receives three votes from the three models per bank plus a vote from the model layer’s all bank dataset.  The top layer requires a majority vote—three out of the four votes must agree that a prediction is a foreclosure for it to be marked as a foreclosure.  
                 <br><br>
-                This voting architecture is designed to use the the algorithm-based ensembling to ensure model attention on what cases a foreclosure, and vote ensembling to keep foreclosures rare.  
+                This voting architecture is designed to use the algorithm-based ensembling to ensure model attention on what cases a foreclosure, and vote ensembling to keep foreclosures rare.  
             </p>   
         <div class="row">
             <div class="column1">
