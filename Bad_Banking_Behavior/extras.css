@@ -147,10 +147,7 @@ img {
 
 
 /* Responsive layout - makes a 2 column-layout instead of 3 columns */
-@media screen and (max-width: 600px) 
-and (max-device-width: 1024px) 
-and (min-resolution: 2dppx) 
-and (orientation : portrait) {
+@media screen and (max-width: 600px) {
   .column1 {
     padding: 0;
   }
@@ -175,9 +172,43 @@ and (orientation : portrait) {
   }
 }
 
+@media screen and (max-device-width: 1024px) 
+and (min-resolution: 2dppx) 
+and (orientation : portrait) {
+  .column1 {
+    padding: 0;
+  }
+  #Foreclosure_Bar {
+    padding: 0.8em;
+    -ms-flex: 100%;
+    flex: 100%;
+    max-width: 100%;   
+  }    
+  .column33,
+  .column4  {
+    -ms-flex: 50%;
+    flex: 50%;
+    max-width: 50%;
+  }
+  .column66,
+  .column6,
+  .column5  {
+    -ms-flex: 100%;
+    flex: 100%;
+    max-width: 100%;
+  }
+}
+
 /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 650px) 
-and (max-device-width: 1024px) 
+@media screen and (max-width: 650px) {
+  .column4 {
+    -ms-flex: 100%;
+    flex: 100%;
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-device-width: 1024px) 
 and (min-resolution: 2dppx) 
 and (orientation : portrait) {
   .column4 {
@@ -187,10 +218,7 @@ and (orientation : portrait) {
   }
 }
 
-@media screen and (max-width: 500px) 
-and (max-device-width: 1024px) 
-and (min-resolution: 2dppx) 
-and (orientation : portrait) {
+@media screen and (max-width: 500px) {
   .column33 {
     -ms-flex: 100%;
     flex: 100%;
@@ -198,7 +226,15 @@ and (orientation : portrait) {
   }
 }
 
-
+@media screen and (max-device-width: 1024px) 
+and (min-resolution: 2dppx) 
+and (orientation : portrait) {
+  .column33 {
+    -ms-flex: 90%;
+    flex: 90%;
+    max-width: 90%;
+  }
+}
 
 
 
