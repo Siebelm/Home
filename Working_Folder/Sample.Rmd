@@ -1,0 +1,73 @@
+---
+title: "Harry Potter NLP"
+author: "Michael Siebel"
+date: "`r date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: "../Rstyles.css" 
+    code_folding: hide
+    highlight: tango
+    includes:
+      in_header: "menu.html"
+---
+
+<br>
+
+>  Model Ensembling and Classification for: <br>
+>  Harry Potter and the Philosopher's Stone (1997) <br>
+>  Harry Potter and the Chamber of Secrets (1998) <br>
+>  Harry Potter and the Prisoner of Azkaban (1999) <br>
+>  Harry Potter and the Goblet of Fire (2000) <br>
+>  Harry Potter and the Order of the Phoenix (2003) <br>
+>  Harry Potter and the Half-Blood Prince (2005) <br>
+>  Harry Potter and the Deathly Hallows (2007)
+
+# Bottom Line Up Front
+
+I intend to answer the question:
+<h6>Which Harry Potter film is closest to its corresponding book?</h6>
+<br>
+
+
+Answering this question took 5 steps:
+
+I) Define documents
+II) Data augmentation
+III) Perform stacked ensemble modeling
+IV) Predict scripts on book model
+V) Measure via predicted probabilities
+
+
+
+**I) Define documents**
+
+   * Description: Create documents at the page-level
+   * Purpose: Define portions of text that are small enough to provide many examples for the model but large enough to capture meaningful differences in text per book
+   
+**II) Data augmentation**
+
+   * Description: Balance classes by oversampling from shorter pieces of text from training pages
+   * Purpose: Enrich training data to improve predictions of shorter books
+   
+**III) Structure text for 4 models**
+
+   * Description: Build 4 document term matricies (DTM) using different NLP techniques
+   * Purpose: Use multiple NLP techniques in order to take advantage of each of their strengths
+
+**IV) Run 4 models**
+
+   * Description: Run 4 models independently with hyper-parameter tuning
+   * Purpose: Optimize 4 models   
+
+**V) Perform stacked ensemble modeling**
+
+   * Description: Ensemble 4 bottom layer models with top layer model
+   * Purpose: Take strengths of each model and minimize each model's weaknesses 
+
+**VI) Determine final model performance**
+
+   * Description: Test results of stacked model ensemble on testing data
+   * Purpose: Ensure model process and outcome is generalizable
+
