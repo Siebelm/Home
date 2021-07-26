@@ -548,8 +548,16 @@ div.tocify {
 <p>Generalized linear models (GLM) such as <a>logistic</a>, <a>poisson</a>, and <a>gamma</a> GLMs can create their own, more indirect version of a R<sup>2</sup> called pseudo-R<sup>2</sup>.</p>
 <p><img id="chart50" src="Photos/Pseudo-R2_Formula.png" alt="Pseudo-R2 Formula" /></p>
 <p>There are two important limitations to R<sup>2</sup> and pseudo-R<sup>2</sup>:</p>
-<p><mpop>1) They only apply to parametric models</mpop></p>
-<p><mpop>2) It evaluates the model on the same data that produced it</mpop></p>
+<h6>
+<ol style="list-style-type: decimal">
+<li>They only apply to parametric models
+</h6></li>
+</ol>
+<h6>
+<ol start="2" style="list-style-type: decimal">
+<li>It evaluates the model on the same data that produced it
+</h6></li>
+</ol>
 </div>
 <div id="alternative" class="section level1">
 <h1>Alternative</h1>
@@ -603,7 +611,7 @@ Test Data
 <h2>Data Challenge</h2>
 <p>Here, we see a difficult dataset. The classes are imbalanced. The positive cases can be described as a rare event. A normal modeling algorithm will provide many examples (i.e., rows) in which the model can learn what leads to a negative case, but few examples in which a model can learn what leads to a positive case.</p>
 <blockquote>
-<p>As a result, most models of rare events will lead to a bias:<br>underpredicting positive cases and overpredicting negative cases.</p>
+<p>As a result, most models of rare events will lead to a bias:<br> underpredicting positive cases and overpredicting negative cases.</p>
 </blockquote>
 </div>
 <div id="data-cleaning" class="section level2">
@@ -750,28 +758,26 @@ Recall =   3  / (  3  +  254  )</code></pre>
 <p><img id="chart75" src="Photos/unbiased_pred.png" alt="Unbiased" /></p>
 <p>In cases of rare events, recall is likely much lower than precision (assuming the positive case is the rare event). To decrease error bias, then, one will need to increase recall or “cast a larger net”.</p>
 </div>
-<div id="conclusion" class="section level1">
-<h1>Conclusion</h1>
+<div id="improvement" class="section level1">
+<h1>Improvement</h1>
 <div id="how-to-improve-the-model" class="section level2">
 <h2>How to improve the model</h2>
 <p>The goal of this run is to artifically balance the classes to “cast a larger net” (increase recall) and create a better precision-recall tradeoff.</p>
 <p>Generally, my process for dealing with rare events is to down sample the data, balance the classes, and run a bagging algorithm. Then, if the model needs to be improved, two additional steps I consider is involves:</p>
-<ol style="list-style-type: decimal">
-<li><p>Running restructured models and ensembling them using a voting or stacked ensembling method. This increases the generalizability of the final model output, which is important since the restructuring usually involves a lot of manual interventions on the analyst’s part.</p></li>
-<li><p>Adapting the hard limit threshold. Normally, a binary threshold is 0.5. Reducing this number “casts a larger net” in cases of rare events. Alternatively, rebalancing efforts may lead to overprediction (i.e., low precision) on the test data. In this case, one can increase this number to compensate. This can be done by splitting the data into three sets–a train set (70%), a validation set (15%), and a test set (15%). One can then model the train set, determine an optimal threshold on the validation set, and then evaluate the final model on the test set.</p></li>
-</ol>
+<p><a>1) Running restructured models and ensembling them using a voting or stacked ensembling method.</a> This increases the generalizability of the final model output, which is important since the restructuring usually involves a lot of manual interventions on the analyst’s part. Note: some algorithms such as a random forest or generalized boosted decision trees are ensembling algorithms; what I am describing is a more manual approach that changes the preprocessing (e.g., the columns) and/or the model algorithms (e.g., running naive bayes, logistic regressions, and random forests in parallel) to increase the distinctness between models and therefore the generalization of the final results.</p>
+<p><a>2) Adapting the hard limit threshold.</a> Normally, a binary threshold is 0.5. Reducing this number “casts a larger net” in cases of rare events. Alternatively, rebalancing efforts may lead to overprediction (i.e., low precision) on the test data. In this case, one can increase this number to compensate. This can be done by splitting the data into three sets–a train set (70%), a validation set (15%), and a test set (15%). One can then model the train set, determine an optimal threshold on the validation set, and then evaluate the final model on the test set.</p>
 <p>It is a lot of work, but if it leads to a better precision-recall tradeoff (i.e., a less biased error), it will be worth it.</p>
 </div>
 <div id="example-3" class="section level2">
 <h2>Example</h2>
-<p>In this example, I down sample the data, balance the classes, and run a random forest bagging algorithm.</p>
+<p>In this example, I down sample the data, increase the balance of the classes to 2:3, and run a random forest bagging algorithm.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Smallest Classes</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a>nmin &lt;-<span class="st"> </span><span class="kw">min</span>(<span class="kw">table</span>(train<span class="op">$</span>Target))</span>
 <span id="cb11-3"><a href="#cb11-3"></a></span>
 <span id="cb11-4"><a href="#cb11-4"></a><span class="co"># Model</span></span>
 <span id="cb11-5"><a href="#cb11-5"></a><span class="kw">set.seed</span>(<span class="dv">2021</span>)</span>
-<span id="cb11-6"><a href="#cb11-6"></a>model_bal &lt;-<span class="st"> </span><span class="kw">randomForest</span>(<span class="dt">x =</span> train_dtm, <span class="dt">y =</span> train<span class="op">$</span>Target, <span class="dt">ntree =</span> <span class="dv">500</span>, <span class="dt">mtry =</span> <span class="fl">0.25</span> <span class="op">*</span><span class="st"> </span><span class="kw">ncol</span>(train_dtm), <span class="dt">strata =</span> train<span class="op">$</span>Target, <span class="dt">sampsize =</span> <span class="kw">rep</span>(<span class="kw">floor</span>(nmin)<span class="op">/</span><span class="dv">2</span>, </span>
-<span id="cb11-7"><a href="#cb11-7"></a>    <span class="dv">2</span>))</span>
+<span id="cb11-6"><a href="#cb11-6"></a>model_bal &lt;-<span class="st"> </span><span class="kw">randomForest</span>(<span class="dt">x =</span> train_dtm, <span class="dt">y =</span> train<span class="op">$</span>Target, <span class="dt">ntree =</span> <span class="dv">500</span>, <span class="dt">mtry =</span> <span class="fl">0.25</span> <span class="op">*</span><span class="st"> </span><span class="kw">ncol</span>(train_dtm), <span class="dt">strata =</span> train<span class="op">$</span>Target, <span class="dt">sampsize =</span> <span class="kw">c</span>(<span class="kw">floor</span>(nmin<span class="op">/</span><span class="dv">2</span>), </span>
+<span id="cb11-7"><a href="#cb11-7"></a>    <span class="kw">floor</span>(nmin<span class="op">/</span><span class="dv">3</span>)))</span>
 <span id="cb11-8"><a href="#cb11-8"></a></span>
 <span id="cb11-9"><a href="#cb11-9"></a><span class="co"># Prediction</span></span>
 <span id="cb11-10"><a href="#cb11-10"></a>pred &lt;-<span class="st"> </span><span class="kw">predict</span>(model_bal, test_dtm, <span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[, <span class="st">&quot;1 Pos&quot;</span>]</span>
@@ -788,31 +794,35 @@ Recall =   3  / (  3  +  254  )</code></pre>
 <span id="cb11-21"><a href="#cb11-21"></a></span>
 <span id="cb11-22"><a href="#cb11-22"></a><span class="kw">print</span>(<span class="st">&quot;Precision&quot;</span>, <span class="dt">quote =</span> F)</span>
 <span id="cb11-23"><a href="#cb11-23"></a>(acc<span class="op">$</span>byClass[<span class="st">&quot;Precision&quot;</span>][[<span class="dv">1</span>]] <span class="op">*</span><span class="st"> </span><span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;%&quot;</span>)</span>
-<span id="cb11-24"><a href="#cb11-24"></a></span>
-<span id="cb11-25"><a href="#cb11-25"></a><span class="kw">print</span>(<span class="st">&quot;Recall&quot;</span>, <span class="dt">quote =</span> F)</span>
-<span id="cb11-26"><a href="#cb11-26"></a>(acc<span class="op">$</span>byClass[<span class="st">&quot;Recall&quot;</span>][[<span class="dv">1</span>]] <span class="op">*</span><span class="st"> </span><span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;%&quot;</span>)</span>
-<span id="cb11-27"><a href="#cb11-27"></a></span>
-<span id="cb11-28"><a href="#cb11-28"></a><span class="kw">print</span>(<span class="st">&quot;Confusion Matrix&quot;</span>, <span class="dt">quote =</span> F)</span>
-<span id="cb11-29"><a href="#cb11-29"></a>cmat &lt;-<span class="st"> </span><span class="kw">table</span>(test_labels, test<span class="op">$</span>Target, <span class="dt">dnn =</span> <span class="kw">c</span>(<span class="st">&quot;Predicted&quot;</span>, <span class="st">&quot;Actuals&quot;</span>))</span>
-<span id="cb11-30"><a href="#cb11-30"></a>cmat</span>
-<span id="cb11-31"><a href="#cb11-31"></a><span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb11-32"><a href="#cb11-32"></a></span>
-<span id="cb11-33"><a href="#cb11-33"></a><span class="kw">print</span>(<span class="st">&quot;Distribution&quot;</span>, <span class="dt">quote =</span> F)</span>
-<span id="cb11-34"><a href="#cb11-34"></a>(<span class="kw">table</span>(test<span class="op">$</span>Target, <span class="dt">dnn =</span> <span class="st">&quot;Actual&quot;</span>)<span class="op">/</span><span class="kw">nrow</span>(test) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>)</span>
-<span id="cb11-35"><a href="#cb11-35"></a><span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb11-36"><a href="#cb11-36"></a>(<span class="kw">table</span>(test_labels, <span class="dt">dnn =</span> <span class="st">&quot;Prediction&quot;</span>)<span class="op">/</span><span class="kw">nrow</span>(test) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>)</span></code></pre></div>
+<span id="cb11-24"><a href="#cb11-24"></a><span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb11-25"><a href="#cb11-25"></a></span>
+<span id="cb11-26"><a href="#cb11-26"></a><span class="kw">print</span>(<span class="st">&quot;Recall&quot;</span>, <span class="dt">quote =</span> F)</span>
+<span id="cb11-27"><a href="#cb11-27"></a>(acc<span class="op">$</span>byClass[<span class="st">&quot;Recall&quot;</span>][[<span class="dv">1</span>]] <span class="op">*</span><span class="st"> </span><span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;%&quot;</span>)</span>
+<span id="cb11-28"><a href="#cb11-28"></a><span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb11-29"><a href="#cb11-29"></a></span>
+<span id="cb11-30"><a href="#cb11-30"></a><span class="kw">print</span>(<span class="st">&quot;Confusion Matrix&quot;</span>, <span class="dt">quote =</span> F)</span>
+<span id="cb11-31"><a href="#cb11-31"></a>cmat &lt;-<span class="st"> </span><span class="kw">table</span>(test_labels, test<span class="op">$</span>Target, <span class="dt">dnn =</span> <span class="kw">c</span>(<span class="st">&quot;Predicted&quot;</span>, <span class="st">&quot;Actuals&quot;</span>))</span>
+<span id="cb11-32"><a href="#cb11-32"></a>cmat</span>
+<span id="cb11-33"><a href="#cb11-33"></a><span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb11-34"><a href="#cb11-34"></a></span>
+<span id="cb11-35"><a href="#cb11-35"></a><span class="kw">print</span>(<span class="st">&quot;Distribution&quot;</span>, <span class="dt">quote =</span> F)</span>
+<span id="cb11-36"><a href="#cb11-36"></a>(<span class="kw">table</span>(test<span class="op">$</span>Target, <span class="dt">dnn =</span> <span class="st">&quot;Actual&quot;</span>)<span class="op">/</span><span class="kw">nrow</span>(test) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>)</span>
+<span id="cb11-37"><a href="#cb11-37"></a><span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb11-38"><a href="#cb11-38"></a>(<span class="kw">table</span>(test_labels, <span class="dt">dnn =</span> <span class="st">&quot;Prediction&quot;</span>)<span class="op">/</span><span class="kw">nrow</span>(test) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>)</span></code></pre></div>
 <pre><code>[1] Accuracy
-[1] &quot;79.7%&quot;
+[1] &quot;85.8%&quot;
 
 [1] Precision
-[1] &quot;36.7%&quot;
+[1] &quot;46.4%&quot;
+
 [1] Recall
-[1] &quot;80.5%&quot;
+[1] &quot;69.3%&quot;
+
 [1] Confusion Matrix
            Actuals
 Predicted   0 Neg/Neu 1 Pos
-  0 Neg/Neu      1386    50
-  1 Pos           357   207
+  0 Neg/Neu      1537    79
+  1 Pos           206   178
 
 [1] Distribution
 Actual
@@ -821,8 +831,10 @@ Actual
 
 Prediction
 0 Neg/Neu     1 Pos 
-     71.8      28.2 </code></pre>
-<p>To improve beyond this, I would create multiple datasets using different document term matrix (DTM) criteria such as sparsity thresholds and types of term weighting as well as create word embedding datasets. I would then run different models, adjusting modeling parameters, and vote or stack ensemble. If this is still not successful, I would adapt the hard limit threshold.</p>
+     80.8      19.2 </code></pre>
+<p>To improve beyond this, I would probably start by adapting the hard limit threshold. This is much quicker than manually ensembling disparate models.</p>
+<p>If this is still not successful, I would then create multiple datasets using different document term matrix (DTM) criteria such as sparsity thresholds and types of term weighting as well as create word embedding datasets. I would then run different models, adjusting modeling parameters, and vote or stack ensemble.</p>
+<p>I would choose this order–adapting the hard limit then ensembling–</p>
 </div>
 </div>
 

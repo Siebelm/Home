@@ -39,9 +39,9 @@ Generalized linear models (GLM) such as <a>logistic</a>, <a>poisson</a>, and <a>
 
 There are two important limitations to R<sup>2</sup> and pseudo-R<sup>2</sup>:
     
-<mpop>1) They only apply to parametric models</mpop>
+<h6>1) They only apply to parametric models</h6>
 
-<mpop>2) It evaluates the model on the same data that produced it</mpop>
+<h6>2) It evaluates the model on the same data that produced it</h6>
 
 
 # Alternative
@@ -239,15 +239,15 @@ The goal of this run is to artifically balance the classes to "cast a larger net
 
 Generally, my process for dealing with rare events is to down sample the data, balance the classes, and run a bagging algorithm.  Then, if the model needs to be improved, two additional steps I consider is involves: 
 
-  1) Running restructured models and ensembling them using a voting or stacked ensembling method.  This increases the generalizability of the final model output, which is important since the restructuring usually involves a lot of manual interventions on the analyst's part.
+  <a>1) Running restructured models and ensembling them using a voting or stacked ensembling method.</a>  This increases the generalizability of the final model output, which is important since the restructuring usually involves a lot of manual interventions on the analyst's part.  Note: some algorithms such as a random forest or generalized boosted decision trees are ensembling algorithms; what I am describing is a more manual approach that changes the preprocessing (e.g., the columns) and/or the model algorithms (e.g., running naive bayes, logistic regressions, and random forests in parallel) to increase the distinctness between models and therefore the generalization of the final results.
   
-  2) Adapting the hard limit threshold.  Normally, a binary threshold is 0.5.  Reducing this number "casts a larger net" in cases of rare events.  Alternatively, rebalancing efforts may lead to overprediction (i.e., low precision) on the test data.  In this case, one can increase this number to compensate.  This can be done by splitting the data into three sets--a train set (70%), a validation set (15%), and a test set (15%).  One can then model the train set, determine an optimal threshold on the validation set, and then evaluate the final model on the test set.
+  <a>2) Adapting the hard limit threshold.</a>  Normally, a binary threshold is 0.5.  Reducing this number "casts a larger net" in cases of rare events.  Alternatively, rebalancing efforts may lead to overprediction (i.e., low precision) on the test data.  In this case, one can increase this number to compensate.  This can be done by splitting the data into three sets--a train set (70%), a validation set (15%), and a test set (15%).  One can then model the train set, determine an optimal threshold on the validation set, and then evaluate the final model on the test set.
   
 It is a lot of work, but if it leads to a better precision-recall tradeoff (i.e., a less biased error), it will be worth it.
 
 ## Example
 
-In this example, I  down sample the data, balance the classes, and run a random forest bagging algorithm.
+In this example, I  down sample the data, increase the balance of the classes to 2:3, and run a random forest bagging algorithm.
 
 ```{r}
 # Smallest Classes
@@ -260,7 +260,8 @@ model_bal <- randomForest(x = train_dtm,
                           ntree = 500,
                           mtry = 0.25*ncol(train_dtm),
                           strata = train$Target,
-                          sampsize = rep(floor(nmin) / 2))   
+                          sampsize = c(floor(nmin / 2),
+                                       floor(nmin / 3)))   
 
 # Prediction
 pred <- predict(model_bal, test_dtm, type = "prob")[ , "1 Pos"]
@@ -277,9 +278,11 @@ cat("\n")
 
 print("Precision", quote = F)
 ( acc$byClass["Precision"][[1]]*100 ) %>% round(1) %>% paste0("%")
+cat("\n")
 
 print("Recall", quote = F)
 ( acc$byClass["Recall"][[1]]*100 ) %>% round(1) %>% paste0("%")
+cat("\n")
 
 print("Confusion Matrix", quote = F)
 cmat <- table(test_labels, test$Target, dnn=c("Predicted", "Actuals"))
@@ -292,7 +295,11 @@ cat("\n")
 ( table(test_labels, dnn="Prediction")/nrow(test)*100 ) %>% round(1)
 ```
 
-To improve beyond this, I would create multiple datasets using different document term matrix (DTM) criteria such as sparsity thresholds and types of term weighting as well as create word embedding datasets.  I would then run different models, adjusting modeling parameters, and vote or stack ensemble.  If this is still not successful, I would adapt the hard limit threshold.
+To improve beyond this, I would probably start by adapting the hard limit threshold.  This is much quicker than manually ensembling disparate models.  
+
+If this is still not successful, I would then create multiple datasets using different document term matrix (DTM) criteria such as sparsity thresholds and types of term weighting as well as create word embedding datasets.  I would then run different models, adjusting modeling parameters, and vote or stack ensemble.  
+
+I would choose this order--adapting the hard limit then ensembling--
 
 ```{r, include=F}
 save(df, train_dtm, test_dtm, model, model_bal, file = "model_eval.RData")
