@@ -182,7 +182,7 @@ if (currentTheme) {
             <p>
                 Most of the data comes from Fannie Mae’s Loan Acquisition and Performance Data.  This contains the target variable:  mortgage loan foreclosures.  Each observation represents a loan originating or refinanced between 2006-2008.  The housing bubble and subsequent financial crisis is often noted as occurring between 2007-2009; most loans that lend to housing foreclosures originated or were refinanced only a year to three years before foreclosure, leading to a peak in loans destined for foreclosure occurring in 2007.  Refinanced loans are limited to loans originating in fiscal year 2000 or later.  The data is further limited only to loans made by the nine largest banks at the peak of risking lending (2007).  Features modeled to predict foreclosures are limited to information known at the time of loan origination except for the date of last reporting (i.e., the window in which a foreclosure could have occurred and be in the dataset).  
                 <br><br>
-                Other data was used to model loan foreclosures.  See below for a list of data sources and see <a href=”Data Wrangling.html”>Data Wrangling </a> for information on the ETL process used to gather this data:
+                Other data was used to model loan foreclosures.  See below for a list of data sources and see <a href=Data%20Wrangling.html>Data Wrangling </a> for information on the ETL process used to gather this data:
                 <br>
                 <ul><blockquote>
                 1) Fannie Mae Loan Acquisition and Performance Data [Individual Mortgage Loans],<br>
@@ -196,7 +196,7 @@ if (currentTheme) {
             
             <h2 id="Foreclosures">Foreclosures</h2>
             <p>
-                Mortgages made between 2006–2008 foreclosed at a rate of 9.7% among the top 9 banks.  These foreclosures peaked in 2007 at 10.2%.  Note, the research paper and <a href=”Data Mining.html”>Data Mining</a> scripts show that these 9 banks issued loans more likely to be foreclosed upon than smaller banks, increasing this rate from the total U.S. rate.
+                Mortgages made between 2006–2008 foreclosed at a rate of 9.7% among the top 9 banks.  These foreclosures peaked in 2007 at 10.2%.  Note, the research paper and <a href=Data%20Mining.html>Data Mining</a> scripts show that these 9 banks issued loans more likely to be foreclosed upon than smaller banks, increasing this rate from the total U.S. rate.
                 <br><br>
                 Of importance, the average mortgage amount not only grew dramatically since the year 2001, but mortgage amounts on loans that were eventually foreclosed upon increased at a higher rate, matching (and briefly exceeding) the mortgage amounts on loans not foreclosed upon.  This implies that large banks may have been willing to make riskier loans for inflated housing prices.
             </p>
@@ -390,7 +390,7 @@ if (currentTheme) {
         </div>
             <h6>Model Predictions</h6>
             <p>
-                Overall, foreclosure rates were predicted to improve from 9.7% to 6.5% if all mortgage holders had a DTI ratio of and weaken to 29% and weaken to 11.8% if all mortgage holders had a DTI ratio of 47%.  Most banks were predicted to reduce foreclosures to 5%–5.5%, with <mpop>Wells Fargo Bank</mpop> improving to 3.5% and <mpop>Bank of America</mpop> improving to only 8.9% as outliers.  Under improved assumptions, <mpop>Flagstar Banks</mpop> was predicted to have the largest decrease in foreclosures from 11.7% to 5.3%.  Under weakened assumptions, <mpop>PNC Bank</mpop> was predicted to have the largest increase in foreclosures from 8.8% to 12.5%.  Again, <mpop>Bank of America</mpop> was predicted to have the highest foreclosure rate of 14.8% under a DTI ratio of 47%.  However, one bank, <mpop>SunTrust Mortage</mpop>, decreased its foreclosure rate with weakened assumptions, showing that not all potential recipients with DTI’s were risky.
+                Overall, foreclosure rates were predicted to improve from 9.7% to 6.5% if all mortgage holders had an improved DTI ratio 29% and were predicted to worsen to a foreclosure rate of 11.8% if all mortgage holders had a weakened DTI ratio of 47%.  Most banks were predicted to reduce foreclosures to 5%–5.5%, with <mpop>Wells Fargo Bank</mpop> improving to 3.5% and <mpop>Bank of America</mpop> improving to only 8.9% as outliers.  Under improved assumptions, <mpop>Flagstar Banks</mpop> was predicted to have the largest decrease in foreclosures from 11.7% to 5.3%.  Under weakened assumptions, <mpop>PNC Bank</mpop> was predicted to have the largest increase in foreclosures from 8.8% to 12.5%.  Again, <mpop>Bank of America</mpop> was predicted to have the highest foreclosure rate of 14.8% under a DTI ratio of 47%.  However, one bank, <mpop>SunTrust Mortage</mpop>, decreased its foreclosure rate with weakened assumptions, showing that not all potential recipients with DTI’s were risky.
             </p>
         <div class="row">
             <div class="column33">
